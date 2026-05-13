@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  username      String   @unique
+  email         String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  
+  // Relation to allow user create many presets
+  presets       Preset[]
+}
+
+model Preset {
+  id           Int      @id @default(autoincrement())
+  name         String
+  systemType   String   // for example: "lorenz", "rossler", etc...
+  
+  // Allows save math parameters, example: { "sigma": 10, "rho": 28, "beta": 2.66 }
+  parameters   Json     
+  
+  // Save the camera for identical view
+  cameraConfig Json?    
+  
+  isPublic     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([systemType]) // For faster searches by system type
+}
