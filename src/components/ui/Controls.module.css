@@ -1,0 +1,77 @@
+.sidebar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 300px;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #00ffcc;
+}
+
+.controlGroup {
+  margin-bottom: 20px;
+}
+
+.controlGroup label {
+  display: block;
+  font-size: 16px;
+  color: #aaa;
+}
+
+.controlGroup input[type="range"] {
+  width: 100%;
+  accent-color: #00ffcc;
+}
+
+.value {
+  float: right;
+  color: white;
+  font-family: monospace;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #333;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.button:hover {
+  background: #444;
+}
+
+.buttonPrimary {
+  background: #00ffcc;
+  color: #000;
+}
+
+.buttonPrimary:hover {
+  background: #00e6b8;
+}
