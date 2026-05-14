@@ -1,14 +1,17 @@
-import '@/styles/App.css'
-import SimulationCanvas from '@/components/canvas/SimulationCanvas'
-import Controls from '@/components/ui/Controls'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from '@/pages/Home';
+import Library from '@/pages/Library';
+import '@/styles/App.css';
 
 function App() {
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <SimulationCanvas />
-      <Controls />
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/library" element={<Library />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

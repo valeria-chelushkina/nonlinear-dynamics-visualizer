@@ -31,7 +31,7 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });
 });
 
-// Route to save some parameters of a preset
+// Save some parameters of a preset
 app.post('/api/presets', async (req, res) => {
     try {
         const { name, systemType, parameters, userId } = req.body;
@@ -50,6 +50,19 @@ app.post('/api/presets', async (req, res) => {
         res.status(500).json({ error: 'Failed to save a preset' });
     }
 });
+
+// Get all presets - from newest to oldest
+app.get('/api/presets', async (req, res) => {
+    try{
+        const allPresets = await prisma.preset.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(allPresets);
+    } catch(error) {
+        res.status(500).json({ error: 'Failed to fetch presets' })
+    }
+})
+
 
 // Route to get a seed for test user and upsert it to DB
 app.get('/api/seed-user', async (req, res) => {

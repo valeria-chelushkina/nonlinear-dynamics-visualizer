@@ -19,6 +19,7 @@ interface SimulationState {
   togglePause: () => void;
   setSpeed: (speed: number) => void;
   resetSimulation: () => void;
+  loadPreset: (newParams: LorenzParams) => void; //LorenzParams - temporary (until other models are added)
 }
 
 const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
@@ -49,4 +50,16 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setSpeed: (speed) => set({ speed }),
   
   resetSimulation: () => set({ points: [INITIAL_POINT] }),
+
+  loadPreset: (newParams: LorenzParams) => {
+    set({
+      params: newParams,
+      points: [[0.1, 0.1, 0.1]], // reset
+      isPaused: true
+    });
+    setTimeout(() => {
+      set({ isPaused: false });
+    }, 50);
+  },
+
 }));

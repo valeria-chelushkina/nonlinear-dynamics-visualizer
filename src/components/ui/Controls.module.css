@@ -100,8 +100,13 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
+  font-weight: 600;
 }
 
 .buttonPrimary:hover {
   background: #00e6b8;
+}
+
+.section {
+  width: 100%;
 }

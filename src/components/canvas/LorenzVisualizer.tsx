@@ -15,8 +15,14 @@ const LorenzVisualizer: React.FC = () => {
   useFrame((_state, delta) => {
     if (isPaused) return;
 
+    // If points were reset - wait one frame
+    if(points.length < 1) return;
+
     // Simulation step
     const lastPoint = points[points.length - 1];
+
+    if(!lastPoint) return;
+
     // Run multiple sub-steps per frame for better stability or speed
     const subSteps = 5;
     const dt = (delta * speed) / subSteps;
