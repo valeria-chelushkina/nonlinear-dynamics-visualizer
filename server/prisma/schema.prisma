@@ -18,6 +18,8 @@ model User {
   
   // Relation to allow user create many presets
   presets       Preset[]
+
+  @@map("users")
 }
 
 model Preset {
@@ -37,5 +39,6 @@ model Preset {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([systemType]) // For faster searches by system type
+  @@index([systemType]) // for faster searches by system type
+  @@map("presets")
 }

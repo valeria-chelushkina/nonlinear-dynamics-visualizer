@@ -25,24 +25,53 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Some test routes to check if server works
 
+// Route to check if server works
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'Server is running' });
 });
 
-app.get('/api/presets', async (req, res) => {
+// Route to save some parameters of a preset
+app.post('/api/presets', async (req, res) => {
     try {
-        const presets = await prisma.preset.findMany({
-            where: { isPublic: true },
-            include: { user: { select: { username: true } } }
+        const { name, systemType, parameters, userId } = req.body;
+        const newPreset = await prisma.preset.create({
+            data: {
+                name,
+                systemType,
+                parameters,
+                userId
+            }
         });
-        res.json(presets);
+
+        res.status(201).json(newPreset);
     } catch (error) {
-        console.error('Fetch error:', error);
-        res.status(500).json({ error: 'Failed to fetch presets' });
+        console.error('Save error:', error);
+        res.status(500).json({ error: 'Failed to save a preset' });
     }
 });
+
+// Route to get a seed for test user and upsert it to DB
+app.get('/api/seed-user', async (req, res) => {
+    try{
+        const user = await prisma.user.upsert({
+            where: { email: 'testEmail@test.com' },
+            update: {},
+            create: {
+                username: 'TestUser',
+                email: 'testEmail@test.com',
+                passwordHash: 'just-for-test-hash'
+            }
+        });
+        res.json({ message: 'Test user is ready.', userId: user.id});
+    } catch(error) {
+        if(error instanceof Error)
+            res.status(500).json({ error: error.message });
+        else
+            res.status(500).json({ error: 'An unknown error occured.' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
