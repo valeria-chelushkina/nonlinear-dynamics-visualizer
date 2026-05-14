@@ -1,0 +1,22 @@
+.singleLayout {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.splitLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #000;
+}
+
+.viewPane {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

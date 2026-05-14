@@ -1,12 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
+import type { Side } from '@/store/useSimulationStore';
 import styles from './Controls.module.css';
-import { Play, Pause, RotateCcw, BookOpen, Save } from 'lucide-react';
+import { Play, Pause, RotateCcw, Columns } from 'lucide-react';
 
-const Controls: React.FC = () => {
+interface ControlsProps {
+  side?: Side;
+}
+
+const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
   const navigate = useNavigate();
-  const { params, setParams, isPaused, togglePause, resetSimulation, speed, setSpeed } = useSimulationStore();
+  const sim = useSimulationStore((state) => state.sims[side]);
+  const comparisonMode = useSimulationStore((state) => state.comparisonMode);
+  const toggleComparison = useSimulationStore((state) => state.toggleComparison);
+  
+  const { 
+    setParams, 
+    togglePause, 
+    resetSimulation, 
+    setSpeed 
+  } = useSimulationStore();
+
+  const { params, isPaused, speed } = sim;
 
   const [presetName, setPresetName] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
@@ -39,8 +55,19 @@ const Controls: React.FC = () => {
   };
 
   return (
-    <div className={styles.sidebar}>
-      <h2>Lorenz Attractor</h2>
+    <div className={`${styles.sidebar} ${side === 'right' ? styles.sidebarRight : ''}`}>
+      <div className={styles.headerRow}>
+        <h2>{side.toUpperCase()} View</h2>
+        {side === 'left' && (
+          <button 
+            className={`${styles.iconButton} ${comparisonMode ? styles.active : ''}`}
+            onClick={toggleComparison}
+            title={comparisonMode ? "Disable Split View" : "Enable Split View"}
+          >
+            <Columns size={20} />
+          </button>
+        )}
+      </div>
       
       <div className={styles.section}>
         <div className={styles.controlGroup}>
@@ -53,7 +80,7 @@ const Controls: React.FC = () => {
             max="50" 
             step="0.1" 
             value={params.sigma} 
-            onChange={(e) => setParams({ sigma: parseFloat(e.target.value) })}
+            onChange={(e) => setParams(side, { sigma: parseFloat(e.target.value) })}
           />
         </div>
 
@@ -67,7 +94,7 @@ const Controls: React.FC = () => {
             max="100" 
             step="0.1" 
             value={params.rho} 
-            onChange={(e) => setParams({ rho: parseFloat(e.target.value) })}
+            onChange={(e) => setParams(side, { rho: parseFloat(e.target.value) })}
           />
         </div>
 
@@ -81,7 +108,7 @@ const Controls: React.FC = () => {
             max="10" 
             step="0.01" 
             value={params.beta} 
-            onChange={(e) => setParams({ beta: parseFloat(e.target.value) })}
+            onChange={(e) => setParams(side, { beta: parseFloat(e.target.value) })}
           />
         </div>
 
@@ -95,19 +122,19 @@ const Controls: React.FC = () => {
             max="5" 
             step="0.1" 
             value={speed} 
-            onChange={(e) => setSpeed(parseFloat(e.target.value))}
+            onChange={(e) => setSpeed(side, parseFloat(e.target.value))}
           />
         </div>
 
         <div className={styles.buttonGroup}>
           <button 
             className={`${styles.button} ${isPaused ? styles.buttonPrimary : ''}`} 
-            onClick={togglePause}
+            onClick={() => togglePause(side)}
           >
             {isPaused ? <Play size={18} /> : <Pause size={18} />}
             {isPaused ? 'Resume' : 'Pause'}
           </button>
-          <button className={styles.button} onClick={resetSimulation}>
+          <button className={styles.button} onClick={() => resetSimulation(side)}>
             <RotateCcw size={18} />
             Reset
           </button>
@@ -115,7 +142,7 @@ const Controls: React.FC = () => {
       </div>
 
       <div className={styles.section} style={{borderTop: '1px solid #333', marginTop: '20px', paddingTop: '20px'}}>
-        <label style={{marginBottom: '10px', display: 'block', fontSize: '15px', color: '#00ffcc', fontWeight: '600'}}>SAVE PRESET</label>
+        <label style={{marginBottom: '10px', display: 'block', fontSize: '0.8rem', color: '#00ffcc'}}>SAVE PRESET</label>
         <input
           type="text"
           placeholder='Enter preset name...'
@@ -129,17 +156,17 @@ const Controls: React.FC = () => {
           onClick={handleSave}
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : 'Save to library'}
+          {isSaving ? 'Saving...' : 'Save to Gallery'}
         </button>
       </div>
 
       <div className={styles.section} style={{marginTop: '20px'}}>
         <button 
           className={styles.button} 
-          style={{width: '100%', background: '#1a1a1a', border: '1px solid #333', fontWeight: '600'}}
+          style={{width: '100%', background: '#1a1a1a', border: '1px solid #333'}}
           onClick={() => navigate('/library')}
         >
-          Open preset library
+          Open Preset Library
         </button>
       </div>
     </div>

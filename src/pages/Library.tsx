@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
+import type { Side } from '@/store/useSimulationStore';
 import { ArrowLeft, BookOpen, Clock, User } from 'lucide-react';
 import styles from './Library.module.css';
 
 const Library: React.FC = () => {
   const navigate = useNavigate();
-  const { loadPreset } = useSimulationStore();
+  const { loadPreset, comparisonMode } = useSimulationStore();
   const [presets, setPresets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [targetSide, setTargetSide] = useState<Side>('left');
 
   useEffect(() => {
     fetch('http://localhost:3000/api/presets')
@@ -23,7 +25,7 @@ const Library: React.FC = () => {
   }, []);
 
   const handleSelect = (preset: any) => {
-    loadPreset(preset.parameters);
+    loadPreset(targetSide, preset.parameters);
     navigate('/');
   };
 
@@ -37,6 +39,24 @@ const Library: React.FC = () => {
         <div className={styles.titleGroup}>
           <h1>Preset library</h1>
         </div>
+        
+        {comparisonMode && (
+          <div className={styles.sideSelector}>
+            <span>Load into:</span>
+            <button 
+              className={`${styles.sideButton} ${targetSide === 'left' ? styles.active : ''}`}
+              onClick={() => setTargetSide('left')}
+            >
+              Left view
+            </button>
+            <button 
+              className={`${styles.sideButton} ${targetSide === 'right' ? styles.active : ''}`}
+              onClick={() => setTargetSide('right')}
+            >
+              Right view
+            </button>
+          </div>
+        )}
       </header>
 
       <main className={styles.content}>
@@ -78,7 +98,9 @@ const Library: React.FC = () => {
                   ))}
                 </div>
 
-                <button className={styles.loadButton}>Load model</button>
+                <button className={styles.loadButton}>
+                  Load into {targetSide.toUpperCase()}
+                </button>
               </div>
             ))}
           </div>

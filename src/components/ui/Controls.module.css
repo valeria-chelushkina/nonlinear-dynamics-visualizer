@@ -14,6 +14,43 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.sidebarRight {
+  left: auto;
+  right: 20px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.iconButton {
+  background: none;
+  border: 1px solid #333;
+  color: #666;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconButton:hover {
+  color: #00ffcc;
+  border-color: #00ffcc;
+  background: rgba(0, 255, 204, 0.05);
+}
+
+.iconButton.active {
+  color: #00ffcc;
+  border-color: #00ffcc;
+  background: rgba(0, 255, 204, 0.1);
+}
+
 .sidebar h2 {
   margin-top: 0;
   font-size: 22px;
