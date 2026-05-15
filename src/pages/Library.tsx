@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
-import { ArrowLeft, Clock, User } from 'lucide-react';
+import { ArrowLeft, Clock, User, Trash2 } from 'lucide-react';
 import styles from './Library.module.css';
 
 const Library: React.FC = () => {
@@ -25,8 +25,27 @@ const Library: React.FC = () => {
   }, []);
 
   const handleSelect = (preset: any) => {
-    loadPreset(targetSide, preset.parameters);
+    loadPreset(targetSide, preset.systemType, preset.parameters);
     navigate('/');
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation(); // Don't trigger handleSelect
+    
+    if (!confirm('Are you sure you want to delete this preset?')) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/presets/${id}`, {
+        method: 'DELETE'
+      });
+      
+      if (response.ok) {
+        setPresets(presets.filter(p => p.id !== id));
+      }
+    } catch (err) {
+      console.error('Failed to delete preset:', err);
+      alert('Failed to delete preset');
+    }
   };
 
   return (
@@ -76,7 +95,16 @@ const Library: React.FC = () => {
               >
                 <div className={styles.cardHeader}>
                   <h3>{preset.name}</h3>
-                  <span className={styles.badge}>{preset.systemType}</span>
+                  <div className={styles.cardActions}>
+                    <span className={styles.badge}>{preset.systemType}</span>
+                    <button 
+                      className={styles.deleteButton}
+                      onClick={(e) => handleDelete(e, preset.id)}
+                      title="Delete preset"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className={styles.details}>

@@ -1,17 +1,17 @@
 import { create } from 'zustand';
-import type { LorenzParams } from '@/core/systems/lorenz';
-import { DEFAULT_LORENZ_PARAMS } from '@/core/systems/lorenz';
+import { SYSTEM_REGISTRY } from '@/core/systems';
 import type { Vector3 } from '@/core/math/types';
 
+export type Side = 'left' | 'right';
+
 export interface SimulationData {
-  params: LorenzParams;
+  systemType: string;
+  params: Record<string, number>;
   points: Vector3[];
   isPaused: boolean;
   speed: number;
   maxPoints: number;
 }
-
-export type Side = 'left' | 'right';
 
 interface SimulationStore {
   sims: {
@@ -27,36 +27,41 @@ interface SimulationStore {
   screenshotSignal: { side: Side | null; timestamp: number };
 
   // Actions
-  setParams: (side: Side, params: Partial<LorenzParams>) => void;
+  setSystemType: (side: Side, type: string) => void;
+  setParams: (side: Side, params: Partial<Record<string, number>>) => void;
   addPoint: (side: Side, point: Vector3) => void;
   togglePause: (side: Side) => void;
   setSpeed: (side: Side, speed: number) => void;
   resetSimulation: (side: Side) => void;
-  loadPreset: (side: Side, newParams: LorenzParams) => void;
+  loadPreset: (side: Side, systemType: string, newParams: any) => void;
   toggleComparison: () => void;
   toggleSyncCameras: () => void;
   toggleAllPause: () => void;
   triggerScreenshot: (side: Side) => void;
   setCameraConfig: (config: { position: [number, number, number], target: [number, number, number] }) => void;
-  copyParam: (from: Side, to: Side, key: keyof LorenzParams) => void;
+  copyParam: (from: Side, to: Side, key: string) => void;
   copySpeed: (from: Side, to: Side) => void;
   syncAll: () => void;
 }
 
 const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
 
-const createDefaultSim = (): SimulationData => ({
-  params: { ...DEFAULT_LORENZ_PARAMS },
-  points: [INITIAL_POINT],
-  isPaused: false,
-  speed: 1,
-  maxPoints: 5000,
-});
+const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
+  const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY['lorenz'];
+  return {
+    systemType: system.id,
+    params: { ...system.defaultParams },
+    points: [INITIAL_POINT],
+    isPaused: false,
+    speed: 1,
+    maxPoints: 5000,
+  };
+};
 
 export const useSimulationStore = create<SimulationStore>((set) => ({
   sims: {
-    left: createDefaultSim(),
-    right: createDefaultSim(),
+    left: createDefaultSim('lorenz'),
+    right: createDefaultSim('lorenz'),
   },
   comparisonMode: false,
   syncCameras: false,
@@ -71,6 +76,17 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   triggerScreenshot: (side) => set({ 
     screenshotSignal: { side, timestamp: Date.now() } 
   }),
+
+  setSystemType: (side, type) => 
+    set((state) => ({
+      sims: {
+        ...state.sims,
+        [side]: {
+          ...createDefaultSim(type),
+          isPaused: true,
+        }
+      }
+    })),
 
   setParams: (side, newParams) =>
     set((state) => ({
@@ -144,12 +160,13 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
     }, 100);
   },
 
-  loadPreset: (side, newParams) => {
+  loadPreset: (side, systemType, newParams) => {
     set((state) => ({
       sims: {
         ...state.sims,
         [side]: {
           ...state.sims[side],
+          systemType,
           params: newParams,
           points: [],
           isPaused: true,
@@ -172,7 +189,6 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       comparisonMode: !state.comparisonMode,
     })),
 
-
   toggleSyncCameras: () => set(state => ({ syncCameras: !state.syncCameras })),
   
   toggleAllPause: () => set(state => {
@@ -185,18 +201,25 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
     };
   }),
 
-  copyParam: (from, to, key) => set(state => ({
-    sims: {
-      ...state.sims,
-      [to]: {
-        ...state.sims[to],
-        params: {
-          ...state.sims[to].params,
-          [key]: state.sims[from].params[key]
+  copyParam: (from, to, key) => set(state => {
+    const fromSim = state.sims[from];
+    const toSim = state.sims[to];
+    
+    if (fromSim.systemType !== toSim.systemType) return state;
+
+    return {
+      sims: {
+        ...state.sims,
+        [to]: {
+          ...state.sims[to],
+          params: {
+            ...state.sims[to].params,
+            [key]: fromSim.params[key]
+          }
         }
       }
-    }
-  })),
+    };
+  }),
 
   copySpeed: (from, to) => set(state => ({
     sims: {

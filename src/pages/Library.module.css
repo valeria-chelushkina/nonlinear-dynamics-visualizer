@@ -83,6 +83,31 @@
   color: white;
 }
 
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.deleteButton {
+  background: none;
+  border: 1px solid rgb(58, 58, 58);
+  color: rgb(100, 100, 100);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+}
+
+.deleteButton:hover {
+  color: #ff4d4d;
+  border-color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.05);
+}
+
 .badge {
   background: rgba(0, 255, 204, 0.1);
   color: #00ffcc;

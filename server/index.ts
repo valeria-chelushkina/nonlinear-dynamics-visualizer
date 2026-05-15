@@ -63,6 +63,20 @@ app.get('/api/presets', async (req, res) => {
     }
 })
 
+// Delete a preset
+app.delete('/api/presets/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.preset.delete({
+            where: { id: parseInt(id) }
+        });
+        res.json({ message: 'Preset deleted successfully' });
+    } catch (error) {
+        console.error('Delete error:', error);
+        res.status(500).json({ error: 'Failed to delete preset' });
+    }
+});
+
 
 // Route to get a seed for test user and upsert it to DB
 app.get('/api/seed-user', async (req, res) => {
