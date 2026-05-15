@@ -24,6 +24,7 @@ interface SimulationStore {
     position: [number, number, number];
     target: [number, number, number];
   };
+  screenshotSignal: { side: Side | null; timestamp: number };
 
   // Actions
   setParams: (side: Side, params: Partial<LorenzParams>) => void;
@@ -35,6 +36,7 @@ interface SimulationStore {
   toggleComparison: () => void;
   toggleSyncCameras: () => void;
   toggleAllPause: () => void;
+  triggerScreenshot: (side: Side) => void;
   setCameraConfig: (config: { position: [number, number, number], target: [number, number, number] }) => void;
   copyParam: (from: Side, to: Side, key: keyof LorenzParams) => void;
   copySpeed: (from: Side, to: Side) => void;
@@ -62,8 +64,13 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
     position: [-108, 30, 40],
     target: [0, 25, 0],
   },
+  screenshotSignal: { side: null, timestamp: 0 },
 
   setCameraConfig: (config) => set({ cameraConfig: config }),
+
+  triggerScreenshot: (side) => set({ 
+    screenshotSignal: { side, timestamp: Date.now() } 
+  }),
 
   setParams: (side, newParams) =>
     set((state) => ({

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
 import styles from './Controls.module.css';
-import { Play, Pause, RotateCcw, Columns, ArrowRightLeft, Link, Link2Off } from 'lucide-react';
+import { Play, Pause, RotateCcw, Columns, ArrowRightLeft, Link, Link2Off, Camera } from 'lucide-react';
 
 interface ControlsProps {
   side?: Side;
@@ -14,7 +14,7 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
-  
+
   const { 
     setParams, 
     togglePause, 
@@ -23,10 +23,12 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
     toggleComparison,
     toggleSyncCameras,
     toggleAllPause,
+    triggerScreenshot,
     copyParam,
     copySpeed,
     syncAll
   } = useSimulationStore();
+
 
   const { params, isPaused, speed } = sim;
   const bothPaused = useSimulationStore(state => state.sims.left.isPaused && state.sims.right.isPaused);
@@ -68,6 +70,13 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
       <div className={styles.headerRow}>
         <h2>{side.toUpperCase()} View</h2>
         <div className={styles.headerActions}>
+          <button 
+            className={styles.iconButton}
+            onClick={() => triggerScreenshot(side)}
+            title="Capture Screenshot"
+          >
+            <Camera size={20} />
+          </button>
           {side === 'left' && (
             <>
               <button 

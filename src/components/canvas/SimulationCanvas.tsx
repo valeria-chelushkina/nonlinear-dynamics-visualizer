@@ -10,6 +10,29 @@ interface SimulationCanvasProps {
   side?: Side;
 }
 
+const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
+  const { gl, scene, camera } = useThree();
+  const signal = useSimulationStore((state) => state.screenshotSignal);
+
+  useEffect(() => {
+    if (signal.side === side && signal.timestamp > 0) {
+      gl.render(scene, camera);
+      try {
+        const dataUrl = gl.domElement.toDataURL('image/png');
+        const link = document.createElement('a');
+        const filename = `nonlinear-sim-${side}-${Date.now()}.png`;
+        link.setAttribute('download', filename);
+        link.setAttribute('href', dataUrl);
+        link.click();
+      } catch (err) {
+        console.error("Failed to capture screenshot:", err);
+      }
+    }
+  }, [signal, side, gl, scene, camera]);
+
+  return null;
+};
+
 const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
@@ -68,6 +91,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) =>
         <pointLight position={[100, 100, 100]} />
         
         <CameraSync side={side} />
+        <ScreenshotHandler side={side} />
         
         <axesHelper args={[50]} />
         
