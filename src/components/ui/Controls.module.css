@@ -163,6 +163,23 @@
   box-shadow: 0 0 8px rgba(0, 255, 204, 0.125);
 }
 
+.selectInput {
+  width: 100%;
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  margin-bottom: 5px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.selectInput:focus {
+  border-color: #00ffcc;
+}
+
 .textInput::placeholder{
   color: rgb(104, 104, 104);
   font-style: italic;

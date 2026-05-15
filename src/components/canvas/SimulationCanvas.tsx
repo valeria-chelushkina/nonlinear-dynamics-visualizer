@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
-import LorenzVisualizer from '@/components/canvas/LorenzVisualizer';
+import SimulationVisualizer from '@/components/canvas/SimulationVisualizer';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
 import * as THREE from 'three';
@@ -76,7 +76,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
         enablePan={true}
         onChange={handleCameraChange}
       />
-      <LorenzVisualizer side={side} />
+      <SimulationVisualizer side={side} />
     </>
   );
 };

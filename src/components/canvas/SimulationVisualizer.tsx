@@ -4,29 +4,30 @@ import * as THREE from 'three';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
 import { rk4 } from '@/core/math/integrator';
-import { lorenzDerivative } from '@/core/systems/lorenz';
+import { SYSTEM_REGISTRY } from '@/core/systems';
 
-interface LorenzVisualizerProps {
+interface SimulationVisualizerProps {
   side?: Side;
 }
 
-const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) => {
+const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const addPoint = useSimulationStore((state) => state.addPoint);
   
-  const { params, points, isPaused, speed } = sim;
+  const { systemType, params, points, isPaused, speed } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
-  // Derivative function based on current params
-  const derivative = useMemo(() => lorenzDerivative(params), [params]);
+  // Derivative function loaded from registry
+  const derivative = useMemo(() => {
+    const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY['lorenz']; // lorenz - standard model
+    return system.getDerivative(params);
+  }, [systemType, params]);
 
   useFrame((_state, delta) => {
     if (isPaused) return;
-
     if (points.length === 0) return;
 
     const cappedDelta = Math.min(delta, 0.05);
-
     const lastPoint = points[points.length - 1];
     if (!lastPoint) return;
 
@@ -41,7 +42,6 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
     addPoint(side, currentPoint);
   });
 
-  // Convert points to Three.js positions
   const positions = useMemo(() => {
     if (points.length < 2) return new Float32Array(0);
 
@@ -53,8 +53,6 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
     }
     return flatPositions;
   }, [points]);
-
-    const lineObject = useMemo(() => new THREE.Line(), []);
 
   useEffect(() => {
     if (geometryRef.current && positions.length > 0) {
@@ -69,16 +67,16 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
   if (points.length < 5) return null;
 
   return (
-    <primitive object={lineObject} frustumCulled={false}>
-    <bufferGeometry ref={geometryRef} />
-    <lineBasicMaterial 
-      color={side === 'left' ? "#00ffcc" : "#ff3e00"} 
-      linewidth={1} 
-      transparent 
-      opacity={0.8}
-    />
-  </primitive>
+    <primitive object={new THREE.Line()} frustumCulled={false}>
+      <bufferGeometry ref={geometryRef} />
+      <lineBasicMaterial 
+        color={side === 'left' ? "#00ffcc" : "#ff3e00"} 
+        linewidth={1} 
+        transparent 
+        opacity={0.8}
+      />
+    </primitive>
   );
 };
 
-export default LorenzVisualizer;
+export default SimulationVisualizer;
