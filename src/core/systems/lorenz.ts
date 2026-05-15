@@ -1,29 +1,24 @@
-import type { Vector3, DerivativeFn } from '@/core/math/types';
+import type { Vector3 } from '@/core/math/types';
+import type { SystemDefinition } from './types';
 
-export interface LorenzParams {
-  sigma: number;
-  rho: number;
-  beta: number;
-}
-
-/**
- * Lorenz System Equations:
- * dx/dt = sigma * (y - x)
- * dy/dt = x * (rho - z) - y
- * dz/dt = x * y - beta * z
- */
-export const lorenzDerivative = (params: LorenzParams): DerivativeFn => {
-  return ([x, y, z]): Vector3 => {
-    return [
+export const lorenzSystem: SystemDefinition = {
+  id: 'lorenz',
+  name: 'Lorenz Attractor',
+  defaultParams: {
+    sigma: 10,
+    rho: 28,
+    beta: 8 / 3,
+  },
+  getDerivative: (params) => {
+    return ([x, y, z]): Vector3 => [
       params.sigma * (y - x),
       x * (params.rho - z) - y,
       x * y - params.beta * z
     ];
-  };
-};
-
-export const DEFAULT_LORENZ_PARAMS: LorenzParams = {
-  sigma: 10,
-  rho: 28,
-  beta: 8 / 3,
+  },
+  sliders: [
+    { key: 'sigma', label: 'Sigma (σ)', min: 0, max: 50, step: 0.1 },
+    { key: 'rho', label: 'Rho (ρ)', min: 0, max: 100, step: 0.1 },
+    { key: 'beta', label: 'Beta (β)', min: 0, max: 10, step: 0.01 },
+  ]
 };
