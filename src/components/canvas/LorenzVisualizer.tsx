@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSimulationStore } from '@/store/useSimulationStore';
@@ -15,7 +15,7 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
   const addPoint = useSimulationStore((state) => state.addPoint);
   
   const { params, points, isPaused, speed } = sim;
-  const lineRef = useRef<THREE.Line>(null);
+  const geometryRef = useRef<THREE.BufferGeometry>(null);
 
   // Derivative function based on current params
   const derivative = useMemo(() => lorenzDerivative(params), [params]);
@@ -23,17 +23,15 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
   useFrame((_state, delta) => {
     if (isPaused) return;
 
-    // If points were reset - wait one frame
-    if(points.length < 1) return;
+    if (points.length === 0) return;
 
-    // Simulation step
+    const cappedDelta = Math.min(delta, 0.05);
+
     const lastPoint = points[points.length - 1];
+    if (!lastPoint) return;
 
-    if(!lastPoint) return;
-
-    // Run multiple sub-steps per frame for better stability or speed
     const subSteps = 5;
-    const dt = (delta * speed) / subSteps;
+    const dt = (cappedDelta * speed) / subSteps;
     
     let currentPoint = lastPoint;
     for (let i = 0; i < subSteps; i++) {
@@ -45,28 +43,41 @@ const LorenzVisualizer: React.FC<LorenzVisualizerProps> = ({ side = 'left' }) =>
 
   // Convert points to Three.js positions
   const positions = useMemo(() => {
+    if (points.length < 2) return new Float32Array(0);
+
     const flatPositions = new Float32Array(points.length * 3);
     for (let i = 0; i < points.length; i++) {
-      flatPositions[i * 3] = points[i][0];     // Three X = Math X
-      flatPositions[i * 3 + 1] = points[i][2]; // Three Y = Math Z
-      flatPositions[i * 3 + 2] = points[i][1]; // Three Z = Math Y
+      flatPositions[i * 3] = points[i][0];     
+      flatPositions[i * 3 + 1] = points[i][2]; 
+      flatPositions[i * 3 + 2] = points[i][1]; 
     }
     return flatPositions;
   }, [points]);
 
+    const lineObject = useMemo(() => new THREE.Line(), []);
+
+  useEffect(() => {
+    if (geometryRef.current && positions.length > 0) {
+      geometryRef.current.setAttribute(
+        'position',
+        new THREE.BufferAttribute(positions, 3)
+      );
+      geometryRef.current.attributes.position.needsUpdate = true;
+    }
+  }, [positions]);
+
+  if (points.length < 5) return null;
+
   return (
-    <primitive object={new THREE.Line()} ref={lineRef} frustumCulled={false}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
-          itemSize={3}
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color={side === 'left' ? "#00ffcc" : "#ff3e00"} linewidth={1} />
-    </primitive>
+    <primitive object={lineObject} frustumCulled={false}>
+    <bufferGeometry ref={geometryRef} />
+    <lineBasicMaterial 
+      color={side === 'left' ? "#00ffcc" : "#ff3e00"} 
+      linewidth={1} 
+      transparent 
+      opacity={0.8}
+    />
+  </primitive>
   );
 };
 

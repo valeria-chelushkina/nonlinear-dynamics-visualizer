@@ -1,12 +1,62 @@
-import React from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useEffect, useRef } from 'react';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import LorenzVisualizer from '@/components/canvas/LorenzVisualizer';
+import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
+import * as THREE from 'three';
 
 interface SimulationCanvasProps {
   side?: Side;
 }
+
+const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
+  const { camera } = useThree();
+  const controlsRef = useRef<any>(null);
+  
+  const syncCameras = useSimulationStore((state) => state.syncCameras);
+  const sharedConfig = useSimulationStore((state) => state.cameraConfig);
+  const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
+
+  useEffect(() => {
+    if (!syncCameras || !controlsRef.current) return;
+
+    const currentPos = new THREE.Vector3().fromArray(sharedConfig.position);
+    const currentTarget = new THREE.Vector3().fromArray(sharedConfig.target);
+
+    if (camera.position.distanceTo(currentPos) > 0.01) {
+      camera.position.copy(currentPos);
+      controlsRef.current.target.copy(currentTarget);
+      controlsRef.current.update();
+    }
+  }, [sharedConfig, syncCameras, camera]);
+
+  const handleCameraChange = (e: any) => {
+    if (!syncCameras) return;
+
+    const controls = e.target;
+    const position = controls.object.position.toArray() as [number, number, number];
+    const target = controls.target.toArray() as [number, number, number];
+
+    setCameraConfig({ position, target });
+  };
+
+  return (
+    <>
+      <OrbitControls 
+        ref={controlsRef}
+        makeDefault 
+        target={[0, 25, 0]} 
+        enableDamping={true}
+        dampingFactor={0.05}
+        screenSpacePanning={true}
+        enablePan={true}
+        onChange={handleCameraChange}
+      />
+      <LorenzVisualizer side={side} />
+    </>
+  );
+};
 
 const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) => {
   return (
@@ -17,7 +67,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) =>
         <ambientLight intensity={0.5} />
         <pointLight position={[100, 100, 100]} />
         
-        <LorenzVisualizer side={side} />
+        <CameraSync side={side} />
         
         <axesHelper args={[50]} />
         
@@ -28,14 +78,6 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) =>
           <GizmoViewport axisColors={['#ff3e00', '#71ff2d', '#0070ff']} labelColor="white" />
         </GizmoHelper>
 
-        <OrbitControls 
-          makeDefault 
-          target={[0, 25, 0]} 
-          enableDamping={true}
-          dampingFactor={0.05}
-          screenSpacePanning={true}
-          enablePan={true}
-        />
         <Grid 
           infiniteGrid 
           fadeDistance={100} 

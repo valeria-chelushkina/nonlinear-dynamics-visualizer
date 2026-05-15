@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
-import { ArrowLeft, BookOpen, Clock, User } from 'lucide-react';
+import { ArrowLeft, Clock, User } from 'lucide-react';
 import styles from './Library.module.css';
 
 const Library: React.FC = () => {

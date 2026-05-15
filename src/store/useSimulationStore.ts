@@ -19,6 +19,11 @@ interface SimulationStore {
     right: SimulationData;
   };
   comparisonMode: boolean;
+  syncCameras: boolean;
+  cameraConfig: {
+    position: [number, number, number];
+    target: [number, number, number];
+  };
 
   // Actions
   setParams: (side: Side, params: Partial<LorenzParams>) => void;
@@ -28,6 +33,12 @@ interface SimulationStore {
   resetSimulation: (side: Side) => void;
   loadPreset: (side: Side, newParams: LorenzParams) => void;
   toggleComparison: () => void;
+  toggleSyncCameras: () => void;
+  toggleAllPause: () => void;
+  setCameraConfig: (config: { position: [number, number, number], target: [number, number, number] }) => void;
+  copyParam: (from: Side, to: Side, key: keyof LorenzParams) => void;
+  copySpeed: (from: Side, to: Side) => void;
+  syncAll: () => void;
 }
 
 const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
@@ -46,6 +57,13 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
     right: createDefaultSim(),
   },
   comparisonMode: false,
+  syncCameras: false,
+  cameraConfig: {
+    position: [-108, 30, 40],
+    target: [0, 25, 0],
+  },
+
+  setCameraConfig: (config) => set({ cameraConfig: config }),
 
   setParams: (side, newParams) =>
     set((state) => ({
@@ -61,11 +79,22 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   addPoint: (side, point) =>
     set((state) => {
       const sim = state.sims[side];
+      
+      if (sim.points.length > 0) {
+        const last = sim.points[sim.points.length - 1];
+        const dist = Math.sqrt(
+          Math.pow(point[0] - last[0], 2) + 
+          Math.pow(point[1] - last[1], 2) + 
+          Math.pow(point[2] - last[2], 2)
+        );
+        if (dist > 50) return state; 
+      }
+
       const newPoints = [...sim.points, point];
-      const slicedPoints = newPoints.length > sim.maxPoints 
-        ? newPoints.slice(newPoints.length - sim.maxPoints) 
+      const slicedPoints = newPoints.length > sim.maxPoints
+        ? newPoints.slice(newPoints.length - sim.maxPoints)
         : newPoints;
-        
+
       return {
         sims: {
           ...state.sims,
@@ -90,13 +119,23 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
       },
     })),
 
-  resetSimulation: (side) =>
+  resetSimulation: (side) => {
     set((state) => ({
       sims: {
         ...state.sims,
-        [side]: { ...state.sims[side], points: [INITIAL_POINT] },
+        [side]: { ...state.sims[side], points: [], isPaused: true },
       },
-    })),
+    }));
+    
+    setTimeout(() => {
+      set((state) => ({
+        sims: {
+          ...state.sims,
+          [side]: { ...state.sims[side], points: [INITIAL_POINT], isPaused: false },
+        },
+      }));
+    }, 100);
+  },
 
   loadPreset: (side, newParams) => {
     set((state) => ({
@@ -105,25 +144,78 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
         [side]: {
           ...state.sims[side],
           params: newParams,
-          points: [INITIAL_POINT],
+          points: [],
           isPaused: true,
         },
       },
     }));
-    
-    // Tiny delay to ensure React cycles before resuming
+
     setTimeout(() => {
       set((state) => ({
         sims: {
           ...state.sims,
-          [side]: { ...state.sims[side], isPaused: false },
+          [side]: { ...state.sims[side], points: [INITIAL_POINT], isPaused: false },
         },
       }));
-    }, 50);
+    }, 100);
   },
 
   toggleComparison: () =>
     set((state) => ({
       comparisonMode: !state.comparisonMode,
     })),
+
+
+  toggleSyncCameras: () => set(state => ({ syncCameras: !state.syncCameras })),
+  
+  toggleAllPause: () => set(state => {
+    const nextPaused = !state.sims.left.isPaused;
+    return {
+      sims: {
+        left: { ...state.sims.left, isPaused: nextPaused },
+        right: { ...state.sims.right, isPaused: nextPaused }
+      }
+    };
+  }),
+
+  copyParam: (from, to, key) => set(state => ({
+    sims: {
+      ...state.sims,
+      [to]: {
+        ...state.sims[to],
+        params: {
+          ...state.sims[to].params,
+          [key]: state.sims[from].params[key]
+        }
+      }
+    }
+  })),
+
+  copySpeed: (from, to) => set(state => ({
+    sims: {
+      ...state.sims,
+      [to]: {
+        ...state.sims[to],
+        speed: state.sims[from].speed
+      }
+    }
+  })),
+
+  syncAll: () => {
+    set((state) => ({
+      sims: {
+        left: { ...state.sims.left, points: [], isPaused: true },
+        right: { ...state.sims.right, points: [], isPaused: true },
+      }
+    }));
+    
+    setTimeout(() => {
+      set((state) => ({
+        sims: {
+          left: { ...state.sims.left, points: [INITIAL_POINT], isPaused: false },
+          right: { ...state.sims.right, points: [INITIAL_POINT], isPaused: false },
+        }
+      }));
+    }, 100);
+  },
 }));
