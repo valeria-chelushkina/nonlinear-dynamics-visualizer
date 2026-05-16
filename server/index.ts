@@ -90,6 +90,7 @@ app.post('/api/presets', authenticate, async (req, res) => {
 app.get('/api/presets', async (req, res) => {
     try{
         const allPresets = await prisma.preset.findMany({
+            include: { user: { select: { username: true } } },
             orderBy: { createdAt: 'desc' }
         });
         res.json(allPresets);
@@ -99,9 +100,24 @@ app.get('/api/presets', async (req, res) => {
 })
 
 // Delete a preset
-app.delete('/api/presets/:id', async (req, res) => {
+app.delete('/api/presets/:id', authenticate, async (req, res) => {
+
     try {
-        const { id } = req.params;
+        const id = req.params.id as string;
+        const userId = req.userId;
+
+        const preset = await prisma.preset.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!preset) {
+            return res.status(404).json({ error: 'Preset not found' });
+        }
+
+        if (preset.userId !== userId) {
+            return res.status(403).json({ error: 'You do not have permission to delete this preset' });
+        }
+
         await prisma.preset.delete({
             where: { id: parseInt(id) }
         });

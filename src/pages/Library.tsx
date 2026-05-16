@@ -7,7 +7,7 @@ import styles from './Library.module.css';
 
 const Library: React.FC = () => {
   const navigate = useNavigate();
-  const { loadPreset, comparisonMode } = useSimulationStore();
+  const { loadPreset, comparisonMode, user, token } = useSimulationStore();
   const [presets, setPresets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [targetSide, setTargetSide] = useState<Side>('left');
@@ -36,11 +36,17 @@ const Library: React.FC = () => {
 
     try {
       const response = await fetch(`http://localhost:3000/api/presets/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       if (response.ok) {
         setPresets(presets.filter(p => p.id !== id));
+      } else {
+        const errData = await response.json();
+        alert(errData.error || 'Failed to delete preset');
       }
     } catch (err) {
       console.error('Failed to delete preset:', err);
@@ -93,20 +99,22 @@ const Library: React.FC = () => {
                   <h3>{preset.name}</h3>
                   <div className={styles.cardActions}>
                     <span className={styles.badge}>{preset.systemType}</span>
-                    <button 
-                      className={styles.deleteButton}
-                      onClick={(e) => handleDelete(e, preset.id)}
-                      title="Delete preset"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {user && user.id === preset.userId && (
+                      <button 
+                        className={styles.deleteButton}
+                        onClick={(e) => handleDelete(e, preset.id)}
+                        title="Delete preset"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
                 
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
                     <User size={14} />
-                    <span>TestUser</span>
+                    <span>{preset.user?.username || 'Unknown'}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <Clock size={14} />
