@@ -4,6 +4,21 @@ import type { SystemDefinition } from './types';
 export const lorenzSystem: SystemDefinition = {
   id: 'lorenz',
   name: 'Lorenz Attractor',
+  description: 'First discovered by Edward Lorenz in 1963, this system represents a simplified mathematical model for atmospheric convection. It is world-famous for demonstrating the "Butterfly Effect," where tiny differences in initial conditions lead to widely diverging outcomes.',
+  equations: [
+    "dx/dt = σ(y - x)",
+    "dy/dt = x(ρ - z) - y",
+    "dz/dt = xy - βz"
+  ],
+  history: 'Lorenz discovered this while creating a simplified weather model. He noticed that tiny rounding errors in his computer calculations (like 0.506127 vs 0.506) led to completely different weather predictions. This revelation helped establish that: Deterministic systems can be unpredictable; Long-term weather forecasting has fundamental limits; Chaos is a natural phenomenon, not just mathematical curiosity',
+  use: [
+    "Weather patterns and atmospheric convection",
+    "Laser dynamics",
+    "Chemical reactions",
+    "Population dynamics",
+    "Economic models",
+    "Neural networks",
+  ],
   defaultParams: {
     sigma: 10,
     rho: 28,

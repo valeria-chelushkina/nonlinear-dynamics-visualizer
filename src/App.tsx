@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from '@/pages/Home';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SimulationPage from '@/pages/SimulationPage';
 import Library from '@/pages/Library';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
@@ -13,7 +13,12 @@ function App() {
         <Header />
         <main style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            {/* Redirect root to lorenz simulation */}
+            <Route path="/" element={<Navigate to="/sim/lorenz" replace />} />
+            
+            {/* Dynamic simulation route */}
+            <Route path="/sim/:id" element={<SimulationPage />} />
+            
             <Route path="/library" element={<Library />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

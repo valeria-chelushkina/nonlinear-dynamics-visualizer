@@ -107,10 +107,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set((state) => ({
       sims: {
         ...state.sims,
-        [side]: {
-          ...createDefaultSim(type),
-          isPaused: true,
-        }
+        [side]: createDefaultSim(type)
       }
     })),
 

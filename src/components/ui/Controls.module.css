@@ -1,29 +1,17 @@
-.sidebar {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 300px;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(8px);
-  padding: 20px;
-  border-radius: 12px;
+.controlsContainer {
+  display: flex;
+  flex-direction: column;
   color: white;
   font-family: 'Inter', sans-serif;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebarRight {
-  left: auto;
-  right: 20px;
+  width: 100%;
 }
 
 .headerRow {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 20px;
+  gap: 15px;
 }
 
 .headerActions {
@@ -37,6 +25,8 @@
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
+  width: auto;
+  margin: auto;
 }
 
 .masterLabel {
@@ -48,25 +38,50 @@
   letter-spacing: 1px;
 }
 
+.buttonGroup{
+  display: flex;
+  gap: 10px;
+}
+
 .butterflySection {
   background: rgba(0, 255, 204, 0.05);
   border: 1px solid rgba(0, 255, 204, 0.2);
   padding: 15px;
   border-radius: 8px;
+  width: auto;
+  margin: auto;
+}
+
+.paramsGrid {
+  border-top: 1px solid #222;
+  padding-top: 20px;
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
   margin-bottom: 20px;
 }
 
-.checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: #00ffcc;
-  cursor: pointer;
+.controlGroup {
+  margin-bottom: 10px;
+}
+
+.controlGroup label {
+  display: block;
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 5px;
 }
 
 .inputRow {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.controlGroup input[type="range"] {
+  flex: 1;
+  accent-color: #00ffcc;
 }
 
 .copyButton {
@@ -95,7 +110,6 @@
   color: #00ffcc;
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -124,80 +138,10 @@
   justify-content: center;
 }
 
-.iconButton:hover {
+.iconButton:hover, .iconButton.active {
   color: #00ffcc;
   border-color: #00ffcc;
   background: rgba(0, 255, 204, 0.05);
-}
-
-.iconButton.active {
-  color: #00ffcc;
-  border-color: #00ffcc;
-  background: rgba(0, 255, 204, 0.1);
-}
-
-.sidebar h2 {
-  margin-top: 0;
-  font-size: 22px;
-  font-weight: 600;
-  color: #00ffcc;
-}
-
-.controlGroup {
-  margin-bottom: 20px;
-}
-
-.controlGroup label {
-  display: block;
-  font-size: 16px;
-  color: rgb(211, 211, 211);
-}
-
-.controlGroup input[type="range"] {
-  width: 100%;
-  accent-color: #00ffcc;
-}
-
-.textInput {
-  width: 100%;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgb(62, 62, 62);
-  border-radius: 5px;
-  color: white;
-  font-size: 15px;
-  margin-bottom: 5px;
-  outline: none;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.textInput:focus{
-  border-color: #00ffcc;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 8px rgba(0, 255, 204, 0.125);
-}
-
-.selectInput {
-  width: 100%;
-  padding: 10px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
-  margin-bottom: 5px;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.selectInput:focus {
-  border-color: #00ffcc;
-}
-
-.textInput::placeholder{
-  color: rgb(104, 104, 104);
-  font-style: italic;
 }
 
 .value {
@@ -206,34 +150,36 @@
   font-family: monospace;
 }
 
-.buttonGroup {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
 .button {
   flex: 1;
   padding: 10px;
   border: none;
   border-radius: 6px;
-  background: #333;
+  background: #222;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  font-size: 15px;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .button:hover {
-  background: #444;
+  background: #333;
+}
+
+.button.active{
+  background: #00ffcce7;
+  color: black;
+  font-weight: 500;
 }
 
 .buttonPrimary {
   background: #00ffcc;
-  color: #000;
+  color: black;
   padding: 10px;
   border: none;
   border-radius: 6px;
@@ -242,12 +188,23 @@
   font-weight: 600;
 }
 
-.buttonPrimary:hover {
-  background: #00e6b8;
+.saveSection {
+  margin-top: 30px;
+  border-top: 1px solid #333;
+  padding-top: 20px;
+  display: flex;
+  gap: 30px;
+  justify-content: center;
 }
 
-.section {
-  width: 100%;
+.textInput {
+  padding: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: white;
+  outline: none;
+  font-size: 17px;
 }
 
 .loginMessage {
@@ -259,5 +216,4 @@
   font-size: 0.85rem;
   text-align: center;
   font-style: italic;
-  margin-top: 10px;
 }

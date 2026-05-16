@@ -26,7 +26,7 @@ const Library: React.FC = () => {
 
   const handleSelect = (preset: any) => {
     loadPreset(targetSide, preset.systemType, preset.parameters);
-    navigate('/');
+    navigate(`/sim/${preset.systemType}`);
   };
 
   const handleDelete = async (e: React.MouseEvent, id: number) => {

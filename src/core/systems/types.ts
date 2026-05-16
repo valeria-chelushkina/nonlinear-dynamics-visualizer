@@ -11,6 +11,10 @@ export interface SliderConfig {
 export interface SystemDefinition {
   id: string;
   name: string;
+  description: string;
+  equations: string[];
+  history: string;
+  use: string[];
   defaultParams: Record<string, number>;
   getDerivative: (params: any) => DerivativeFn;
   sliders: SliderConfig[];
