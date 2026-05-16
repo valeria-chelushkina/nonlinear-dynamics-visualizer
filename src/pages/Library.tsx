@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
-import { ArrowLeft, Clock, User, Trash2 } from 'lucide-react';
+import { Clock, User, Trash2 } from 'lucide-react';
 import styles from './Library.module.css';
 
 const Library: React.FC = () => {
@@ -51,10 +51,6 @@ const Library: React.FC = () => {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button className={styles.backButton} onClick={() => navigate('/')}>
-          <ArrowLeft size={20} />
-          Back to simulation
-        </button>
         <div className={styles.titleGroup}>
           <h1>Preset library</h1>
         </div>

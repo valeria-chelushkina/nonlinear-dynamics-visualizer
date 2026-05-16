@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
 import { SYSTEM_REGISTRY, SYSTEM_LIST } from '@/core/systems';
@@ -11,7 +10,6 @@ interface ControlsProps {
 }
 
 const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
-  const navigate = useNavigate();
   const sim = useSimulationStore((state) => state.sims[side]);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
@@ -164,20 +162,14 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
           value={presetName} onChange={(e) => setPresetName(e.target.value)}
         />
         {user ? (
-<button className={styles.buttonPrimary} style={{width: '100%', marginTop: '10px'}} onClick={handleSave} disabled={isSaving}>
-          Save to gallery
-        </button>
-        ) : (<p>Login to save</p>)}
-        
-      </div>
-
-      <div className={styles.section} style={{marginTop: '20px'}}>
-        <button 
-          className={styles.button} style={{width: '100%', background: '#1a1a1a', border: '1px solid #333'}}
-          onClick={() => navigate('/library')}
-        >
-          Open preset library
-        </button>
+          <button className={styles.buttonPrimary} style={{width: '100%', marginTop: '10px'}} onClick={handleSave} disabled={isSaving}>
+            Save to gallery
+          </button>
+        ) : (
+          <div className={styles.loginMessage}>
+            Login to save your creations
+          </div>
+        )}
       </div>
     </div>
   );
