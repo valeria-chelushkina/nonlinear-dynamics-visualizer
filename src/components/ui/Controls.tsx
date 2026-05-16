@@ -13,6 +13,8 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
+  const butterflyMode = useSimulationStore((state) => state.butterflyMode);
+  const initialDifference = useSimulationStore((state) => state.initialDifference);
   const user = useSimulationStore((state) => state.user);
   const token = useSimulationStore((state) => state.token);
   const { 
@@ -27,7 +29,10 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
     triggerScreenshot,
     copyParam,
     copySpeed,
-    syncAll
+    syncAll,
+    toggleButterflyMode,
+    setInitialDifference,
+    runButterflyEffect
   } = useSimulationStore();
 
   const { systemType, params, isPaused, speed } = sim;
@@ -72,10 +77,22 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
       <div className={styles.headerRow}>
         <h2>{side.toUpperCase()} View</h2>
         <div className={styles.headerActions}>
-          <button className={styles.iconButton} onClick={() => triggerScreenshot(side)} title="Capture screenshot"><Camera size={20} /></button>
+          <button 
+            className={styles.iconButton}
+            onClick={() => triggerScreenshot(side)}
+            title="Capture screenshot"
+          >
+            <Camera size={20} />
+          </button>
           {side === 'left' && (
             <>
-              <button className={`${styles.iconButton} ${comparisonMode ? styles.active : ''}`} onClick={toggleComparison} title="Toggle split view"><Columns size={20} /></button>
+              <button 
+                className={`${styles.iconButton} ${comparisonMode ? styles.active : ''}`}
+                onClick={toggleComparison}
+                title="Toggle split view"
+              >
+                <Columns size={20} />
+              </button>
               {comparisonMode && <button className={`${styles.iconButton} ${syncCameras ? styles.active : ''}`} onClick={toggleSyncCameras} title="Sync cameras">{syncCameras ? <Link size={20} /> : <Link2Off size={20} />}</button>}
             </>
           )}
@@ -94,6 +111,38 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
               <RotateCcw size={16} /> Reset both
             </button>
           </div>
+        </div>
+      )}
+
+      {side === 'left' && !comparisonMode && (
+        <div className={styles.butterflySection}>
+          <div className={styles.headerRow} style={{ marginBottom: '10px' }}>
+            <label className={styles.masterLabel} style={{ margin: 0 }}>BUTTERFLY EFFECT</label>
+            <input 
+              type="checkbox" 
+              className={styles.checkbox}
+              checked={butterflyMode} 
+              onChange={toggleButterflyMode} 
+            />
+          </div>
+          
+          {butterflyMode && (
+            <div className={styles.controlGroup} style={{ marginBottom: 0 }}>
+              <label>Initial Diff: <span className={styles.value}>{initialDifference.toFixed(5)}</span></label>
+              <input 
+                type="range" min="0.00001" max="0.01" step="0.00001" 
+                value={initialDifference} 
+                onChange={(e) => setInitialDifference(parseFloat(e.target.value))}
+              />
+              <button 
+                className={styles.syncAllButton} 
+                style={{ marginTop: '15px', marginBottom: 0 }}
+                onClick={runButterflyEffect}
+              >
+                <RotateCcw size={16} /> Run comparison
+              </button>
+            </div>
+          )}
         </div>
       )}
       

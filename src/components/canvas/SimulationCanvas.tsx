@@ -38,9 +38,11 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const controlsRef = useRef<any>(null);
   
   const syncCameras = useSimulationStore((state) => state.syncCameras);
+  const butterflyMode = useSimulationStore((state) => state.butterflyMode);
   const sharedConfig = useSimulationStore((state) => state.cameraConfig);
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
 
+  // Camera Syncing Logic
   useEffect(() => {
     if (!syncCameras || !controlsRef.current) return;
 
@@ -76,7 +78,14 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
         enablePan={true}
         onChange={handleCameraChange}
       />
-      <SimulationVisualizer side={side} />
+      {butterflyMode ? (
+        <>
+          <SimulationVisualizer side="left" />
+          <SimulationVisualizer side="right" />
+        </>
+      ) : (
+        <SimulationVisualizer side={side} />
+      )}
     </>
   );
 };

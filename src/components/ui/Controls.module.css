@@ -48,6 +48,21 @@
   letter-spacing: 1px;
 }
 
+.butterflySection {
+  background: rgba(0, 255, 204, 0.05);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #00ffcc;
+  cursor: pointer;
+}
+
 .inputRow {
   display: flex;
   align-items: center;

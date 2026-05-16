@@ -26,6 +26,8 @@ interface SimulationStore {
   };
   comparisonMode: boolean;
   syncCameras: boolean;
+  butterflyMode: boolean;
+  initialDifference: number;
   cameraConfig: {
     position: [number, number, number];
     target: [number, number, number];
@@ -52,6 +54,12 @@ interface SimulationStore {
   copyParam: (from: Side, to: Side, key: string) => void;
   copySpeed: (from: Side, to: Side) => void;
   syncAll: () => void;
+  
+  // Butterfly Actions
+  toggleButterflyMode: () => void;
+  setInitialDifference: (val: number) => void;
+  runButterflyEffect: () => void;
+  
   setAuth: (user: User | null, token: string | null) => void;
   logout: () => void;
 }
@@ -70,13 +78,15 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
   };
 };
 
-export const useSimulationStore = create<SimulationStore>((set) => ({
+export const useSimulationStore = create<SimulationStore>((set, get) => ({
   sims: {
     left: createDefaultSim('lorenz'),
     right: createDefaultSim('lorenz'),
   },
   comparisonMode: false,
   syncCameras: false,
+  butterflyMode: false,
+  initialDifference: 0.0001,
   cameraConfig: {
     position: [-108, 30, 40],
     target: [0, 25, 0],
@@ -203,6 +213,7 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
   toggleComparison: () =>
     set((state) => ({
       comparisonMode: !state.comparisonMode,
+      butterflyMode: false, // Mutually exclusive for simplicity
     })),
 
   toggleSyncCameras: () => set(state => ({ syncCameras: !state.syncCameras })),
@@ -260,6 +271,37 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
         sims: {
           left: { ...state.sims.left, points: [INITIAL_POINT], isPaused: false },
           right: { ...state.sims.right, points: [INITIAL_POINT], isPaused: false },
+        }
+      }));
+    }, 100);
+  },
+
+
+  // Butterfly Mode Actions
+  toggleButterflyMode: () => set(state => ({ 
+    butterflyMode: !state.butterflyMode,
+    comparisonMode: false 
+  })),
+
+  setInitialDifference: (val) => set({ initialDifference: val }),
+
+  runButterflyEffect: () => {
+    const { initialDifference, sims } = get();
+    const leftParams = sims.left.params;
+    const systemType = sims.left.systemType;
+
+    set((state) => ({
+      sims: {
+        left: { ...state.sims.left, systemType, params: leftParams, points: [], isPaused: true },
+        right: { ...state.sims.right, systemType, params: leftParams, points: [], isPaused: true },
+      }
+    }));
+
+    setTimeout(() => {
+      set((state) => ({
+        sims: {
+          left: { ...state.sims.left, points: [INITIAL_POINT], isPaused: false },
+          right: { ...state.sims.right, points: [[INITIAL_POINT[0] + initialDifference, INITIAL_POINT[1], INITIAL_POINT[2]]], isPaused: false },
         }
       }));
     }, 100);
