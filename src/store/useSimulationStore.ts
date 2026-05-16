@@ -11,6 +11,10 @@ export interface SimulationData {
   isPaused: boolean;
   speed: number;
   maxPoints: number;
+  cameraConfig: {
+    position: [number, number, number];
+    target: [number, number, number];
+  };
 }
 
 
@@ -28,10 +32,6 @@ interface SimulationStore {
   syncCameras: boolean;
   butterflyMode: boolean;
   initialDifference: number;
-  cameraConfig: {
-    position: [number, number, number];
-    target: [number, number, number];
-  };
   screenshotSignal: { side: Side | null; timestamp: number };
 
   // User info
@@ -47,12 +47,12 @@ interface SimulationStore {
   setSpeed: (side: Side, speed: number) => void;
   setMaxPoints: (side: Side, maxPoints: number) => void;
   resetSimulation: (side: Side) => void;
-  loadPreset: (side: Side, systemType: string, newParams: any) => void;
+  loadPreset: (side: Side, systemType: string, newParams: any, cameraConfig: any) => void;
   toggleComparison: () => void;
   toggleSyncCameras: () => void;
   toggleAllPause: () => void;
   triggerScreenshot: (side: Side) => void;
-  setCameraConfig: (config: { position: [number, number, number], target: [number, number, number] }) => void;
+  setCameraConfig: (side: Side, config: { position: [number, number, number], target: [number, number, number] }) => void;
   copyParam: (from: Side, to: Side, key: string) => void;
   copySpeed: (from: Side, to: Side) => void;
   syncAll: () => void;
@@ -67,6 +67,10 @@ interface SimulationStore {
 }
 
 const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
+const DEFAULT_CAMERA: { position: [number, number, number], target: [number, number, number] } = {
+  position: [-108, 30, 40],
+  target: [0, 25, 0],
+};
 
 const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
   const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY['lorenz'];
@@ -77,6 +81,7 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
     isPaused: false,
     speed: 1,
     maxPoints: 50000,
+    cameraConfig: { ...DEFAULT_CAMERA },
   };
 };
 
@@ -89,17 +94,30 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   syncCameras: false,
   butterflyMode: false,
   initialDifference: 0.0001,
-  cameraConfig: {
-    position: [-108, 30, 40],
-    target: [0, 25, 0],
-  },
 
-  user: null,
-  token: null,
+  user: JSON.parse(localStorage.getItem('user') || 'null'),
+  token: localStorage.getItem('token'),
 
   screenshotSignal: { side: null, timestamp: 0 },
 
-  setCameraConfig: (config) => set({ cameraConfig: config }),
+  setCameraConfig: (side, config) => 
+    set((state) => {
+      const { syncCameras } = state;
+      if (syncCameras) {
+        return {
+          sims: {
+            left: { ...state.sims.left, cameraConfig: config },
+            right: { ...state.sims.right, cameraConfig: config },
+          }
+        };
+      }
+      return {
+        sims: {
+          ...state.sims,
+          [side]: { ...state.sims[side], cameraConfig: config },
+        }
+      };
+    }),
 
   triggerScreenshot: (side) => set({ 
     screenshotSignal: { side, timestamp: Date.now() } 
@@ -221,7 +239,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }, 100);
   },
 
-  loadPreset: (side, systemType, newParams) => {
+  loadPreset: (side, systemType, newParams, cameraConfig) => {
     set((state) => ({
       sims: {
         ...state.sims,
@@ -231,6 +249,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           params: newParams,
           points: [],
           isPaused: true,
+          ...(cameraConfig ? { cameraConfig } : {}),
         },
       },
     }));
@@ -342,8 +361,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }, 100);
   },
 
-  setAuth: (user, token) => set({ user, token }),
+  setAuth: (user, token) => {
+    if (user && token) {
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+    set({ user, token });
+  },
   logout: () => {
+    localStorage.removeItem('user');
     localStorage.removeItem('token');
     set({ user: null, token: null });
   },

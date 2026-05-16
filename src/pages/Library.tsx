@@ -25,7 +25,7 @@ const Library: React.FC = () => {
   }, []);
 
   const handleSelect = (preset: any) => {
-    loadPreset(targetSide, preset.systemType, preset.parameters);
+    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig);
     navigate(`/sim/${preset.systemType}`);
   };
 

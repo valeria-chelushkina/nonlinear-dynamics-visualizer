@@ -89,7 +89,26 @@ app.post('/api/presets', authenticate, async (req, res) => {
 // Get all presets - from newest to oldest
 app.get('/api/presets', async (req, res) => {
     try{
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+        let requesterId: string | undefined;
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, jwtSecret as string);
+                requesterId = (decoded as any).userId;
+            } catch (err) {
+                // Ignore invalid token for listing, just treat as guest
+            }
+        }
+
         const allPresets = await prisma.preset.findMany({
+            where: {
+                OR: [
+                    { isPublic: true },
+                    { userId: requesterId || 'NONE' }
+                ]
+            },
             include: { user: { select: { username: true } } },
             orderBy: { createdAt: 'desc' }
         });

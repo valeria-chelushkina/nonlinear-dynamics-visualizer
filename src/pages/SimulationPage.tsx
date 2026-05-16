@@ -13,14 +13,9 @@ const SimulationPage: React.FC = () => {
 
   useEffect(() => {
     const currentId = id || 'lorenz';
-    // Only update if it's different to avoid unnecessary resets
-    if (sims.left.systemType !== currentId) {
-      setSystemType('left', currentId);
-    }
-    if (sims.right.systemType !== currentId) {
-      setSystemType('right', currentId);
-    }
-  }, [id, setSystemType, sims.left.systemType, sims.right.systemType]);
+    setSystemType('left', currentId);
+    setSystemType('right', currentId);
+  }, [id, setSystemType]);
 
   if (!system) {
     return (

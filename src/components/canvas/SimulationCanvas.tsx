@@ -39,31 +39,32 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   
   const syncCameras = useSimulationStore((state) => state.syncCameras);
   const butterflyMode = useSimulationStore((state) => state.butterflyMode);
-  const sharedConfig = useSimulationStore((state) => state.cameraConfig);
+  const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
 
   // Camera Syncing Logic
   useEffect(() => {
-    if (!syncCameras || !controlsRef.current) return;
+    if (!controlsRef.current) return;
 
-    const currentPos = new THREE.Vector3().fromArray(sharedConfig.position);
-    const currentTarget = new THREE.Vector3().fromArray(sharedConfig.target);
+    const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
+    const currentTarget = new THREE.Vector3().fromArray(sideConfig.target);
 
+    // Only update camera if the store actually changed (to avoid infinite loops)
     if (camera.position.distanceTo(currentPos) > 0.01) {
       camera.position.copy(currentPos);
       controlsRef.current.target.copy(currentTarget);
       controlsRef.current.update();
     }
-  }, [sharedConfig, syncCameras, camera]);
+  }, [sideConfig, camera]);
 
   const handleCameraChange = (e: any) => {
-    if (!syncCameras) return;
-
     const controls = e.target;
     const position = controls.object.position.toArray() as [number, number, number];
     const target = controls.target.toArray() as [number, number, number];
 
-    setCameraConfig({ position, target });
+    // Always update the store so 'Save Camera' works.
+    // If syncCameras is on, the store action will handle updating both sides.
+    setCameraConfig(side, { position, target });
   };
 
   return (

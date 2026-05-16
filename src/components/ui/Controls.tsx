@@ -53,9 +53,12 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
   );
 
   const [presetName, setPresetName] = React.useState("");
+  const [isPublic, setIsPublic] = React.useState(true);
+  const [saveCamera, setSaveCamera] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
 
   const otherSide = side === "left" ? "right" : "left";
+  const cameraConfig = sim.cameraConfig;
   const currentSystem =
     SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
 
@@ -74,6 +77,8 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
           name: presetName,
           systemType: systemType,
           parameters: params,
+          isPublic: isPublic,
+          cameraConfig: saveCamera ? cameraConfig : null,
         }),
       });
 
@@ -265,6 +270,26 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
           value={presetName}
           onChange={(e) => setPresetName(e.target.value)}
         />
+        
+        <div className={styles.checkboxRow}>
+          <label className={styles.checkboxLabel}>
+            <input 
+              type="checkbox" 
+              checked={!isPublic} 
+              onChange={(e) => setIsPublic(!e.target.checked)} 
+            />
+            Private
+          </label>
+          <label className={styles.checkboxLabel}>
+            <input 
+              type="checkbox" 
+              checked={saveCamera} 
+              onChange={(e) => setSaveCamera(e.target.checked)} 
+            />
+            Save Camera
+          </label>
+        </div>
+
         {user ? (
           <button
             className={styles.buttonPrimary}

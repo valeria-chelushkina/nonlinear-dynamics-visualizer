@@ -207,6 +207,28 @@
   font-size: 17px;
 }
 
+.checkboxRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #aaa;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  accent-color: #00ffcc;
+  cursor: pointer;
+}
+
 .loginMessage {
   padding: 15px;
   background: rgba(255, 255, 255, 0.03);
