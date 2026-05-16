@@ -12,7 +12,7 @@ interface SimulationVisualizerProps {
 
 const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
-  const addPoint = useSimulationStore((state) => state.addPoint);
+  const addPoints = useSimulationStore((state) => state.addPoints);
   
   const { systemType, params, points, isPaused, speed } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
@@ -27,19 +27,24 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
     if (isPaused) return;
     if (points.length === 0) return;
 
-    const cappedDelta = Math.min(delta, 0.05);
     const lastPoint = points[points.length - 1];
     if (!lastPoint) return;
 
-    const subSteps = 5;
-    const dt = (cappedDelta * speed) / subSteps;
+    // Fixed time step for stability and smoothness
+    const dt = 0.01;
+    // Calculate how many steps we need to take this frame based on delta and speed
+    const totalTime = Math.min(delta, 0.1) * speed;
+    const numSteps = Math.max(1, Math.floor(totalTime / dt));
     
+    const newBatch: Vector3[] = [];
     let currentPoint = lastPoint;
-    for (let i = 0; i < subSteps; i++) {
+    
+    for (let i = 0; i < numSteps; i++) {
       currentPoint = rk4(currentPoint, 0, dt, derivative);
+      newBatch.push(currentPoint);
     }
     
-    addPoint(side, currentPoint);
+    addPoints(side, newBatch);
   });
 
   const positions = useMemo(() => {

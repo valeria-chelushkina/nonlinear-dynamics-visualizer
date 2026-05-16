@@ -42,8 +42,10 @@ interface SimulationStore {
   setSystemType: (side: Side, type: string) => void;
   setParams: (side: Side, params: Partial<Record<string, number>>) => void;
   addPoint: (side: Side, point: Vector3) => void;
+  addPoints: (side: Side, points: Vector3[]) => void;
   togglePause: (side: Side) => void;
   setSpeed: (side: Side, speed: number) => void;
+  setMaxPoints: (side: Side, maxPoints: number) => void;
   resetSimulation: (side: Side) => void;
   loadPreset: (side: Side, systemType: string, newParams: any) => void;
   toggleComparison: () => void;
@@ -74,7 +76,7 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
     points: [INITIAL_POINT],
     isPaused: false,
     speed: 1,
-    maxPoints: 5000,
+    maxPoints: 50000,
   };
 };
 
@@ -149,6 +151,24 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       };
     }),
 
+  addPoints: (side, newBatch) =>
+    set((state) => {
+      const sim = state.sims[side];
+      if (newBatch.length === 0) return state;
+
+      const combinedPoints = [...sim.points, ...newBatch];
+      const slicedPoints = combinedPoints.length > sim.maxPoints
+        ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
+        : combinedPoints;
+
+      return {
+        sims: {
+          ...state.sims,
+          [side]: { ...sim, points: slicedPoints },
+        },
+      };
+    }),
+
   togglePause: (side) =>
     set((state) => ({
       sims: {
@@ -158,10 +178,28 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     })),
 
   setSpeed: (side, speed) =>
+    set((state) => {
+      if (state.butterflyMode) {
+        return {
+          sims: {
+            left: { ...state.sims.left, speed },
+            right: { ...state.sims.right, speed },
+          },
+        };
+      }
+      return {
+        sims: {
+          ...state.sims,
+          [side]: { ...state.sims[side], speed },
+        },
+      };
+    }),
+
+  setMaxPoints: (side, maxPoints) =>
     set((state) => ({
       sims: {
         ...state.sims,
-        [side]: { ...state.sims[side], speed },
+        [side]: { ...state.sims[side], maxPoints },
       },
     })),
 

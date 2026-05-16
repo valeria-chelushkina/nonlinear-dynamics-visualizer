@@ -1,3 +1,4 @@
+import { aizawaSystem } from './aizawa';
 import { lorenzSystem } from './lorenz';
 import { rosslerSystem } from './rossler';
 import type { SystemDefinition } from './types';
@@ -5,6 +6,7 @@ import type { SystemDefinition } from './types';
 export const SYSTEM_REGISTRY: Record<string, SystemDefinition> = {
   lorenz: lorenzSystem,
   rossler: rosslerSystem,
+  aizawa: aizawaSystem,
 };
 
 export const SYSTEM_LIST = Object.values(SYSTEM_REGISTRY);

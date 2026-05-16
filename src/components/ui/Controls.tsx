@@ -238,9 +238,9 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
             <div className={styles.inputRow}>
               <input
                 type="range"
-                min="0.1"
-                max="5"
-                step="0.1"
+                min="0.5"
+                max="25"
+                step="0.5"
                 value={speed}
                 onChange={(e) => setSpeed(side, parseFloat(e.target.value))}
               />
