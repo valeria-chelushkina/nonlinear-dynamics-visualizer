@@ -5,18 +5,37 @@ import { PrismaClient } from '@prisma/client';
 import pg from 'pg';
 const { Pool } = pg;
 import { PrismaPg } from '@prisma/adapter-pg';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+    }
+  }
+}
+
 
 console.log('=== Starting Server Initialization ===');
 
+const databaseUrl = process.env.DATABASE_URL;
+const jwtSecret = process.env.JWT_SECRET;
+
 const app = express();
 
-if (!process.env.DATABASE_URL) {
+if (!databaseUrl) {
     console.error('ERROR: DATABASE_URL is not defined in .env file');
     process.exit(1);
 }
 
+if(!jwtSecret) {
+    console.error('ERROR: JWT_SECRET is not defined in .env file');
+    process.exit(1);
+}
+
 // Set up PostgreSQL pool
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: databaseUrl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -25,6 +44,21 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
+// Middleware
+const authenticate = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if(!token) {
+        return res.status(401).json({ error: 'No token provided.'});
+    }
+    try{
+        const decoded = jwt.verify(token, jwtSecret as string);
+        req.userId = (decoded as any).userId;
+        next();
+    } catch (err) {
+        return res.status(403).json({ error: 'Invalid or expired token'});
+    }
+};
 
 // Route to check if server works
 app.get('/api/health', (req, res) => {
@@ -32,15 +66,16 @@ app.get('/api/health', (req, res) => {
 });
 
 // Save some parameters of a preset
-app.post('/api/presets', async (req, res) => {
+app.post('/api/presets', authenticate, async (req, res) => {
     try {
-        const { name, systemType, parameters, userId } = req.body;
+        const { name, systemType, parameters, isPublic } = req.body;
         const newPreset = await prisma.preset.create({
             data: {
                 name,
                 systemType,
                 parameters,
-                userId
+                isPublic,
+                userId: req.userId! // taken from token
             }
         });
 
@@ -102,4 +137,30 @@ app.get('/api/seed-user', async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
+});
+
+// Register
+app.post('/api/auth/register', async (req, res) => {
+    const { username, email, password} = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    try {
+        const user = await prisma.user.create({
+            data: {username, email, passwordHash: hashedPassword }
+        });
+        res.json({ message: 'User created.'});
+    } catch (err) {
+        res.status(400).json({ error: 'Username or Email already exists.'});
+    }
+});
+
+// Login
+app.post('/api/auth/login', async(req, res) => {
+    const { email, password } = req.body;
+    const user = await prisma.user.findUnique({where: { email }});
+    if(!user || !(await bcrypt.compare(password, user.passwordHash)))
+        { return res.status(401).json({ error: 'Email or password is incorrect.' }) };
+    const token = jwt.sign({ userId: user.id}, jwtSecret, {
+        expiresIn: '24h'});
+        res.json({token, user: {id: user.id, username: user.username}});
 });

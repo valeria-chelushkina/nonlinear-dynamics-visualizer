@@ -13,6 +13,12 @@ export interface SimulationData {
   maxPoints: number;
 }
 
+
+interface User {
+  id: string;
+  username: string;
+}
+
 interface SimulationStore {
   sims: {
     left: SimulationData;
@@ -25,6 +31,10 @@ interface SimulationStore {
     target: [number, number, number];
   };
   screenshotSignal: { side: Side | null; timestamp: number };
+
+  // User info
+  user: User | null;
+  token: string | null;
 
   // Actions
   setSystemType: (side: Side, type: string) => void;
@@ -42,6 +52,8 @@ interface SimulationStore {
   copyParam: (from: Side, to: Side, key: string) => void;
   copySpeed: (from: Side, to: Side) => void;
   syncAll: () => void;
+  setAuth: (user: User | null, token: string | null) => void;
+  logout: () => void;
 }
 
 const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
@@ -69,6 +81,10 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
     position: [-108, 30, 40],
     target: [0, 25, 0],
   },
+
+  user: null,
+  token: null,
+
   screenshotSignal: { side: null, timestamp: 0 },
 
   setCameraConfig: (config) => set({ cameraConfig: config }),
@@ -247,5 +263,11 @@ export const useSimulationStore = create<SimulationStore>((set) => ({
         }
       }));
     }, 100);
+  },
+
+  setAuth: (user, token) => set({ user, token }),
+  logout: () => {
+    localStorage.removeItem('token');
+    set({ user: null, token: null });
   },
 }));

@@ -15,7 +15,8 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
-  
+  const user = useSimulationStore((state) => state.user);
+  const token = useSimulationStore((state) => state.token);
   const { 
     setSystemType,
     setParams, 
@@ -47,12 +48,13 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
     try {
       const response = await fetch('http://localhost:3000/api/presets', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+         },
         body: JSON.stringify({
           name: presetName,
           systemType: systemType,
           parameters: params,
-          userId: 'e2871844-c00c-4abb-b7d3-eead718680c7'
         }),
       });
 
@@ -161,9 +163,12 @@ const Controls: React.FC<ControlsProps> = ({ side = 'left' }) => {
           type="text" placeholder='Enter preset name...' className={styles.textInput}
           value={presetName} onChange={(e) => setPresetName(e.target.value)}
         />
-        <button className={styles.buttonPrimary} style={{width: '100%', marginTop: '10px'}} onClick={handleSave} disabled={isSaving}>
+        {user ? (
+<button className={styles.buttonPrimary} style={{width: '100%', marginTop: '10px'}} onClick={handleSave} disabled={isSaving}>
           Save to gallery
         </button>
+        ) : (<p>Login to save</p>)}
+        
       </div>
 
       <div className={styles.section} style={{marginTop: '20px'}}>
