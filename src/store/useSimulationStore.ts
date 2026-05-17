@@ -47,6 +47,8 @@ interface SimulationStore {
   setSpeed: (side: Side, speed: number) => void;
   setMaxPoints: (side: Side, maxPoints: number) => void;
   resetSimulation: (side: Side) => void;
+  resetParams: (side: Side) => void;
+  resetSimulationState: (type?: string) => void;
   loadPreset: (side: Side, systemType: string, newParams: any, cameraConfig: any) => void;
   toggleComparison: () => void;
   toggleSyncCameras: () => void;
@@ -295,6 +297,35 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         },
       }));
     }, 100);
+  },
+
+  resetParams: (side) => {
+    const { sims } = get();
+    const system = SYSTEM_REGISTRY[sims[side].systemType];
+    if (!system) return;
+
+    set((state) => ({
+      sims: {
+        ...state.sims,
+        [side]: {
+          ...state.sims[side],
+          params: { ...system.defaultParams },
+        },
+      },
+    }));
+  },
+
+  resetSimulationState: (type) => {
+    const targetType = type || get().sims.left.systemType;
+    set({
+      comparisonMode: false,
+      butterflyMode: false,
+      syncCameras: false,
+      sims: {
+        left: createDefaultSim(targetType),
+        right: createDefaultSim(targetType),
+      }
+    });
   },
 
   loadPreset: (side, systemType, newParams, cameraConfig) => {

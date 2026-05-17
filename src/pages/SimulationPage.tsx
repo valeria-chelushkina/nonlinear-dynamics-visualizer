@@ -31,18 +31,16 @@ const MasterControls: React.FC = () => {
 const SimulationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const system = SYSTEM_REGISTRY[id || "lorenz"];
-  const { setSystemType, resetSimulation, comparisonMode } =
-    useSimulationStore();
+  const { resetSimulationState, comparisonMode } = useSimulationStore();
 
   useEffect(() => {
     const currentId = id || "lorenz";
+    resetSimulationState(currentId);
 
-    setSystemType("left", currentId);
-    setSystemType("right", currentId);
-
-    resetSimulation("left");
-    resetSimulation("right");
-  }, [id, setSystemType, resetSimulation]);
+    return () => {
+      resetSimulationState(currentId);
+    };
+  }, [id, resetSimulationState]);
 
   if (!system) {
     return (

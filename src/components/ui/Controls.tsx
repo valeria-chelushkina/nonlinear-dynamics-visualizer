@@ -29,23 +29,24 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
   );
   const user = useSimulationStore((state) => state.user);
   const token = useSimulationStore((state) => state.token);
-const {
-  setParams,
-  togglePause,
-  resetSimulation,
-  setSpeed,
-  setMaxPoints,
-  toggleComparison,
-  toggleSyncCameras,
-  triggerScreenshot,
-  copyParam,
-  copySpeed,
-  toggleButterflyMode,
-  setInitialDifference,
-  runButterflyEffect,
-} = useSimulationStore();
+  const {
+    setParams,
+    togglePause,
+    resetSimulation,
+    setSpeed,
+    setMaxPoints,
+    toggleComparison,
+    toggleSyncCameras,
+    triggerScreenshot,
+    copyParam,
+    copySpeed,
+    toggleButterflyMode,
+    setInitialDifference,
+    runButterflyEffect,
+    resetParams,
+  } = useSimulationStore();
 
-const { systemType, params, isPaused, speed, maxPoints } = sim;
+  const { systemType, params, isPaused, speed, maxPoints } = sim;
 
   const [presetName, setPresetName] = React.useState("");
   const [isPublic, setIsPublic] = React.useState(true);
@@ -213,7 +214,10 @@ const { systemType, params, isPaused, speed, maxPoints } = sim;
 
           <div className={styles.controlGroup}>
             <label>
-              Tail length <span className={styles.value}>{maxPoints.toLocaleString()} pts</span>
+              Tail length{" "}
+              <span className={styles.value}>
+                {maxPoints.toLocaleString()} pts
+              </span>
             </label>
             <div className={styles.inputRow}>
               <input
@@ -249,6 +253,16 @@ const { systemType, params, isPaused, speed, maxPoints } = sim;
                 </button>
               )}
             </div>
+          </div>
+
+          <div className={styles.controlGroup}>
+            <button
+              className={styles.buttonPrimary}
+              style={{ fontSize: "17px" }}
+              onClick={() => resetParams(side)}
+            >
+              Reset parameters
+            </button>
           </div>
         </div>
       </div>
