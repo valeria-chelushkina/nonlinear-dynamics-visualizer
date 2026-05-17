@@ -1,14 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useSimulationStore } from '@/store/useSimulationStore';
-import { useThemeStore } from '@/store/useThemeStore';
-import { BookOpen, LogOut, User as UserIcon, Activity, ChevronDown, Moon, Sun } from 'lucide-react';
-import { SYSTEM_REGISTRY } from '@/core/systems';
-import styles from './Header.module.css';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useUIStore } from "@/stores/useUIStore";
+import {
+  BookOpen,
+  LogOut,
+  User as UserIcon,
+  Activity,
+  ChevronDown,
+  Moon,
+  Sun,
+} from "lucide-react";
+import { SYSTEM_REGISTRY } from "@/core/systems";
+import styles from "./Header.module.css";
 
 const Header: React.FC = () => {
-  const { user, logout } = useSimulationStore();
-  const { theme, toggleTheme } = useThemeStore();
+  const { user, logout } = useAuthStore();
+  const { theme, toggleTheme } = useUIStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -16,16 +24,16 @@ const Header: React.FC = () => {
   const systems = Object.values(SYSTEM_REGISTRY);
 
   useEffect(() => {
-    // Initialize theme on mount
-    document.documentElement.setAttribute('data-theme', theme);
-
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -40,8 +48,8 @@ const Header: React.FC = () => {
           <div className={styles.divider} />
 
           <div className={styles.dropdownContainer} ref={dropdownRef}>
-            <button 
-              className={`${styles.dropdownButton} ${dropdownOpen ? styles.active : ''}`}
+            <button
+              className={`${styles.dropdownButton} ${dropdownOpen ? styles.active : ""}`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <span>Strange attractors</span>
@@ -68,8 +76,12 @@ const Header: React.FC = () => {
         </div>
 
         <nav className={styles.nav}>
-          <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
-            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          <button
+            className={styles.themeToggle}
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
           </button>
 
           <div className={styles.divider} />
@@ -83,7 +95,11 @@ const Header: React.FC = () => {
 
           {user ? (
             <div className={styles.userSection}>
-              <Link to={`/user/${user.id}`} className={styles.userInfo} title="View my library">
+              <Link
+                to={`/user/${user.id}`}
+                className={styles.userInfo}
+                title="View my library"
+              >
                 <UserIcon size={18} />
                 <span>{user.username}</span>
               </Link>
@@ -94,8 +110,12 @@ const Header: React.FC = () => {
             </div>
           ) : (
             <div className={styles.authLinks}>
-              <Link to="/login" className={styles.loginLink}>Login</Link>
-              <Link to="/register" className={styles.registerButton}>Register</Link>
+              <Link to="/login" className={styles.loginLink}>
+                Login
+              </Link>
+              <Link to="/register" className={styles.registerButton}>
+                Register
+              </Link>
             </div>
           )}
         </nav>

@@ -1,9 +1,10 @@
 import React, { useMemo, useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSimulationStore } from "@/store/useSimulationStore";
-import { useThemeStore } from "@/store/useThemeStore";
-import type { Side } from "@/store/useSimulationStore";
+import { useSimulationStore } from "@/stores/useSimulationStore";
+import { useVisualsStore } from "@/stores/useVisualsStore";
+import { useUIStore } from "@/stores/useUIStore";
+import type { Side } from "@/stores/useSimulationStore";
 import type { StateVector } from "@/core/math/types";
 import { rk4 } from "@/core/math/integrator";
 import { SYSTEM_REGISTRY } from "@/core/systems";
@@ -19,9 +20,11 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
 }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const addPoints = useSimulationStore((state) => state.addPoints);
-  const theme = useThemeStore((state) => state.theme);
+  const theme = useUIStore((state) => state.theme);
 
-  const { systemType, params, points, isPaused, speed, visuals } = sim;
+  const visuals = useVisualsStore((state) => state.configs[side]);
+
+  const { systemType, params, points, isPaused, speed } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
   // System elements (rods/first bob) should be white in dark mode, dark in light mode

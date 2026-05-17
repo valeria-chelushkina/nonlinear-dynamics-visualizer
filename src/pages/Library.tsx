@@ -1,56 +1,64 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useSimulationStore } from '@/store/useSimulationStore';
-import type { Side } from '@/store/useSimulationStore';
-import { Clock, User, Trash2 } from 'lucide-react';
-import styles from './Library.module.css';
+import React, { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useSimulationStore } from "@/stores/useSimulationStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import type { Side } from "@/stores/useSimulationStore";
+import { Clock, User, Trash2 } from "lucide-react";
+import styles from "./Library.module.css";
 
 const Library: React.FC = () => {
   const navigate = useNavigate();
-  const { loadPreset, comparisonMode, user, token } = useSimulationStore();
+  const { loadPreset, comparisonMode } = useSimulationStore();
+  const { user, token } = useAuthStore();
   const [presets, setPresets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [targetSide, setTargetSide] = useState<Side>('left');
+  const [targetSide, setTargetSide] = useState<Side>("left");
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/presets')
+    fetch("http://localhost:3000/api/presets")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setPresets(data);
         }
       })
-      .catch((err) => console.error('Failed to fetch presets:', err))
+      .catch((err) => console.error("Failed to fetch presets:", err))
       .finally(() => setLoading(false));
   }, []);
 
   const handleLoad = (preset: any) => {
-    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig, preset.visuals);
+    loadPreset(
+      targetSide,
+      preset.systemType,
+      preset.parameters,
+      preset.cameraConfig,
+      preset.visuals,
+    );
     navigate(`/sim/${preset.systemType}`);
   };
 
   const handleDelete = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation(); // Don't trigger handleLoad
-    
-    if (!confirm('Are you sure you want to delete this preset?')) return;
+
+    if (!confirm("Are you sure you want to delete this preset?")) return;
 
     try {
       const response = await fetch(`http://localhost:3000/api/presets/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (response.ok) {
-        setPresets(presets.filter(p => p.id !== id));
+        setPresets(presets.filter((p) => p.id !== id));
       } else {
         const errData = await response.json();
-        alert(errData.error || 'Failed to delete preset');
+        alert(errData.error || "Failed to delete preset");
       }
     } catch (err) {
-      console.error('Failed to delete preset:', err);
-      alert('Failed to delete preset');
+      console.error("Failed to delete preset:", err);
+      alert("Failed to delete preset");
     }
   };
 
@@ -60,19 +68,19 @@ const Library: React.FC = () => {
         <div className={styles.titleGroup}>
           <h1>Preset library</h1>
         </div>
-        
+
         {comparisonMode && (
           <div className={styles.sideSelector}>
             <span>Load into:</span>
-            <button 
-              className={`${styles.sideButton} ${targetSide === 'left' ? styles.active : ''}`}
-              onClick={() => setTargetSide('left')}
+            <button
+              className={`${styles.sideButton} ${targetSide === "left" ? styles.active : ""}`}
+              onClick={() => setTargetSide("left")}
             >
               Left view
             </button>
-            <button 
-              className={`${styles.sideButton} ${targetSide === 'right' ? styles.active : ''}`}
-              onClick={() => setTargetSide('right')}
+            <button
+              className={`${styles.sideButton} ${targetSide === "right" ? styles.active : ""}`}
+              onClick={() => setTargetSide("right")}
             >
               Right view
             </button>
@@ -84,14 +92,12 @@ const Library: React.FC = () => {
         {loading ? (
           <div className={styles.message}>Loading your collection...</div>
         ) : presets.length === 0 ? (
-          <div className={styles.message}>
-            No presets found.
-          </div>
+          <div className={styles.message}>No presets found.</div>
         ) : (
           <div className={styles.grid}>
             {presets.map((preset) => (
-              <div 
-                key={preset.id} 
+              <div
+                key={preset.id}
                 className={styles.card}
                 onClick={() => handleLoad(preset)}
               >
@@ -100,7 +106,7 @@ const Library: React.FC = () => {
                   <div className={styles.cardActions}>
                     <span className={styles.badge}>{preset.systemType}</span>
                     {user && user.id === preset.userId && (
-                      <button 
+                      <button
                         className={styles.deleteButton}
                         onClick={(e) => handleDelete(e, preset.id)}
                         title="Delete preset"
@@ -110,21 +116,23 @@ const Library: React.FC = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
                     <User size={14} />
-                    <Link 
-                      to={`/user/${preset.userId}`} 
+                    <Link
+                      to={`/user/${preset.userId}`}
                       className={styles.userLink}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {preset.user?.username || 'Unknown'}
+                      {preset.user?.username || "Unknown"}
                     </Link>
                   </div>
                   <div className={styles.detailItem}>
                     <Clock size={14} />
-                    <span>{new Date(preset.createdAt).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(preset.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
 

@@ -1,20 +1,22 @@
-import type { SystemDefinition } from './types';
+import type { SystemDefinition } from "./types";
 
 export const doublePendulumSystem: SystemDefinition = {
-  id: 'double-pendulum',
-  name: 'Double Pendulum',
-  description: 'A pendulum with another pendulum attached to its end, exhibiting rich dynamic behavior and strong sensitivity to initial conditions.',
+  id: "double-pendulum",
+  name: "Double Pendulum",
+  description:
+    "A pendulum with another pendulum attached to its end, exhibiting rich dynamic behavior and strong sensitivity to initial conditions.",
   equations: [
-    'θ1\' = ω1',
-    'θ2\' = ω2',
-    'ω1\' = (-g(2m1 + m2)sinθ1 - m2gsin(θ1-2θ2) - 2sin(θ1-θ2)m2(ω2^2L2 + ω1^2L1cos(θ1-θ2))) / (L1(2m1 + m2 - m2cos(2θ1-2θ2)))',
-    'ω2\' = (2sin(θ1-θ2)(ω1^2L1(m1 + m2) + g(m1 + m2)cosθ1 + ω2^2L2m2cos(θ1-θ2))) / (L2(2m1 + m2 - m2cos(2θ1-2θ2)))'
+    "θ1' = ω1",
+    "θ2' = ω2",
+    "ω1' = (-g(2m1 + m2)sinθ1 - m2gsin(θ1-2θ2) - 2sin(θ1-θ2)m2(ω2^2L2 + ω1^2L1cos(θ1-θ2))) / (L1(2m1 + m2 - m2cos(2θ1-2θ2)))",
+    "ω2' = (2sin(θ1-θ2)(ω1^2L1(m1 + m2) + g(m1 + m2)cosθ1 + ω2^2L2m2cos(θ1-θ2))) / (L2(2m1 + m2 - m2cos(2θ1-2θ2)))",
   ],
-  history: 'The double pendulum is one of the simplest dynamical systems that can exhibit chaotic behavior. It is a classic example used to demonstrate chaos theory.',
+  history:
+    "The double pendulum is one of the simplest dynamical systems that can exhibit chaotic behavior. It is a classic example used to demonstrate chaos theory.",
   use: [
-    'Classical Mechanics',
-    'Chaos Theory Demonstration',
-    'Nonlinear Dynamics Education'
+    "Classical Mechanics",
+    "Chaos Theory Demonstration",
+    "Nonlinear Dynamics Education",
   ],
   dimension: 2,
   defaultParams: {
@@ -22,7 +24,7 @@ export const doublePendulumSystem: SystemDefinition = {
     m2: 10,
     l1: 20,
     l2: 20,
-    g: 9.81
+    g: 9.81,
   },
   getDerivative: (params) => {
     const { m1, m2, l1, l2, g } = params;
@@ -49,24 +51,24 @@ export const doublePendulumSystem: SystemDefinition = {
   mapStateToPoint: (state, params) => {
     const { l1, l2 } = params;
     const [th1, th2] = state;
-    
+
     // Position of second bob
     const x2 = l1 * Math.sin(th1) + l2 * Math.sin(th2);
     const y2 = -l1 * Math.cos(th1) - l2 * Math.cos(th2);
-    
+
     return [x2, y2 + 25, 0];
   },
   initialState: [Math.PI / 2, Math.PI / 2, 0, 0],
   sliders: [
-    { key: 'm1', label: 'Mass 1', min: 1, max: 50, step: 0.1 },
-    { key: 'm2', label: 'Mass 2', min: 1, max: 50, step: 0.1 },
-    { key: 'l1', label: 'Length 1', min: 5, max: 50, step: 0.1 },
-    { key: 'l2', label: 'Length 2', min: 5, max: 50, step: 0.1 },
-    { key: 'g', label: 'Gravity', min: 0, max: 20, step: 0.1 }
+    { key: "m1", label: "Mass 1", min: 1, max: 50, step: 0.1 },
+    { key: "m2", label: "Mass 2", min: 1, max: 50, step: 0.1 },
+    { key: "l1", label: "Length 1", min: 5, max: 50, step: 0.1 },
+    { key: "l2", label: "Length 2", min: 5, max: 50, step: 0.1 },
+    { key: "g", label: "Gravity", min: 0, max: 20, step: 0.1 },
   ],
   cameraConfig: {
     position: [0, 0, 100],
-    target: [0, 0, 0]
+    target: [0, 0, 0],
   },
-  initialSpeed: 5
+  initialSpeed: 5,
 };

@@ -1,30 +1,34 @@
-import React, { useMemo, useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-import { useSimulationStore } from '@/store/useSimulationStore';
-import { useThemeStore } from '@/store/useThemeStore';
-import type { Side } from '@/store/useSimulationStore';
-import type { StateVector } from '@/core/math/types';
-import { rk4 } from '@/core/math/integrator';
-import { SYSTEM_REGISTRY } from '@/core/systems';
+import React, { useMemo, useRef, useEffect } from "react";
+import { useFrame } from "@react-three/fiber";
+import * as THREE from "three";
+import { useSimulationStore } from "@/stores/useSimulationStore";
+import { useUIStore } from "@/stores/useUIStore";
+import { useVisualsStore } from "@/stores/useVisualsStore";
+import type { Side } from "@/stores/useSimulationStore";
+import type { StateVector } from "@/core/math/types";
+import { rk4 } from "@/core/math/integrator";
+import { SYSTEM_REGISTRY } from "@/core/systems";
 
 interface SimulationVisualizerProps {
   side?: Side;
 }
 
-const ThreeLine = 'line' as any;
+const ThreeLine = "line" as any;
 
-const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'left' }) => {
+const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
+  side = "left",
+}) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const addPoints = useSimulationStore((state) => state.addPoints);
-  const theme = useThemeStore((state) => state.theme);
-  
-  const { systemType, params, points, isPaused, speed, visuals } = sim;
+  const theme = useUIStore((state) => state.theme);
+  const visuals = useVisualsStore((state) => state.configs[side]);
+
+  const { systemType, params, points, isPaused, speed } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
   // Derivative function loaded from registry
   const derivative = useMemo(() => {
-    const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY['lorenz'];
+    const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
     return system.getDerivative(params);
   }, [systemType, params]);
 
@@ -37,11 +41,11 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
 
     const dt = 0.005;
 
-    const stepsPerFrame = Math.max(1, Math.floor((delta * speed) / dt)); 
-    
+    const stepsPerFrame = Math.max(1, Math.floor((delta * speed) / dt));
+
     const newBatch: StateVector[] = [];
     let currentPoint = lastPoint;
-    
+
     for (let i = 0; i < stepsPerFrame; i++) {
       currentPoint = rk4(currentPoint, 0, dt, derivative);
 
@@ -49,12 +53,13 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
         newBatch.push(currentPoint);
       }
     }
-    
+
     addPoints(side, newBatch);
   });
 
   const { positions, colors } = useMemo(() => {
-    if (points.length < 2) return { positions: new Float32Array(0), colors: new Float32Array(0) };
+    if (points.length < 2)
+      return { positions: new Float32Array(0), colors: new Float32Array(0) };
 
     const system = SYSTEM_REGISTRY[systemType];
     const mapFn = system?.mapStateToPoint || ((s: any) => [s[0], s[1], s[2]]);
@@ -65,25 +70,24 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
     const colorStart = new THREE.Color(visuals.color);
     const colorEnd = new THREE.Color(visuals.colorEnd || visuals.color);
 
-    // If in Light mode, we slightly darken the colors for better contrast against white,
-    // especially when we multiply them for Neon.
-    const lAdjust = theme === 'light' ? 0.7 : 1.0;
-    const multiplier = visuals.isNeon ? (theme === 'dark' ? 2.0 : 2.5) : 1.0;
+    const lAdjust = theme === "light" ? 0.7 : 1.0;
 
     for (let i = 0; i < points.length; i++) {
       const renderPoint = mapFn(points[i], params);
-      
-      flatPositions[i * 3] = renderPoint[0];     
-      flatPositions[i * 3 + 1] = renderPoint[2]; 
-      flatPositions[i * 3 + 2] = renderPoint[1]; 
 
-      const baseColor = visuals.useGradient 
-        ? new THREE.Color().copy(colorStart).lerp(colorEnd, i / (points.length - 1))
+      flatPositions[i * 3] = renderPoint[0];
+      flatPositions[i * 3 + 1] = renderPoint[2];
+      flatPositions[i * 3 + 2] = renderPoint[1];
+
+      const baseColor = visuals.useGradient
+        ? new THREE.Color()
+            .copy(colorStart)
+            .lerp(colorEnd, i / (points.length - 1))
         : colorStart;
 
-      flatColors[i * 3] = baseColor.r * lAdjust * multiplier;
-      flatColors[i * 3 + 1] = baseColor.g * lAdjust * multiplier;
-      flatColors[i * 3 + 2] = baseColor.b * lAdjust * multiplier;
+      flatColors[i * 3] = baseColor.r * lAdjust;
+      flatColors[i * 3 + 1] = baseColor.g * lAdjust;
+      flatColors[i * 3 + 2] = baseColor.b * lAdjust;
     }
     return { positions: flatPositions, colors: flatColors };
   }, [points, visuals, systemType, params, theme]);
@@ -91,12 +95,12 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
   useEffect(() => {
     if (geometryRef.current && positions.length > 0) {
       geometryRef.current.setAttribute(
-        'position',
-        new THREE.BufferAttribute(positions, 3)
+        "position",
+        new THREE.BufferAttribute(positions, 3),
       );
       geometryRef.current.setAttribute(
-        'color',
-        new THREE.BufferAttribute(colors, 3)
+        "color",
+        new THREE.BufferAttribute(colors, 3),
       );
       geometryRef.current.attributes.position.needsUpdate = true;
       geometryRef.current.attributes.color.needsUpdate = true;
@@ -109,26 +113,14 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
     <group>
       <ThreeLine frustumCulled={false}>
         <bufferGeometry ref={geometryRef} />
-        <lineBasicMaterial 
+        <lineBasicMaterial
           vertexColors
-          linewidth={visuals.isNeon ? 2 : 1} 
-          transparent 
-          opacity={visuals.isNeon ? 1 : 0.8}
-          toneMapped={false} 
+          linewidth={1}
+          transparent
+          opacity={0.8}
+          toneMapped={false}
         />
       </ThreeLine>
-      {visuals.isNeon && (
-        <ThreeLine frustumCulled={false}>
-          <bufferGeometry ref={geometryRef} />
-          <lineBasicMaterial 
-            vertexColors
-            linewidth={6} 
-            transparent 
-            opacity={0.15}
-            toneMapped={false}
-          />
-        </ThreeLine>
-      )}
     </group>
   );
 };

@@ -1,16 +1,13 @@
-import type { Vector3 } from '@/core/math/types';
-import type { SystemDefinition } from './types';
+import type { Vector3 } from "@/core/math/types";
+import type { SystemDefinition } from "./types";
 
 export const rosslerSystem: SystemDefinition = {
-  id: 'rossler',
-  name: 'Rössler Attractor',
-  description: 'The Rössler attractor is a system of three non-linear ordinary differential equations. It was intended to behave similarly to the Lorenz attractor but be easier to analyze mathematically, featuring only one nonlinear term.',
-  equations: [
-    "dx/dt = -y - z",
-    "dy/dt = x + ay",
-    "dz/dt = b + z(x - c)"
-  ],
-  history: '',
+  id: "rossler",
+  name: "Rössler Attractor",
+  description:
+    "The Rössler attractor is a system of three non-linear ordinary differential equations. It was intended to behave similarly to the Lorenz attractor but be easier to analyze mathematically, featuring only one nonlinear term.",
+  equations: ["dx/dt = -y - z", "dy/dt = x + ay", "dz/dt = b + z(x - c)"],
+  history: "",
   use: [],
   defaultParams: {
     a: 0.2,
@@ -21,17 +18,17 @@ export const rosslerSystem: SystemDefinition = {
     return ([x, y, z]): Vector3 => [
       -y - z,
       x + params.a * y,
-      params.b + z * (x - params.c)
+      params.b + z * (x - params.c),
     ];
   },
   sliders: [
-    { key: 'a', label: 'Param A', min: 0, max: 1, step: 0.01 },
-    { key: 'b', label: 'Param B', min: 0, max: 1, step: 0.01 },
-    { key: 'c', label: 'Param C', min: 0, max: 20, step: 0.1 },
+    { key: "a", label: "Param A", min: 0, max: 1, step: 0.01 },
+    { key: "b", label: "Param B", min: 0, max: 1, step: 0.01 },
+    { key: "c", label: "Param C", min: 0, max: 20, step: 0.1 },
   ],
   cameraConfig: {
     position: [-28.4, 16.12, 20.62],
-    target: [-0.46, 9.14, -0.33]
+    target: [-0.46, 9.14, -0.33],
   },
-  initialSpeed: 6
+  initialSpeed: 6,
 };

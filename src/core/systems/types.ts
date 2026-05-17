@@ -1,4 +1,4 @@
-import type { StateVector, Vector3, DerivativeFn } from '@/core/math/types';
+import type { StateVector, Vector3, DerivativeFn } from "@/core/math/types";
 
 export interface SliderConfig {
   key: string;

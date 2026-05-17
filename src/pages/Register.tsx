@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styles from './Auth.module.css';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styles from "./Auth.module.css";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert('Account created! Please login.');
-        navigate('/login');
+        alert("Account created! Please login.");
+        navigate("/login");
       } else {
-        setError(data.error || 'Registration failed');
+        setError(data.error || "Registration failed");
       }
     } catch (err) {
-      setError('Cannot connect to server');
+      setError("Cannot connect to server");
     } finally {
       setLoading(false);
     }
@@ -48,8 +48,8 @@ const Register: React.FC = () => {
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label>Username</label>
-            <input 
-              type="text" 
+            <input
+              type="text"
               className={styles.input}
               placeholder="UserName"
               value={username}
@@ -60,8 +60,8 @@ const Register: React.FC = () => {
 
           <div className={styles.inputGroup}>
             <label>Email</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               className={styles.input}
               placeholder="email@gmail.com"
               value={email}
@@ -72,8 +72,8 @@ const Register: React.FC = () => {
 
           <div className={styles.inputGroup}>
             <label>Password</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               className={styles.input}
               placeholder="**********"
               value={password}
@@ -82,13 +82,20 @@ const Register: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className={styles.submitButton} disabled={loading}>
-            {loading ? 'Creating account...' : 'Register'}
+          <button
+            type="submit"
+            className={styles.submitButton}
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Register"}
           </button>
         </form>
 
         <div className={styles.footer}>
-          Already have an account? <Link to="/login" className={styles.link}>Sign In</Link>
+          Already have an account?{" "}
+          <Link to="/login" className={styles.link}>
+            Sign In
+          </Link>
         </div>
       </div>
     </div>

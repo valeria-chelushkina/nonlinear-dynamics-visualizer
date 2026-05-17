@@ -1,16 +1,14 @@
-import type { Vector3 } from '@/core/math/types';
-import type { SystemDefinition } from './types';
+import type { Vector3 } from "@/core/math/types";
+import type { SystemDefinition } from "./types";
 
 export const lorenzSystem: SystemDefinition = {
-  id: 'lorenz',
-  name: 'Lorenz Attractor',
-  description: 'First discovered by Edward Lorenz in 1963, this system represents a simplified mathematical model for atmospheric convection. It is world-famous for demonstrating the "Butterfly Effect," where tiny differences in initial conditions lead to widely diverging outcomes.',
-  equations: [
-    "dx/dt = σ(y - x)",
-    "dy/dt = x(ρ - z) - y",
-    "dz/dt = xy - βz"
-  ],
-  history: 'Lorenz discovered this while creating a simplified weather model. He noticed that tiny rounding errors in his computer calculations (like 0.506127 vs 0.506) led to completely different weather predictions. This revelation helped establish that: Deterministic systems can be unpredictable; Long-term weather forecasting has fundamental limits; Chaos is a natural phenomenon, not just mathematical curiosity',
+  id: "lorenz",
+  name: "Lorenz Attractor",
+  description:
+    'First discovered by Edward Lorenz in 1963, this system represents a simplified mathematical model for atmospheric convection. It is world-famous for demonstrating the "Butterfly Effect," where tiny differences in initial conditions lead to widely diverging outcomes.',
+  equations: ["dx/dt = σ(y - x)", "dy/dt = x(ρ - z) - y", "dz/dt = xy - βz"],
+  history:
+    "Lorenz discovered this while creating a simplified weather model. He noticed that tiny rounding errors in his computer calculations (like 0.506127 vs 0.506) led to completely different weather predictions. This revelation helped establish that: Deterministic systems can be unpredictable; Long-term weather forecasting has fundamental limits; Chaos is a natural phenomenon, not just mathematical curiosity",
   use: [
     "Weather patterns and atmospheric convection",
     "Laser dynamics",
@@ -28,16 +26,16 @@ export const lorenzSystem: SystemDefinition = {
     return ([x, y, z]): Vector3 => [
       params.sigma * (y - x),
       x * (params.rho - z) - y,
-      x * y - params.beta * z
+      x * y - params.beta * z,
     ];
   },
   sliders: [
-    { key: 'sigma', label: 'Sigma (σ)', min: 0, max: 50, step: 0.1 },
-    { key: 'rho', label: 'Rho (ρ)', min: 0, max: 100, step: 0.1 },
-    { key: 'beta', label: 'Beta (β)', min: 0, max: 10, step: 0.01 },
+    { key: "sigma", label: "Sigma (σ)", min: 0, max: 50, step: 0.1 },
+    { key: "rho", label: "Rho (ρ)", min: 0, max: 100, step: 0.1 },
+    { key: "beta", label: "Beta (β)", min: 0, max: 10, step: 0.01 },
   ],
   cameraConfig: {
     position: [-100, 30, 40],
-    target: [0, 25, 0]
+    target: [0, 25, 0],
   },
 };

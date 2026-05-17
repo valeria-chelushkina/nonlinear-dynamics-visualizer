@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import SimulationCanvas from "@/components/canvas/SimulationCanvas";
 import Controls from "@/components/ui/Controls";
 import { SYSTEM_REGISTRY } from "@/core/systems";
-import { useSimulationStore } from "@/store/useSimulationStore";
+import { useSimulationStore } from "@/stores/useSimulationStore";
 import styles from "./SimulationPage.module.css";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import Sidebar from "@/components/ui/Sidebar";
@@ -128,7 +128,7 @@ const SimulationPage: React.FC = () => {
           </div>
         </div>
       </div>
-      { /* A placeholder */ }
+      {/* A placeholder */}
       {!comparisonMode && <Sidebar />}
     </div>
   );

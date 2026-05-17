@@ -1,8 +1,8 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { SYSTEM_REGISTRY } from '@/core/systems';
-import styles from './Sidebar.module.css';
-import { ChevronRight } from 'lucide-react';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { SYSTEM_REGISTRY } from "@/core/systems";
+import styles from "./Sidebar.module.css";
+import { ChevronRight } from "lucide-react";
 
 const Sidebar: React.FC = () => {
   const navigate = useNavigate();
