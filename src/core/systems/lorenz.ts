@@ -35,5 +35,9 @@ export const lorenzSystem: SystemDefinition = {
     { key: 'sigma', label: 'Sigma (σ)', min: 0, max: 50, step: 0.1 },
     { key: 'rho', label: 'Rho (ρ)', min: 0, max: 100, step: 0.1 },
     { key: 'beta', label: 'Beta (β)', min: 0, max: 10, step: 0.01 },
-  ]
+  ],
+  cameraConfig: {
+    position: [-100, 30, 40],
+    target: [0, 25, 0]
+  }
 };

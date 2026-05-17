@@ -74,14 +74,18 @@ const DEFAULT_CAMERA: { position: [number, number, number], target: [number, num
 
 const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
   const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY['lorenz'];
+  const startPoint = system.initialPoint || INITIAL_POINT;
+
   return {
     systemType: system.id,
     params: { ...system.defaultParams },
-    points: [INITIAL_POINT],
+    points: [startPoint],
     isPaused: false,
     speed: 1,
-    maxPoints: 30000,
-    cameraConfig: { ...DEFAULT_CAMERA },
+    maxPoints: 100000,
+    cameraConfig: system.cameraConfig 
+      ? { ...system.cameraConfig } 
+      : { ...DEFAULT_CAMERA },
   };
 };
 
@@ -146,14 +150,19 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set((state) => {
       const sim = state.sims[side];
       
+      // Basic validation: Check for NaN or Infinity
+      if (!point.every(val => Number.isFinite(val))) return state;
+
       if (sim.points.length > 0) {
         const last = sim.points[sim.points.length - 1];
-        const dist = Math.sqrt(
+        const distSq = 
           Math.pow(point[0] - last[0], 2) + 
           Math.pow(point[1] - last[1], 2) + 
-          Math.pow(point[2] - last[2], 2)
-        );
-        if (dist > 50) return state; 
+          Math.pow(point[2] - last[2], 2);
+        
+        // If the point jumps too far (instability), ignore it. 
+        // 400 is dist 20, which is huge for a single dt.
+        if (distSq > 400) return state; 
       }
 
       const newPoints = [...sim.points, point];
@@ -174,7 +183,36 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       const sim = state.sims[side];
       if (newBatch.length === 0) return state;
 
-      const combinedPoints = [...sim.points, ...newBatch];
+      const validBatch: Vector3[] = [];
+      let lastPoint = sim.points.length > 0 ? sim.points[sim.points.length - 1] : null;
+
+      for (const pt of newBatch) {
+        // Validate each point
+        if (pt.every(val => Number.isFinite(val))) {
+          if (lastPoint) {
+            const distSq = 
+              Math.pow(pt[0] - lastPoint[0], 2) + 
+              Math.pow(pt[1] - lastPoint[1], 2) + 
+              Math.pow(pt[2] - lastPoint[2], 2);
+            
+            // Skip points that jump too far (divergence/instability)
+            if (distSq < 1000) { // dist ~31
+              validBatch.push(pt);
+              lastPoint = pt;
+            } else {
+              // If we hit an unstable point, stop the batch here to prevent "lines across the screen"
+              break;
+            }
+          } else {
+            validBatch.push(pt);
+            lastPoint = pt;
+          }
+        }
+      }
+
+      if (validBatch.length === 0) return state;
+
+      const combinedPoints = [...sim.points, ...validBatch];
       const slicedPoints = combinedPoints.length > sim.maxPoints
         ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
         : combinedPoints;
@@ -233,11 +271,14 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     })),
 
   resetSimulation: (side) => {
-    const { butterflyMode, runButterflyEffect } = get();
+    const { butterflyMode, runButterflyEffect, sims } = get();
     if (butterflyMode) {
       runButterflyEffect();
       return;
     }
+
+    const system = SYSTEM_REGISTRY[sims[side].systemType];
+    const startPoint = system?.initialPoint || INITIAL_POINT;
 
     set((state) => ({
       sims: {
@@ -250,13 +291,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       set((state) => ({
         sims: {
           ...state.sims,
-          [side]: { ...state.sims[side], points: [INITIAL_POINT], isPaused: false },
+          [side]: { ...state.sims[side], points: [startPoint], isPaused: false },
         },
       }));
     }, 100);
   },
 
   loadPreset: (side, systemType, newParams, cameraConfig) => {
+    const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY['lorenz'];
+    const defaultCam = system.cameraConfig 
+      ? { ...system.cameraConfig } 
+      : { ...DEFAULT_CAMERA };
+
     set((state) => ({
       screenshotSignal: { side: null, timestamp: 0 },
       sims: {
@@ -267,7 +313,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           params: newParams,
           points: [],
           isPaused: true,
-          cameraConfig: cameraConfig || { ...DEFAULT_CAMERA },
+          cameraConfig: cameraConfig || defaultCam,
         },
       },
     }));

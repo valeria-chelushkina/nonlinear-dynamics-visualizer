@@ -18,4 +18,9 @@ export interface SystemDefinition {
   defaultParams: Record<string, number>;
   getDerivative: (params: any) => DerivativeFn;
   sliders: SliderConfig[];
+  cameraConfig?: {
+    position: [number, number, number];
+    target: [number, number, number];
+  };
+  initialPoint?: [number, number, number];
 }

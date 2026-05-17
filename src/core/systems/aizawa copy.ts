@@ -2,13 +2,15 @@ import type { Vector3 } from '@/core/math/types';
 import type { SystemDefinition } from './types';
 
 export const aizawaSystem: SystemDefinition = {
-  id: 'aizawa',
-  name: 'Aizawa Attractor',
-  description: "The Aizawa attractor is a system of equations that, when applied iteratively on three-dimensional coordinates, evolves in such a way as to have the resulting coordinates map out a three dimensional shape, in this case a sphere with a tube-like structure penetrating one of it's axis.",
+  id: 'hindmarshRose',
+  name: 'Hindmarsh-Rose Attractor',
+  description: "",
   equations: [
-    "dx/dt = (z - b)x - dy",
-    "dy/dt = dx + (z - b)y",
-    "dz/dt = c + az - z^3/3 - (x^2 + y^2)(1 + ez) + fzx^3"
+    "dx/dt = y+phi(x) - z + I",
+    "dy/dt = ksi(x) - y",
+    "dz/dt = r[s(x - x(R)) - z]",
+    "phi(x) = -ax^3+bx^2",
+    "ksi(x) = c - dx^2"
   ],
   history: '',
   use: [],
@@ -34,9 +36,5 @@ export const aizawaSystem: SystemDefinition = {
     { key: 'd', label: 'Param D', min: 0, max: 5, step: 0.1 },
     { key: 'e', label: 'Param E', min: 0, max: 1, step: 0.01 },
     { key: 'f', label: 'Param F', min: 0, max: 1, step: 0.01 },
-  ],
-  cameraConfig: {
-    position: [-5, 2, 5],
-    target: [0, 0.5, 0]
-  }
+  ]
 };

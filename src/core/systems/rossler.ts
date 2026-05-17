@@ -28,5 +28,9 @@ export const rosslerSystem: SystemDefinition = {
     { key: 'a', label: 'Param A', min: 0, max: 1, step: 0.01 },
     { key: 'b', label: 'Param B', min: 0, max: 1, step: 0.01 },
     { key: 'c', label: 'Param C', min: 0, max: 20, step: 0.1 },
-  ]
+  ],
+  cameraConfig: {
+    position: [-40, 20, 30],
+    target: [0, 10, 0]
+  }
 };

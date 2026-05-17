@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import type { Side } from '@/store/useSimulationStore';
+import type { Side, Vector3 } from '@/store/useSimulationStore';
 import { rk4 } from '@/core/math/integrator';
 import { SYSTEM_REGISTRY } from '@/core/systems';
 
@@ -30,18 +30,21 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
     const lastPoint = points[points.length - 1];
     if (!lastPoint) return;
 
-    // Fixed time step for stability and smoothness
-    const dt = 0.01;
-    // Calculate how many steps we need to take this frame based on delta and speed
-    const totalTime = Math.min(delta, 0.1) * speed;
-    const numSteps = Math.max(1, Math.floor(totalTime / dt));
+    // Use a smaller dt for better precision and stability
+    const dt = 0.005;
+    // We take multiple steps per frame to maintain simulation speed
+    const stepsPerFrame = Math.max(1, Math.floor((delta * 60 * 20 * speed))); 
     
     const newBatch: Vector3[] = [];
     let currentPoint = lastPoint;
     
-    for (let i = 0; i < numSteps; i++) {
+    for (let i = 0; i < stepsPerFrame; i++) {
       currentPoint = rk4(currentPoint, 0, dt, derivative);
-      newBatch.push(currentPoint);
+      // Only record every 2nd step to the trail to double the history length
+      // without increasing the point count or memory pressure.
+      if (i % 2 === 0) {
+        newBatch.push(currentPoint);
+      }
     }
     
     addPoints(side, newBatch);

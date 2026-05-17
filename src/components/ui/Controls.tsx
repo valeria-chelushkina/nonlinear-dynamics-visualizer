@@ -29,24 +29,25 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
   );
   const user = useSimulationStore((state) => state.user);
   const token = useSimulationStore((state) => state.token);
+const {
+  setParams,
+  togglePause,
+  resetSimulation,
+  setSpeed,
+  setMaxPoints,
+  toggleComparison,
+  toggleSyncCameras,
+  toggleAllPause,
+  triggerScreenshot,
+  copyParam,
+  copySpeed,
+  syncAll,
+  toggleButterflyMode,
+  setInitialDifference,
+  runButterflyEffect,
+} = useSimulationStore();
 
-  const {
-    setParams,
-    togglePause,
-    resetSimulation,
-    setSpeed,
-    toggleComparison,
-    toggleSyncCameras,
-
-    triggerScreenshot,
-    copyParam,
-    copySpeed,
-    toggleButterflyMode,
-    setInitialDifference,
-    runButterflyEffect,
-  } = useSimulationStore();
-
-  const { systemType, params, isPaused, speed } = sim;
+const { systemType, params, isPaused, speed, maxPoints } = sim;
 
   const [presetName, setPresetName] = React.useState("");
   const [isPublic, setIsPublic] = React.useState(true);
@@ -184,7 +185,7 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
               <label>
                 {slider.label}{" "}
                 <span className={styles.value}>
-                  {(params[slider.key] || 0).toFixed(slider.step < 0.1 ? 2 : 1)}
+                  {(params[slider.key] || 0).toFixed(slider.step < 0.1 ? 3 : 1)}
                 </span>
               </label>
               <div className={styles.inputRow}>
@@ -211,6 +212,22 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
               </div>
             </div>
           ))}
+
+          <div className={styles.controlGroup}>
+            <label>
+              Tail length <span className={styles.value}>{maxPoints.toLocaleString()} pts</span>
+            </label>
+            <div className={styles.inputRow}>
+              <input
+                type="range"
+                min="1000"
+                max="200000"
+                step="1000"
+                value={maxPoints}
+                onChange={(e) => setMaxPoints(side, parseInt(e.target.value))}
+              />
+            </div>
+          </div>
 
           <div className={styles.controlGroup}>
             <label>
