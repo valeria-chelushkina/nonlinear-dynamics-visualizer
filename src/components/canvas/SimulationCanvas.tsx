@@ -49,8 +49,11 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
     const currentTarget = new THREE.Vector3().fromArray(sideConfig.target);
 
+    const distPos = camera.position.distanceTo(currentPos);
+    const distTarget = controlsRef.current.target.distanceTo(currentTarget);
+
     // Only update camera if the store actually changed (to avoid infinite loops)
-    if (camera.position.distanceTo(currentPos) > 0.01) {
+    if (distPos > 0.01 || distTarget > 0.01) {
       camera.position.copy(currentPos);
       controlsRef.current.target.copy(currentTarget);
       controlsRef.current.update();

@@ -11,7 +11,7 @@ function App() {
     <Router>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <Header />
-        <main style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+        <main style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
           <Routes>
             {/* Redirect root to lorenz simulation */}
             <Route path="/" element={<Navigate to="/sim/lorenz" replace />} />

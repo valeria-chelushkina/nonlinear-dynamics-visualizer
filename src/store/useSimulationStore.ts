@@ -241,6 +241,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
   loadPreset: (side, systemType, newParams, cameraConfig) => {
     set((state) => ({
+      screenshotSignal: { side: null, timestamp: 0 },
       sims: {
         ...state.sims,
         [side]: {
@@ -249,7 +250,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           params: newParams,
           points: [],
           isPaused: true,
-          ...(cameraConfig ? { cameraConfig } : {}),
+          cameraConfig: cameraConfig || { ...DEFAULT_CAMERA },
         },
       },
     }));
@@ -268,13 +269,18 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set((state) => ({
       comparisonMode: !state.comparisonMode,
       butterflyMode: false, // Mutually exclusive for simplicity
+      screenshotSignal: { side: null, timestamp: 0 },
     })),
 
-  toggleSyncCameras: () => set(state => ({ syncCameras: !state.syncCameras })),
+  toggleSyncCameras: () => set(state => ({ 
+    syncCameras: !state.syncCameras,
+    screenshotSignal: { side: null, timestamp: 0 }
+  })),
   
   toggleAllPause: () => set(state => {
     const nextPaused = !state.sims.left.isPaused;
     return {
+      screenshotSignal: { side: null, timestamp: 0 },
       sims: {
         left: { ...state.sims.left, isPaused: nextPaused },
         right: { ...state.sims.right, isPaused: nextPaused }

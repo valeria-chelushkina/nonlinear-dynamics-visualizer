@@ -9,13 +9,18 @@ import styles from './SimulationPage.module.css';
 const SimulationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const system = SYSTEM_REGISTRY[id || 'lorenz'];
-  const { setSystemType, sims } = useSimulationStore();
+  const { setSystemType, resetSimulation, sims } = useSimulationStore();
 
   useEffect(() => {
     const currentId = id || 'lorenz';
+
     setSystemType('left', currentId);
     setSystemType('right', currentId);
-  }, [id, setSystemType]);
+
+    resetSimulation('left');
+    resetSimulation('right');
+    
+  }, [id, setSystemType, resetSimulation]);
 
   if (!system) {
     return (
