@@ -69,7 +69,7 @@ const UserLibrary: React.FC = () => {
       <main className={styles.content}>
         <div className={styles.header} style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '10px', justifyContent: 'center' }}>
-             <div style={{ background: '#00ffcc', padding: '15px', borderRadius: '50%', color: 'black' }}>
+             <div style={{ background: '#eb6bff', padding: '15px', borderRadius: '50%', color: 'black' }}>
                 <User size={40} />
              </div>
              <div style={{ textAlign: 'left' }}>

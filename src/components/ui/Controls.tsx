@@ -259,7 +259,7 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
           </div>
 
           <div className={styles.visualsSection}>
-             <h4 style={{ margin: '0 0 15px 0', color: '#888', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '1px' }}>Visual Settings</h4>
+             <h4 className={styles.visualsHeader}>Visual Settings</h4>
              <div className={styles.visualsGrid}>
                 <div className={styles.controlGroup}>
                   <label>Primary Color</label>
@@ -269,17 +269,6 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
                     onChange={(e) => setVisuals(side, { color: e.target.value })}
                     className={styles.colorPicker}
                   />
-                </div>
-
-                <div className={styles.controlGroup}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={visuals.useGradient} 
-                      onChange={(e) => setVisuals(side, { useGradient: e.target.checked })}
-                    />
-                    Use Gradient
-                  </label>
                 </div>
 
                 {visuals.useGradient && (
@@ -295,6 +284,14 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
                 )}
 
                 <div className={styles.controlGroup}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={visuals.useGradient} 
+                      onChange={(e) => setVisuals(side, { useGradient: e.target.checked })}
+                    />
+                    Use Gradient
+                  </label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                     <input 
                       type="checkbox" 

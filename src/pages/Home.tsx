@@ -15,7 +15,7 @@ const Home: React.FC = () => {
       </div>
 
       {comparisonMode && (
-        <div className={styles.viewPane} style={{ borderLeft: '1px solid #333' }}>
+        <div className={styles.viewPane} style={{ borderLeft: '1px solid var(--border)' }}>
           <SimulationCanvas side="right" />
           <Controls side="right" />
         </div>

@@ -2,7 +2,7 @@
   display: flex;
   width: 100%;
   overflow: hidden;
-  background: rgb(21, 21, 21);
+  background: var(--bg);
 }
 
 .page {
@@ -45,15 +45,15 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
-  min-width: 0; /* Prevents flex items from overflowing */
+  min-width: 0;
 }
 
 .simCard {
-  background: black;
-  border: 1px solid #222;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow);
   margin: auto;
   gap: 50px;
   width: 100%;
@@ -61,14 +61,14 @@
 
 .canvasWrapper {
   aspect-ratio: 1.2 / 1;
-  background: #050505;
 }
 
 .controlsCard {
-  background: #111;
-  border: 1px solid #222;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 30px;
+  box-shadow: var(--shadow);
 }
 
 .infoPart {
@@ -84,6 +84,8 @@
   font-size: 45px;
   color: white;
   letter-spacing: 1px;
+  text-align: center;
+  color: var(--text-h);
 }
 
 .infoCard {
@@ -92,7 +94,7 @@
 
 .infoCard h3 {
   margin-top: 0;
-  color: #00ffcc;
+  color: var(--accent);
   font-size: 16px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -101,7 +103,7 @@
 
 .infoCard p {
   margin: 0;
-  color: #999;
+  color: var(--text);
   line-height: 1.6;
   font-size: 16px;
 }
@@ -113,7 +115,7 @@
 }
 
 .equation code {
-  color: #00ffcc;
+  color: var(--accent);
   font-family: 'Fira Code', monospace;
   font-size: 16px;
 }
@@ -121,7 +123,7 @@
 .use{
   padding-left: 5px;
   font-size: 16px;
-  color: #999;
+  color: var(--text);
 }
 
 .use::before{
@@ -137,21 +139,21 @@
 }
 
 .masterControls {
-  background: #111;
-  border: 1px solid #00ffcc;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   border-radius: 12px;
   padding: 12px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 0 15px rgba(0, 255, 204, 0.1);
+  box-shadow: 0 0 15px var(--shadow);
 }
 
 .masterLabel {
   font-size: 11px;
   font-weight: 800;
-  color: #00ffcc;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
@@ -162,8 +164,8 @@
 }
 
 .masterButton {
-  background: #222;
-  border: 1px solid #333;
+  background: var(--accent);
+  border: 1px solid var(--border);
   color: white;
   padding: 8px 15px;
   border-radius: 6px;
@@ -177,7 +179,7 @@
 }
 
 .masterButton:hover {
-  background: #333;
-  border-color: #00ffcc;
-  color: #00ffcc;
+  background: var(--btn-hover);
+  color: var(--accent);
+  border-color: var(--accent-hover);
 }

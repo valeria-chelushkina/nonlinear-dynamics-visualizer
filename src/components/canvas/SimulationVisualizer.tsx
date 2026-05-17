@@ -2,6 +2,7 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSimulationStore } from '@/store/useSimulationStore';
+import { useThemeStore } from '@/store/useThemeStore';
 import type { Side } from '@/store/useSimulationStore';
 import type { StateVector } from '@/core/math/types';
 import { rk4 } from '@/core/math/integrator';
@@ -16,6 +17,7 @@ const ThreeLine = 'line' as any;
 const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'left' }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const addPoints = useSimulationStore((state) => state.addPoints);
+  const theme = useThemeStore((state) => state.theme);
   
   const { systemType, params, points, isPaused, speed, visuals } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
@@ -63,30 +65,28 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
     const colorStart = new THREE.Color(visuals.color);
     const colorEnd = new THREE.Color(visuals.colorEnd || visuals.color);
 
+    // If in Light mode, we slightly darken the colors for better contrast against white,
+    // especially when we multiply them for Neon.
+    const lAdjust = theme === 'light' ? 0.7 : 1.0;
+    const multiplier = visuals.isNeon ? (theme === 'dark' ? 2.0 : 2.5) : 1.0;
+
     for (let i = 0; i < points.length; i++) {
       const renderPoint = mapFn(points[i], params);
       
-      // Standard 3D mapping: X->X, Y->Z, Z->Y (to have Z as up in equations but Y as up in Three.js)
-      // or just trust mapFn to return Vector3 [x, y, z] and we decide where they go.
-      // The previous logic was: X->0, Y->2, Z->1.
       flatPositions[i * 3] = renderPoint[0];     
       flatPositions[i * 3 + 1] = renderPoint[2]; 
       flatPositions[i * 3 + 2] = renderPoint[1]; 
 
-      if (visuals.useGradient) {
-        const t = i / (points.length - 1);
-        const lerpedColor = new THREE.Color().copy(colorStart).lerp(colorEnd, t);
-        flatColors[i * 3] = lerpedColor.r;
-        flatColors[i * 3 + 1] = lerpedColor.g;
-        flatColors[i * 3 + 2] = lerpedColor.b;
-      } else {
-        flatColors[i * 3] = colorStart.r;
-        flatColors[i * 3 + 1] = colorStart.g;
-        flatColors[i * 3 + 2] = colorStart.b;
-      }
+      const baseColor = visuals.useGradient 
+        ? new THREE.Color().copy(colorStart).lerp(colorEnd, i / (points.length - 1))
+        : colorStart;
+
+      flatColors[i * 3] = baseColor.r * lAdjust * multiplier;
+      flatColors[i * 3 + 1] = baseColor.g * lAdjust * multiplier;
+      flatColors[i * 3 + 2] = baseColor.b * lAdjust * multiplier;
     }
     return { positions: flatPositions, colors: flatColors };
-  }, [points, visuals, systemType, params]);
+  }, [points, visuals, systemType, params, theme]);
 
   useEffect(() => {
     if (geometryRef.current && positions.length > 0) {
@@ -122,9 +122,9 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({ side = 'lef
           <bufferGeometry ref={geometryRef} />
           <lineBasicMaterial 
             vertexColors
-            linewidth={4} 
+            linewidth={6} 
             transparent 
-            opacity={0.3}
+            opacity={0.15}
             toneMapped={false}
           />
         </ThreeLine>

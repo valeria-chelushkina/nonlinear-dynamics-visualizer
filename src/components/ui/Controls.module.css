@@ -1,8 +1,8 @@
 .controlsContainer {
   display: flex;
   flex-direction: column;
-  color: white;
-  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  font-family: var(--sans);
   width: 100%;
 }
 
@@ -10,88 +10,72 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
-  gap: 15px;
+  margin-bottom: 24px;
+  gap: 12px;
 }
 
 .headerActions {
   display: flex;
   gap: 8px;
-}
-
-.masterControls {
-  background: rgba(0, 255, 204, 0.05);
-  border: 1px solid rgba(0, 255, 204, 0.3);
-  padding: 15px 25px;
-  border-radius: 12px;
-  margin-bottom: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.masterLabel {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
-  color: #00ffcc;
-  letter-spacing: 2px;
-  margin-bottom: 5px;
-}
-
-.buttonGroup{
-  display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .butterflySection {
-  background: rgba(0, 255, 204, 0.05);
-  border: 1px solid rgba(0, 255, 204, 0.2);
-  padding: 15px;
-  border-radius: 8px;
-  width: auto;
-  margin: auto;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  padding: 16px;
+  border-radius: 12px;
+  width: 100%;
+  margin-bottom: 24px;
+  box-sizing: border-box;
 }
 
 .paramsGrid {
-  border-top: 1px solid #222;
-  padding-top: 20px;
-  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+  .paramsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .controlGroup {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .controlGroup label {
   display: block;
   font-size: 0.85rem;
-  color: #aaa;
-  margin-bottom: 5px;
+  color: var(--text);
+  margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .inputRow {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .controlGroup input[type="range"] {
   flex: 1;
-  accent-color: #00ffcc;
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
 .copyButton {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid #333;
-  color: #666;
-  border-radius: 4px;
-  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 8px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -100,37 +84,37 @@
 }
 
 .copyButton:hover {
-  color: #00ffcc;
-  border-color: #00ffcc;
-  background: rgba(0, 255, 204, 0.05);
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .syncAllButton {
   width: 100%;
-  background: rgba(0, 255, 204, 0.1);
-  border: 1px solid rgba(0, 255, 204, 0.3);
-  color: #00ffcc;
-  padding: 10px;
+  background: var(--accent);
+  border: none;
+  color: white;
+  padding: 12px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   transition: all 0.2s;
 }
 
 .syncAllButton:hover {
-  background: rgba(0, 255, 204, 0.2);
-  border-color: #00ffcc;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .iconButton {
-  background: none;
-  border: 1px solid #333;
-  color: #666;
+  background: var(--surface-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
@@ -141,86 +125,106 @@
 }
 
 .iconButton:hover, .iconButton.active {
-  color: #00ffcc;
-  border-color: #00ffcc;
-  background: rgba(0, 255, 204, 0.05);
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .value {
   float: right;
-  color: white;
-  font-family: monospace;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 600;
 }
 
 .button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background: #222;
-  color: white;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-bg);
+  color: var(--text);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-size: 15px;
-  transition: background 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 
 .button:hover {
-  background: #333;
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
-.button.active{
-  background: #00ffcce7;
-  color: black;
-  font-weight: 500;
+.button.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }
 
 .buttonPrimary {
-  background: #00ffcc;
-  color: black;
-  padding: 10px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 20px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
   font-weight: 600;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.buttonPrimary:hover{
-  opacity: 0.85;
+.buttonPrimary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
-.buttonPrimary:active{
-  opacity: 0.7;
+.buttonPrimary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .saveSection {
-  margin-top: 30px;
-  border-top: 1px solid #333;
-  padding-top: 20px;
+  margin-top: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
   display: flex;
-  gap: 30px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 
 .textInput {
-  padding: 10px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 6px;
-  color: white;
+  padding: 12px;
+  background: var(--surface-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
   outline: none;
-  font-size: 17px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.textInput:focus {
+  border-color: var(--accent);
 }
 
 .checkboxRow {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 20px;
   justify-content: center;
 }
 
@@ -229,22 +233,22 @@
   align-items: center;
   gap: 8px;
   font-size: 0.85rem;
-  color: #aaa;
+  color: var(--text);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .checkboxLabel input[type="checkbox"] {
-  accent-color: #00ffcc;
+  accent-color: var(--accent);
   cursor: pointer;
 }
 
 .loginMessage {
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed #333;
+  padding: 16px;
+  background: var(--accent-bg);
+  border: 1px dashed var(--accent-border);
   border-radius: 8px;
-  color: #666;
+  color: var(--text);
   font-size: 0.85rem;
   text-align: center;
   font-style: italic;
@@ -252,25 +256,36 @@
 
 .visualsSection {
   grid-column: 1 / -1;
-  margin-top: 10px;
-  padding-top: 20px;
-  border-top: 1px solid #222;
+  margin-top: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-bg);
+}
+
+.visualsHeader {
+  margin: 0 0 16px 0;
+  color: var(--text);
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .visualsGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 20px;
 }
 
 .colorPicker {
   width: 100%;
-  height: 30px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 4px;
+  height: 36px;
+  background: var(--surface-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
   cursor: pointer;
-  padding: 2px;
+  padding: 4px;
 }
 
 .colorPicker::-webkit-color-swatch-wrapper {
@@ -279,5 +294,5 @@
 
 .colorPicker::-webkit-color-swatch {
   border: none;
-  border-radius: 2px;
+  border-radius: 4px;
 }

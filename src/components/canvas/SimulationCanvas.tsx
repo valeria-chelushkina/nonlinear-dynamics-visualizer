@@ -4,6 +4,7 @@ import { OrbitControls, Grid, GizmoHelper, GizmoViewport } from '@react-three/dr
 import SimulationVisualizer from '@/components/canvas/SimulationVisualizer';
 import SimulationVisualizer2D from '@/components/canvas/SimulationVisualizer2D';
 import { useSimulationStore } from '@/store/useSimulationStore';
+import { useThemeStore } from '@/store/useThemeStore';
 import type { Side } from '@/store/useSimulationStore';
 import * as THREE from 'three';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -98,17 +99,23 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
 
 const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
+  const theme = useThemeStore((state) => state.theme);
   const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
   const isNeonLeft = useSimulationStore((state) => state.sims.left.visuals.isNeon);
   const isNeonRight = useSimulationStore((state) => state.sims.right.visuals.isNeon);
   const anyNeon = isNeonLeft || isNeonRight;
 
+  const bgColor = theme === 'dark' ? '#050505' : '#f0f0f0';
+  const gridColor = theme === 'dark' ? '#222' : '#ccc';
+  const sectionColor = theme === 'dark' ? '#444' : '#bbb';
+
   return (
-    <div style={{ width: '100%', height: '100%', background: '#050505' }}>
+    <div style={{ width: '100%', height: '100%', background: bgColor }}>
       <Canvas
         camera={{ position: is2D ? [0, 0, 100] : [-108, 30, 40], fov: 45 }}
         gl={{ antialias: false, stencil: false, depth: true }}
       >
+        <color attach="background" args={[bgColor]} />
         <ambientLight intensity={0.5} />
         <pointLight position={[100, 100, 100]} />
         
@@ -122,7 +129,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) =>
             alignment="bottom-right"
             margin={[80, 80]}
           >
-            <GizmoViewport axisColors={['#ff3e00', '#71ff2d', '#0070ff']} labelColor="white" />
+            <GizmoViewport axisColors={['#ff3e00', '#71ff2d', '#0070ff']} labelColor={theme === 'dark' ? 'white' : 'black'} />
           </GizmoHelper>
         )}
 
@@ -133,21 +140,22 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({ side = 'left' }) =>
             fadeStrength={5} 
             sectionSize={10} 
             sectionThickness={1}
-            cellColor="#222"
-            sectionColor="#444"
+            cellColor={gridColor}
+            sectionColor={sectionColor}
           />
         )}
 
         {anyNeon && (
           <EffectComposer enableNormalPass={false}>
             <Bloom 
-              luminanceThreshold={0.2} 
+              luminanceThreshold={1.0} 
               mipmapBlur 
-              intensity={1.5} 
+              intensity={theme === 'dark' ? 1.0 : 0.5} 
               radius={0.4}
             />
           </EffectComposer>
         )}
+
       </Canvas>
     </div>
   );

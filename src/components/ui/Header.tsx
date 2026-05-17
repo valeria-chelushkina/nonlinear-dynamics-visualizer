@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
-import { BookOpen, LogOut, User as UserIcon, Activity, ChevronDown } from 'lucide-react';
+import { useThemeStore } from '@/store/useThemeStore';
+import { BookOpen, LogOut, User as UserIcon, Activity, ChevronDown, Moon, Sun } from 'lucide-react';
 import { SYSTEM_REGISTRY } from '@/core/systems';
 import styles from './Header.module.css';
 
 const Header: React.FC = () => {
   const { user, logout } = useSimulationStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -14,6 +16,9 @@ const Header: React.FC = () => {
   const systems = Object.values(SYSTEM_REGISTRY);
 
   useEffect(() => {
+    // Initialize theme on mount
+    document.documentElement.setAttribute('data-theme', theme);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
@@ -28,7 +33,7 @@ const Header: React.FC = () => {
       <div className={styles.container}>
         <div className={styles.leftSection}>
           <Link to="/" className={styles.logo}>
-            <Activity color="#00ffcc" size={24} />
+            <Activity color="var(--accent)" size={24} />
             <span>Nonlinear Dynamics Visualizer</span>
           </Link>
 
@@ -63,6 +68,12 @@ const Header: React.FC = () => {
         </div>
 
         <nav className={styles.nav}>
+          <button className={styles.themeToggle} onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+          </button>
+
+          <div className={styles.divider} />
+
           <Link to="/library" className={styles.navLink}>
             <BookOpen size={18} />
             <span>Library</span>

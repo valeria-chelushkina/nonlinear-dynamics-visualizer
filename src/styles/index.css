@@ -1,15 +1,18 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  --text: #4b5563;
+  --text-h: #1f2937;
+  --bg: #f9f7ff;
+  --card-bg: #ffffff;
+  --surface-bg: #f3f0ff;
+  --border: #e2d8ee;
+  --code-bg: #f5f3ff;
+  --accent: #d946ef; 
+  --accent-hover: #c026d3;
+  --accent-bg: rgba(217, 70, 239, 0.08);
+  --accent-border: rgba(217, 70, 239, 0.3);
+  --social-bg: rgba(217, 70, 239, 0.05);
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(147, 51, 234, 0.1) 0 10px 15px -3px, rgba(147, 51, 234, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -17,7 +20,6 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.2px;
-  color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -30,32 +32,26 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+[data-theme='dark'] {
+  --text: #a1a1aa;
+  --text-h: #f4f4f5;
+  --bg: #09090b;
+  --card-bg: #121217;
+  --surface-bg: #1c1c21;
+  --border: #27272a;
+  --code-bg: #18181b;
+  --accent: #e879f9; 
+  --accent-hover: #f0abfc;
+  --accent-bg: rgba(232, 121, 249, 0.15);
+  --accent-border: rgba(232, 121, 249, 0.4);
+  --social-bg: rgba(232, 121, 249, 0.1);
+  --shadow:
+    rgba(0, 0, 0, 0.5) 0 20px 25px -5px, rgba(0, 0, 0, 0.3) 0 10px 10px -5px;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
