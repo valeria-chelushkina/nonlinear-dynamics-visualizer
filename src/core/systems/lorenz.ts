@@ -39,5 +39,5 @@ export const lorenzSystem: SystemDefinition = {
   cameraConfig: {
     position: [-100, 30, 40],
     target: [0, 25, 0]
-  }
+  },
 };

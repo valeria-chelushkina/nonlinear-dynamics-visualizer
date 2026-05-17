@@ -37,7 +37,6 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   
-  const syncCameras = useSimulationStore((state) => state.syncCameras);
   const butterflyMode = useSimulationStore((state) => state.butterflyMode);
   const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
@@ -52,7 +51,6 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const distPos = camera.position.distanceTo(currentPos);
     const distTarget = controlsRef.current.target.distanceTo(currentTarget);
 
-    // Only update camera if the store actually changed (to avoid infinite loops)
     if (distPos > 0.01 || distTarget > 0.01) {
       camera.position.copy(currentPos);
       controlsRef.current.target.copy(currentTarget);
@@ -65,8 +63,13 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const position = controls.object.position.toArray() as [number, number, number];
     const target = controls.target.toArray() as [number, number, number];
 
-    // Always update the store so 'Save Camera' works.
-    // If syncCameras is on, the store action will handle updating both sides.
+    // Log the current config
+    /*
+    console.log('CAMERA CONFIG:', {
+      position: position.map((v: number) => Number(v.toFixed(2))),
+      target: target.map((v: number) => Number(v.toFixed(2)))
+    });*/
+
     setCameraConfig(side, { position, target });
   };
 

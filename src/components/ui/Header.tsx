@@ -72,10 +72,10 @@ const Header: React.FC = () => {
 
           {user ? (
             <div className={styles.userSection}>
-              <div className={styles.userInfo}>
+              <Link to={`/user/${user.id}`} className={styles.userInfo} title="View my library">
                 <UserIcon size={18} />
                 <span>{user.username}</span>
-              </div>
+              </Link>
               <button onClick={logout} className={styles.logoutButton}>
                 <LogOut size={18} />
                 <span>Logout</span>

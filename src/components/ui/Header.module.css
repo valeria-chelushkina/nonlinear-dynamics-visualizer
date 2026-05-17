@@ -164,6 +164,15 @@
   color: #00ffcc;
   font-size: 16px;
   font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  padding: 5px 8px;
+  border-radius: 4px;
+}
+
+.userInfo:hover {
+  background: rgba(0, 255, 204, 0.1);
+  color: white;
 }
 
 .logoutButton {

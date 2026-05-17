@@ -32,8 +32,9 @@ export const halvorsenSystem: SystemDefinition = {
     { key: 'a', label: 'Param a', min: 0, max: 2.5, step: 0.01 }
   ],
   cameraConfig: {
-    position: [-30, 15, 30],
-    target: [-2, -2, -2]
+    position: [-3.16, -6.52, -36.22],
+    target: [-3.02, -2.44, -2.8]
   },
-  initialPoint: [-5, 0, 0]
+  initialPoint: [-5, 0, 0],
+  initialSpeed: 0.5
 };

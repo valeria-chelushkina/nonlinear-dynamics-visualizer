@@ -45,7 +45,8 @@ export const chuaSystem: SystemDefinition = {
     { key: 'm1', label: 'm1', min: -1, max: 0, step: 0.001 },
   ],
   cameraConfig: {
-    position: [-10, 5, 10],
-    target: [0, 0, 0]
-  }
+    position: [2.59, 1.82, 9.46],
+    target: [0.07, 0.09, -0.01]
+  },
+  initialSpeed: 4
 };

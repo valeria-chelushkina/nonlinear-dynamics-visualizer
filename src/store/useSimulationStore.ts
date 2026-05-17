@@ -81,7 +81,7 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
     params: { ...system.defaultParams },
     points: [startPoint],
     isPaused: false,
-    speed: 1,
+    speed: system.initialSpeed || 1,
     maxPoints: 100000,
     cameraConfig: system.cameraConfig 
       ? { ...system.cameraConfig } 

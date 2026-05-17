@@ -23,4 +23,5 @@ export interface SystemDefinition {
     target: [number, number, number];
   };
   initialPoint?: [number, number, number];
+  initialSpeed?: number;
 }

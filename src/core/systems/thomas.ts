@@ -32,8 +32,9 @@ export const thomasSystem: SystemDefinition = {
     { key: 'b', label: 'Dissipation (b)', min: 0, max: 0.5, step: 0.001 }
   ],
   cameraConfig: {
-    position: [-15, 10, 15],
-    target: [0, 0, 0]
+    position: [3.61, -0.6, -10.73],
+    target: [-0.11, 0.16, -0.55]
   },
-  initialPoint: [0.2, 0.5, 0.3]
+  initialPoint: [0.2, 0.5, 0.3],
+  initialSpeed: 20
 };

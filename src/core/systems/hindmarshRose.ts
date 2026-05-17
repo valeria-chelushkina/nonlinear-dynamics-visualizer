@@ -42,7 +42,8 @@ export const hindmarshRoseSystem: SystemDefinition = {
     { key: 'b', label: 'Param b', min: 0, max: 5, step: 0.1 },
   ],
   cameraConfig: {
-    position: [-20, 15, 20],
-    target: [0, 3, -7]
-  }
+    position: [-5.78, 3.44, 5.08],
+    target: [1.85, 0.38, -5.57]
+  },
+  initialSpeed: 5
 };

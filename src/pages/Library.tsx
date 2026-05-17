@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSimulationStore } from '@/store/useSimulationStore';
 import type { Side } from '@/store/useSimulationStore';
 import { Clock, User, Trash2 } from 'lucide-react';
@@ -114,7 +114,13 @@ const Library: React.FC = () => {
                 <div className={styles.details}>
                   <div className={styles.detailItem}>
                     <User size={14} />
-                    <span>{preset.user?.username || 'Unknown'}</span>
+                    <Link 
+                      to={`/user/${preset.userId}`} 
+                      className={styles.userLink}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {preset.user?.username || 'Unknown'}
+                    </Link>
                   </div>
                   <div className={styles.detailItem}>
                     <Clock size={14} />

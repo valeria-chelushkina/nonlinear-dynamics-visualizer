@@ -36,7 +36,7 @@ export const chenSystem: SystemDefinition = {
     { key: 'c', label: 'Param c', min: 0, max: 40, step: 0.1 },
   ],
   cameraConfig: {
-    position: [-100, 30, 40],
-    target: [0, 25, 0]
+    position: [-89.42, 37.6, 37.16],
+    target: [0.83, 33.08, 1.06]
   }
 };

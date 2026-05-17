@@ -171,6 +171,56 @@ app.get('/api/seed-user', async (req, res) => {
 });
 
 
+// Get presets for a specific user
+app.get('/api/users/:userId/presets', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+        let requesterId: string | undefined;
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, jwtSecret as string);
+                requesterId = (decoded as any).userId;
+            } catch (err) {
+                // Skip
+            }
+        }
+
+        const presets = await prisma.preset.findMany({
+            where: {
+                userId: userId,
+                OR: requesterId === userId ? undefined : [
+                    { isPublic: true }
+                ]
+            },
+            include: { user: { select: { username: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.json(presets);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user presets' });
+    }
+});
+
+// Get user profile info
+app.get('/api/users/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, username: true, createdAt: true }
+        });
+
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch user info' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });

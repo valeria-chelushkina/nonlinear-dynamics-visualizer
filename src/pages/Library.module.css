@@ -49,8 +49,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
+  justify-content: center;
 }
 
 .card {
@@ -210,4 +211,64 @@
   background: #00ffcc;
   color: #000;
   border-color: #00ffcc;
+}
+
+.systemTag {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.paramItem {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 14px;
+  color: #888;
+}
+
+.paramKey {
+  font-weight: 500;
+}
+
+.paramVal {
+  color: #ccc;
+  font-family: monospace;
+}
+
+.cardFooter {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.presetMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #666;
+}
+
+.privateBadge {
+  background: rgba(255, 255, 255, 0.05);
+  color: #666;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #333;
+}
+
+.loginMessage {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  background: #111;
+  border-radius: 12px;
+  border: 1px dashed #333;
 }

@@ -38,5 +38,6 @@ export const aizawaSystem: SystemDefinition = {
   cameraConfig: {
     position: [-5, 2, 5],
     target: [0, 0.5, 0]
-  }
+  },
+  initialSpeed: 5
 };

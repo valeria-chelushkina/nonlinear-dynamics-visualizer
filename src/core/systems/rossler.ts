@@ -30,7 +30,8 @@ export const rosslerSystem: SystemDefinition = {
     { key: 'c', label: 'Param C', min: 0, max: 20, step: 0.1 },
   ],
   cameraConfig: {
-    position: [-40, 20, 30],
-    target: [0, 10, 0]
-  }
+    position: [-28.4, 16.12, 20.62],
+    target: [-0.46, 9.14, -0.33]
+  },
+  initialSpeed: 6
 };
