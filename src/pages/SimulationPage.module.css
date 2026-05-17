@@ -1,17 +1,24 @@
-.page {
+.pageWrapper {
+  display: flex;
   width: 100%;
+  overflow: hidden;
   background: rgb(21, 21, 21);
+}
+
+.page {
+  flex: 1;
+  overflow-y: auto;
   padding: 40px 0;
 }
 
 .container {
-  width: 60%;
+  width: 80%;
   margin: 0 auto;
   padding: 0 20px;
   display: flex;
   flex-direction: column;
   gap: 50px;
-  transition: width 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .container.wide {
