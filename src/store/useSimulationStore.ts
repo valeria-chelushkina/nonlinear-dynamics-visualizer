@@ -80,7 +80,7 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
     points: [INITIAL_POINT],
     isPaused: false,
     speed: 1,
-    maxPoints: 50000,
+    maxPoints: 30000,
     cameraConfig: { ...DEFAULT_CAMERA },
   };
 };
@@ -188,12 +188,23 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }),
 
   togglePause: (side) =>
-    set((state) => ({
-      sims: {
-        ...state.sims,
-        [side]: { ...state.sims[side], isPaused: !state.sims[side].isPaused },
-      },
-    })),
+    set((state) => {
+      if (state.butterflyMode) {
+        const nextPaused = !state.sims.left.isPaused;
+        return {
+          sims: {
+            left: { ...state.sims.left, isPaused: nextPaused },
+            right: { ...state.sims.right, isPaused: nextPaused },
+          },
+        };
+      }
+      return {
+        sims: {
+          ...state.sims,
+          [side]: { ...state.sims[side], isPaused: !state.sims[side].isPaused },
+        },
+      };
+    }),
 
   setSpeed: (side, speed) =>
     set((state) => {
@@ -222,6 +233,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     })),
 
   resetSimulation: (side) => {
+    const { butterflyMode, runButterflyEffect } = get();
+    if (butterflyMode) {
+      runButterflyEffect();
+      return;
+    }
+
     set((state) => ({
       sims: {
         ...state.sims,
@@ -266,11 +283,23 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   toggleComparison: () =>
-    set((state) => ({
-      comparisonMode: !state.comparisonMode,
-      butterflyMode: false, // Mutually exclusive for simplicity
-      screenshotSignal: { side: null, timestamp: 0 },
-    })),
+    set((state) => {
+      const nextComparisonMode = !state.comparisonMode;
+      // If we are closing comparison mode, reset the right side to defaults
+      const rightSim = nextComparisonMode 
+        ? state.sims.right 
+        : createDefaultSim(state.sims.left.systemType);
+
+      return {
+        comparisonMode: nextComparisonMode,
+        butterflyMode: false, // Mutually exclusive for simplicity
+        screenshotSignal: { side: null, timestamp: 0 },
+        sims: {
+          ...state.sims,
+          right: rightSim
+        }
+      };
+    }),
 
   toggleSyncCameras: () => set(state => ({ 
     syncCameras: !state.syncCameras,

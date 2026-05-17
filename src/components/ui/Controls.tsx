@@ -12,7 +12,7 @@ import {
   Link,
   Link2Off,
   Camera,
-  EqualApproximately
+  EqualApproximately,
 } from "lucide-react";
 
 interface ControlsProps {
@@ -37,20 +37,16 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
     setSpeed,
     toggleComparison,
     toggleSyncCameras,
-    toggleAllPause,
+
     triggerScreenshot,
     copyParam,
     copySpeed,
-    syncAll,
     toggleButterflyMode,
     setInitialDifference,
     runButterflyEffect,
   } = useSimulationStore();
 
   const { systemType, params, isPaused, speed } = sim;
-  const bothPaused = useSimulationStore(
-    (state) => state.sims.left.isPaused && state.sims.right.isPaused,
-  );
 
   const [presetName, setPresetName] = React.useState("");
   const [isPublic, setIsPublic] = React.useState(true);
@@ -122,14 +118,15 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
 
           {side === "left" && (
             <>
-
-              <button
-              className={`${styles.button} ${butterflyMode ? styles.active : ""}`}
-              onClick={toggleButterflyMode}
-              title="Butterfly mode"
-              >
-                <EqualApproximately size={18} /> Butterfly mode
-              </button>
+              {!comparisonMode && (
+                <button
+                  className={`${styles.button} ${butterflyMode ? styles.active : ""}`}
+                  onClick={toggleButterflyMode}
+                  title="Butterfly mode"
+                >
+                  <EqualApproximately size={18} /> Butterfly mode
+                </button>
+              )}
 
               <button
                 className={`${styles.button} ${comparisonMode ? styles.active : ""}`}
@@ -149,56 +146,35 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
               )}
             </>
           )}
-
         </div>
       </div>
 
-      {comparisonMode && side === "left" && (
-        <div className={styles.masterControls}>
-          <label className={styles.masterLabel}>MASTER CONTROLS</label>
-          <div className={styles.buttonGroup}>
+      {side === "left" && !comparisonMode && butterflyMode && (
+        <div className={styles.butterflySection}>
+          <div className={styles.controlGroup} style={{ marginBottom: 0 }}>
+            <label>
+              Initial Diff:{" "}
+              <span className={styles.value}>
+                {initialDifference.toFixed(5)}
+              </span>
+            </label>
+            <input
+              type="range"
+              min="0.00001"
+              max="0.01"
+              step="0.00001"
+              value={initialDifference}
+              onChange={(e) => setInitialDifference(parseFloat(e.target.value))}
+            />
             <button
-              className={`${styles.button} ${styles.buttonPrimary}`}
-              onClick={toggleAllPause}
+              className={styles.syncAllButton}
+              style={{ marginTop: "15px", marginBottom: 0 }}
+              onClick={runButterflyEffect}
             >
-              {bothPaused ? <Play size={16} /> : <Pause size={16} />}
-              {bothPaused ? "Resume both" : "Pause both"}
-            </button>
-            <button className={styles.button} onClick={syncAll}>
-              <RotateCcw size={16} /> Reset both
+              <RotateCcw size={16} /> Run Comparison
             </button>
           </div>
         </div>
-      )}
-
-      {side === "left" && !comparisonMode && butterflyMode && (
-        <div className={styles.butterflySection}>
-            <div className={styles.controlGroup} style={{ marginBottom: 0 }}>
-              <label>
-                Initial Diff:{" "}
-                <span className={styles.value}>
-                  {initialDifference.toFixed(5)}
-                </span>
-              </label>
-              <input
-                type="range"
-                min="0.00001"
-                max="0.01"
-                step="0.00001"
-                value={initialDifference}
-                onChange={(e) =>
-                  setInitialDifference(parseFloat(e.target.value))
-                }
-              />
-              <button
-                className={styles.syncAllButton}
-                style={{ marginTop: "15px", marginBottom: 0 }}
-                onClick={runButterflyEffect}
-              >
-                <RotateCcw size={16} /> Run Comparison
-              </button>
-            </div>
-          </div>
       )}
 
       <div className={styles.section}>
@@ -270,21 +246,21 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
           value={presetName}
           onChange={(e) => setPresetName(e.target.value)}
         />
-        
+
         <div className={styles.checkboxRow}>
           <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              checked={!isPublic} 
-              onChange={(e) => setIsPublic(!e.target.checked)} 
+            <input
+              type="checkbox"
+              checked={!isPublic}
+              onChange={(e) => setIsPublic(!e.target.checked)}
             />
             Private
           </label>
           <label className={styles.checkboxLabel}>
-            <input 
-              type="checkbox" 
-              checked={saveCamera} 
-              onChange={(e) => setSaveCamera(e.target.checked)} 
+            <input
+              type="checkbox"
+              checked={saveCamera}
+              onChange={(e) => setSaveCamera(e.target.checked)}
             />
             Save Camera
           </label>

@@ -21,21 +21,23 @@
 
 .masterControls {
   background: rgba(0, 255, 204, 0.05);
-  border: 1px solid rgba(0, 255, 204, 0.2);
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  width: auto;
-  margin: auto;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  padding: 15px 25px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .masterLabel {
   display: block;
-  font-size: 0.75rem;
+  font-size: 11px;
+  font-weight: 800;
   color: #00ffcc;
-  font-weight: bold;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
 }
 
 .buttonGroup{
