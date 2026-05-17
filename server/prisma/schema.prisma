@@ -33,6 +33,9 @@ model Preset {
   // Save the camera for identical view
   cameraConfig Json?    
   
+  // Save colors, gradients, etc.
+  visuals      Json?
+
   isPublic     Boolean  @default(true)
   createdAt    DateTime @default(now())
 

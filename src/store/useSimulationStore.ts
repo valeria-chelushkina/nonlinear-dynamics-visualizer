@@ -1,13 +1,20 @@
 import { create } from 'zustand';
 import { SYSTEM_REGISTRY } from '@/core/systems';
-import type { Vector3 } from '@/core/math/types';
+import type { StateVector } from '@/core/math/types';
 
 export type Side = 'left' | 'right';
+
+export interface VisualConfig {
+  color: string;
+  colorEnd?: string;
+  useGradient: boolean;
+  isNeon: boolean;
+}
 
 export interface SimulationData {
   systemType: string;
   params: Record<string, number>;
-  points: Vector3[];
+  points: StateVector[];
   isPaused: boolean;
   speed: number;
   maxPoints: number;
@@ -15,6 +22,7 @@ export interface SimulationData {
     position: [number, number, number];
     target: [number, number, number];
   };
+  visuals: VisualConfig;
 }
 
 
@@ -41,15 +49,16 @@ interface SimulationStore {
   // Actions
   setSystemType: (side: Side, type: string) => void;
   setParams: (side: Side, params: Partial<Record<string, number>>) => void;
-  addPoint: (side: Side, point: Vector3) => void;
-  addPoints: (side: Side, points: Vector3[]) => void;
+  addPoint: (side: Side, point: StateVector) => void;
+  addPoints: (side: Side, points: StateVector[]) => void;
   togglePause: (side: Side) => void;
   setSpeed: (side: Side, speed: number) => void;
   setMaxPoints: (side: Side, maxPoints: number) => void;
   resetSimulation: (side: Side) => void;
   resetParams: (side: Side) => void;
   resetSimulationState: (type?: string) => void;
-  loadPreset: (side: Side, systemType: string, newParams: any, cameraConfig: any) => void;
+  setVisuals: (side: Side, visuals: Partial<VisualConfig>) => void;
+  loadPreset: (side: Side, systemType: string, newParams: any, cameraConfig: any, visuals?: any) => void;
   toggleComparison: () => void;
   toggleSyncCameras: () => void;
   toggleAllPause: () => void;
@@ -68,15 +77,32 @@ interface SimulationStore {
   logout: () => void;
 }
 
-const INITIAL_POINT: Vector3 = [0.1, 0.1, 0.1];
+const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
 const DEFAULT_CAMERA: { position: [number, number, number], target: [number, number, number] } = {
   position: [-108, 30, 40],
   target: [0, 25, 0],
 };
 
-const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
+const getPersistedVisuals = (side: Side): VisualConfig => {
+  const saved = localStorage.getItem(`visuals_${side}`);
+  if (saved) {
+    try {
+      return JSON.parse(saved);
+    } catch (e) {
+      console.error('Failed to parse persisted visuals', e);
+    }
+  }
+  return {
+    color: side === 'left' ? '#00ffcc' : '#ff3e00',
+    colorEnd: side === 'left' ? '#0070ff' : '#ffcc00',
+    useGradient: false,
+    isNeon: false,
+  };
+};
+
+const createDefaultSim = (type: string = 'lorenz', side: Side = 'left', preserveVisuals?: VisualConfig): SimulationData => {
   const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY['lorenz'];
-  const startPoint = system.initialPoint || INITIAL_POINT;
+  const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
 
   return {
     systemType: system.id,
@@ -88,13 +114,14 @@ const createDefaultSim = (type: string = 'lorenz'): SimulationData => {
     cameraConfig: system.cameraConfig 
       ? { ...system.cameraConfig } 
       : { ...DEFAULT_CAMERA },
+    visuals: preserveVisuals || getPersistedVisuals(side)
   };
 };
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
   sims: {
-    left: createDefaultSim('lorenz'),
-    right: createDefaultSim('lorenz'),
+    left: createDefaultSim('lorenz', 'left'),
+    right: createDefaultSim('lorenz', 'right'),
   },
   comparisonMode: false,
   syncCameras: false,
@@ -133,7 +160,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     set((state) => ({
       sims: {
         ...state.sims,
-        [side]: createDefaultSim(type)
+        [side]: createDefaultSim(type, side, state.sims[side].visuals)
       }
     })),
 
@@ -148,6 +175,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       },
     })),
 
+  setVisuals: (side, newVisuals) =>
+    set((state) => {
+      const updatedVisuals = { ...state.sims[side].visuals, ...newVisuals };
+      localStorage.setItem(`visuals_${side}`, JSON.stringify(updatedVisuals));
+      return {
+        sims: {
+          ...state.sims,
+          [side]: {
+            ...state.sims[side],
+            visuals: updatedVisuals,
+          },
+        },
+      };
+    }),
+
   addPoint: (side, point) =>
     set((state) => {
       const sim = state.sims[side];
@@ -157,14 +199,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
       if (sim.points.length > 0) {
         const last = sim.points[sim.points.length - 1];
+        // Only check first 2 components for jump (angles or coords)
         const distSq = 
           Math.pow(point[0] - last[0], 2) + 
-          Math.pow(point[1] - last[1], 2) + 
-          Math.pow(point[2] - last[2], 2);
+          Math.pow(point[1] - last[1], 2);
         
-        // If the point jumps too far (instability), ignore it. 
-        // 400 is dist 20, which is huge for a single dt.
-        if (distSq > 400) return state; 
+        if (distSq > 1000) return state; 
       }
 
       const newPoints = [...sim.points, point];
@@ -185,7 +225,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       const sim = state.sims[side];
       if (newBatch.length === 0) return state;
 
-      const validBatch: Vector3[] = [];
+      const validBatch: StateVector[] = [];
       let lastPoint = sim.points.length > 0 ? sim.points[sim.points.length - 1] : null;
 
       for (const pt of newBatch) {
@@ -194,15 +234,13 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           if (lastPoint) {
             const distSq = 
               Math.pow(pt[0] - lastPoint[0], 2) + 
-              Math.pow(pt[1] - lastPoint[1], 2) + 
-              Math.pow(pt[2] - lastPoint[2], 2);
+              Math.pow(pt[1] - lastPoint[1], 2);
             
             // Skip points that jump too far (divergence/instability)
-            if (distSq < 1000) { // dist ~31
+            if (distSq < 2000) { 
               validBatch.push(pt);
               lastPoint = pt;
             } else {
-              // If we hit an unstable point, stop the batch here to prevent "lines across the screen"
               break;
             }
           } else {
@@ -280,7 +318,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }
 
     const system = SYSTEM_REGISTRY[sims[side].systemType];
-    const startPoint = system?.initialPoint || INITIAL_POINT;
+    const startPoint = system?.initialState || system?.initialPoint || INITIAL_POINT;
 
     set((state) => ({
       sims: {
@@ -322,17 +360,25 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       butterflyMode: false,
       syncCameras: false,
       sims: {
-        left: createDefaultSim(targetType),
-        right: createDefaultSim(targetType),
+        left: createDefaultSim(targetType, 'left'),
+        right: createDefaultSim(targetType, 'right'),
       }
     });
   },
 
-  loadPreset: (side, systemType, newParams, cameraConfig) => {
+  loadPreset: (side, systemType, newParams, cameraConfig, visuals) => {
     const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY['lorenz'];
+    const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
     const defaultCam = system.cameraConfig 
       ? { ...system.cameraConfig } 
       : { ...DEFAULT_CAMERA };
+    
+    const defaultVisuals = {
+      color: side === 'left' ? '#00ffcc' : '#ff3e00',
+      colorEnd: side === 'left' ? '#0070ff' : '#ffcc00',
+      useGradient: false,
+      isNeon: false,
+    };
 
     set((state) => ({
       screenshotSignal: { side: null, timestamp: 0 },
@@ -345,6 +391,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
           points: [],
           isPaused: true,
           cameraConfig: cameraConfig || defaultCam,
+          visuals: visuals || defaultVisuals,
         },
       },
     }));
@@ -353,7 +400,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       set((state) => ({
         sims: {
           ...state.sims,
-          [side]: { ...state.sims[side], points: [INITIAL_POINT], isPaused: false },
+          [side]: { ...state.sims[side], points: [startPoint], isPaused: false },
         },
       }));
     }, 100);
@@ -365,7 +412,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       // If we are closing comparison mode, reset the right side to defaults
       const rightSim = nextComparisonMode 
         ? state.sims.right 
-        : createDefaultSim(state.sims.left.systemType);
+        : createDefaultSim(state.sims.left.systemType, 'right');
 
       return {
         comparisonMode: nextComparisonMode,
@@ -425,6 +472,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   })),
 
   syncAll: () => {
+    const { sims } = get();
+    const leftSystem = SYSTEM_REGISTRY[sims.left.systemType];
+    const rightSystem = SYSTEM_REGISTRY[sims.right.systemType];
+    const startPointLeft = leftSystem?.initialState || leftSystem?.initialPoint || INITIAL_POINT;
+    const startPointRight = rightSystem?.initialState || rightSystem?.initialPoint || INITIAL_POINT;
+
     set((state) => ({
       sims: {
         left: { ...state.sims.left, points: [], isPaused: true },
@@ -435,8 +488,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     setTimeout(() => {
       set((state) => ({
         sims: {
-          left: { ...state.sims.left, points: [INITIAL_POINT], isPaused: false },
-          right: { ...state.sims.right, points: [INITIAL_POINT], isPaused: false },
+          left: { ...state.sims.left, points: [startPointLeft], isPaused: false },
+          right: { ...state.sims.right, points: [startPointRight], isPaused: false },
         }
       }));
     }, 100);
@@ -455,6 +508,8 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     const { initialDifference, sims } = get();
     const leftParams = sims.left.params;
     const systemType = sims.left.systemType;
+    const system = SYSTEM_REGISTRY[systemType];
+    const startPoint = system?.initialState || system?.initialPoint || INITIAL_POINT;
 
     set((state) => ({
       sims: {
@@ -464,10 +519,12 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     }));
 
     setTimeout(() => {
+      const secondPoint = [...startPoint];
+      secondPoint[0] += initialDifference;
       set((state) => ({
         sims: {
-          left: { ...state.sims.left, points: [INITIAL_POINT], isPaused: false },
-          right: { ...state.sims.right, points: [[INITIAL_POINT[0] + initialDifference, INITIAL_POINT[1], INITIAL_POINT[2]]], isPaused: false },
+          left: { ...state.sims.left, points: [startPoint], isPaused: false },
+          right: { ...state.sims.right, points: [secondPoint], isPaused: false },
         }
       }));
     }, 100);

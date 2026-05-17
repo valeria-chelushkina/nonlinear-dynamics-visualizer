@@ -68,7 +68,7 @@ app.get('/api/health', (req, res) => {
 // Save some parameters of a preset
 app.post('/api/presets', authenticate, async (req, res) => {
     try {
-        const { name, systemType, parameters, isPublic, cameraConfig } = req.body;
+        const { name, systemType, parameters, isPublic, cameraConfig, visuals } = req.body;
         const newPreset = await prisma.preset.create({
             data: {
                 name,
@@ -76,6 +76,7 @@ app.post('/api/presets', authenticate, async (req, res) => {
                 parameters,
                 isPublic,
                 cameraConfig,
+                visuals,
                 userId: req.userId! // taken from token
             }
         });

@@ -1,4 +1,4 @@
-import type { DerivativeFn } from '@/core/math/types';
+import type { StateVector, Vector3, DerivativeFn } from '@/core/math/types';
 
 export interface SliderConfig {
   key: string;
@@ -15,6 +15,7 @@ export interface SystemDefinition {
   equations: string[];
   history: string;
   use: string[];
+  dimension?: 2 | 3;
   defaultParams: Record<string, number>;
   getDerivative: (params: any) => DerivativeFn;
   sliders: SliderConfig[];
@@ -22,6 +23,8 @@ export interface SystemDefinition {
     position: [number, number, number];
     target: [number, number, number];
   };
-  initialPoint?: [number, number, number];
+  initialPoint?: StateVector; // Legacy, will use initialState if present
+  initialState?: StateVector;
+  mapStateToPoint?: (state: StateVector, params: any) => Vector3;
   initialSpeed?: number;
 }

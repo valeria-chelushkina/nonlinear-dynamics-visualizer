@@ -56,8 +56,8 @@ const UserLibrary: React.FC = () => {
     fetchData();
   }, [userId, token]);
 
-  const handleLoad = (preset: Preset) => {
-    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig);
+  const handleLoad = (preset: any) => {
+    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig, preset.visuals);
     navigate(`/sim/${preset.systemType}`);
   };
 

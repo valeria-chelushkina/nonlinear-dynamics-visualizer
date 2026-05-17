@@ -2,6 +2,7 @@ import React from "react";
 import { useSimulationStore } from "@/store/useSimulationStore";
 import type { Side } from "@/store/useSimulationStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
+import type { SliderConfig } from "@/core/systems";
 import styles from "./Controls.module.css";
 import {
   Play,
@@ -44,9 +45,10 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
     setInitialDifference,
     runButterflyEffect,
     resetParams,
+    setVisuals,
   } = useSimulationStore();
 
-  const { systemType, params, isPaused, speed, maxPoints } = sim;
+  const { systemType, params, isPaused, speed, maxPoints, visuals } = sim;
 
   const [presetName, setPresetName] = React.useState("");
   const [isPublic, setIsPublic] = React.useState(true);
@@ -75,6 +77,7 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
           parameters: params,
           isPublic: isPublic,
           cameraConfig: saveCamera ? cameraConfig : null,
+          visuals: visuals, // Also save visuals
         }),
       });
 
@@ -179,7 +182,7 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
 
       <div className={styles.section}>
         <div className={styles.paramsGrid}>
-          {currentSystem.sliders.map((slider) => (
+          {currentSystem.sliders.map((slider: SliderConfig) => (
             <div key={slider.key} className={styles.controlGroup}>
               <label>
                 {slider.label}{" "}
@@ -253,6 +256,55 @@ const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
                 </button>
               )}
             </div>
+          </div>
+
+          <div className={styles.visualsSection}>
+             <h4 style={{ margin: '0 0 15px 0', color: '#888', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '1px' }}>Visual Settings</h4>
+             <div className={styles.visualsGrid}>
+                <div className={styles.controlGroup}>
+                  <label>Primary Color</label>
+                  <input 
+                    type="color" 
+                    value={visuals.color} 
+                    onChange={(e) => setVisuals(side, { color: e.target.value })}
+                    className={styles.colorPicker}
+                  />
+                </div>
+
+                <div className={styles.controlGroup}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={visuals.useGradient} 
+                      onChange={(e) => setVisuals(side, { useGradient: e.target.checked })}
+                    />
+                    Use Gradient
+                  </label>
+                </div>
+
+                {visuals.useGradient && (
+                  <div className={styles.controlGroup}>
+                    <label>End Color</label>
+                    <input 
+                      type="color" 
+                      value={visuals.colorEnd || visuals.color} 
+                      onChange={(e) => setVisuals(side, { colorEnd: e.target.value })}
+                      className={styles.colorPicker}
+                    />
+                  </div>
+                )}
+
+                <div className={styles.controlGroup}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={visuals.isNeon} 
+                      onChange={(e) => setVisuals(side, { isNeon: e.target.checked })}
+                    />
+                    Neon Effect
+                  </label>
+                </div>
+             </div>
           </div>
 
           <div className={styles.controlGroup}>

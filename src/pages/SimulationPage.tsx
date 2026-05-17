@@ -36,10 +36,6 @@ const SimulationPage: React.FC = () => {
   useEffect(() => {
     const currentId = id || "lorenz";
     resetSimulationState(currentId);
-
-    return () => {
-      resetSimulationState(currentId);
-    };
   }, [id, resetSimulationState]);
 
   if (!system) {
@@ -51,7 +47,7 @@ const SimulationPage: React.FC = () => {
   }
 
   return (
-    <div className={styles.pageWrapper}>
+    <div className={styles.pageWrapper} key={id}>
       {!comparisonMode && <Sidebar />}
       <div className={styles.page}>
         <div
@@ -106,7 +102,7 @@ const SimulationPage: React.FC = () => {
             <section className={styles.infoCard}>
               <h3>Differential Equations</h3>
               <div className={styles.equationsList}>
-                {system.equations.map((eq, i) => (
+                {system.equations.map((eq: any, i: any) => (
                   <div key={i} className={styles.equation}>
                     <code>{eq}</code>
                   </div>
@@ -122,7 +118,7 @@ const SimulationPage: React.FC = () => {
             <section className={styles.infoCard}>
               <h3>Real-World Applications</h3>
               <div className={styles.useList}>
-                {system.use.map((use, i) => (
+                {system.use.map((use: any, i: any) => (
                   <div key={i} className={styles.use}>
                     {use}
                   </div>

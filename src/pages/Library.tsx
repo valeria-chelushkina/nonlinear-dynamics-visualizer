@@ -24,13 +24,13 @@ const Library: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleSelect = (preset: any) => {
-    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig);
+  const handleLoad = (preset: any) => {
+    loadPreset(targetSide, preset.systemType, preset.parameters, preset.cameraConfig, preset.visuals);
     navigate(`/sim/${preset.systemType}`);
   };
 
   const handleDelete = async (e: React.MouseEvent, id: number) => {
-    e.stopPropagation(); // Don't trigger handleSelect
+    e.stopPropagation(); // Don't trigger handleLoad
     
     if (!confirm('Are you sure you want to delete this preset?')) return;
 
@@ -93,7 +93,7 @@ const Library: React.FC = () => {
               <div 
                 key={preset.id} 
                 className={styles.card}
-                onClick={() => handleSelect(preset)}
+                onClick={() => handleLoad(preset)}
               >
                 <div className={styles.cardHeader}>
                   <h3>{preset.name}</h3>
