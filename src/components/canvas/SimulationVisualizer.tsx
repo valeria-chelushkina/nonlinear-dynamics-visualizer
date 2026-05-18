@@ -1,91 +1,153 @@
 /**
  * @file SimulationVisualizer.tsx
- * @description 3D WebGL simulation visualizer component
- * Translates multidimensional mathematical state vectors into an interactive 3D trail.
+ * @description Optimized 3D WebGL simulation visualizer component.
  */
 
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useUIStore } from "@/stores/useUIStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
-import type { Side } from "@/stores/useSimulationStore";
+import type { Side } from "@/stores/types/simulation.types";
 import { SYSTEM_REGISTRY } from "@/core/systems";
+import { CoordinateTransformer } from "@/core/utils/coordinateTransformer";
 import { useSimulationLoop } from "../../hooks/useSimulationLoop";
 
 interface SimulationVisualizerProps {
   side?: Side;
 }
 
-// Bypassing strict JSX intrinsic typing for Three.js primitive element declarations
 const ThreeLine = "line" as any;
 
 const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
   side = "left",
 }) => {
-  // Drives the math evaluation pipeline step-by-step per frame tick
   const { sim } = useSimulationLoop({ side });
-
   const theme = useUIStore((state) => state.theme);
   const visuals = useVisualsStore((state) => state.configs[side]);
 
-  const { systemType, params, points } = sim;
+  const { systemType, params, points, maxPoints } = sim;
+
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
-  /** Map state vectors into flat WebGL arrays. Generates position tracking data and evaluates color interpolations */
-  const { positions, colors } = useMemo(() => {
-    if (points.length < 2) {
-      return { positions: new Float32Array(0), colors: new Float32Array(0) };
+  // Persistent memory references holding stable WebGL-bound structures
+  const positionsRef = useRef<Float32Array | null>(null);
+  const colorsRef = useRef<Float32Array | null>(null);
+  const lastUploadedCountRef = useRef<number>(0);
+  const currentCapacityRef = useRef<number>(0);
+
+  // Buffer pre-allocation lifecycle boundary
+  if (!positionsRef.current || currentCapacityRef.current !== maxPoints) {
+    positionsRef.current = new Float32Array(maxPoints * 3);
+    colorsRef.current = new Float32Array(maxPoints * 3);
+    currentCapacityRef.current = maxPoints;
+    lastUploadedCountRef.current = 0; // forces complete baseline redraw on capacity change
+  }
+
+  // Partial update render loop pipeline
+  useEffect(() => {
+    const geometry = geometryRef.current;
+    if (!geometry) return;
+
+    const currentCount = points.length;
+
+    if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
+      lastUploadedCountRef.current = 0;
+    }
+
+    if (currentCount < 2) {
+      geometry.setDrawRange(0, 0);
+      return;
     }
 
     const system = SYSTEM_REGISTRY[systemType];
-    const mapFn = system?.math.mapStateToPoint || ((s: any) => [s[0], s[1], s[2]]);
+    const mapFn =
+      system?.math.mapStateToPoint || ((s: any) => [s[0], s[1], s[2]]);
 
-    const flatPositions = new Float32Array(points.length * 3);
-    const flatColors = new Float32Array(points.length * 3);
+    const posArr = positionsRef.current!;
+    const colArr = colorsRef.current!;
 
     const colorStart = new THREE.Color(visuals.color);
     const colorEnd = new THREE.Color(visuals.colorEnd || visuals.color);
     const lAdjust = theme === "light" ? 0.7 : 1.0;
 
-    for (let i = 0; i < points.length; i++) {
-      const renderPoint = mapFn(points[i], params);
+    const isSaturatedWindow = currentCount >= maxPoints;
+    const startIdx = isSaturatedWindow ? 0 : lastUploadedCountRef.current;
 
-      // Re-map axes cleanly across the WebGL viewing plane
-      flatPositions[i * 3] = renderPoint[0];
-      flatPositions[i * 3 + 1] = renderPoint[2];
-      flatPositions[i * 3 + 2] = renderPoint[1];
+    for (let i = startIdx; i < currentCount; i++) {
+      const rawMathPoint = mapFn(points[i], params);
+      const threeSpacePoint = CoordinateTransformer.toThreeSpace(rawMathPoint);
+      const i3 = i * 3;
 
-      const baseColor = visuals.useGradient
-        ? new THREE.Color()
-            .copy(colorStart)
-            .lerp(colorEnd, i / (points.length - 1))
-        : colorStart;
-
-      flatColors[i * 3] = baseColor.r * lAdjust;
-      flatColors[i * 3 + 1] = baseColor.g * lAdjust;
-      flatColors[i * 3 + 2] = baseColor.b * lAdjust;
+      posArr[i3] = threeSpacePoint[0];
+      posArr[i3 + 1] = threeSpacePoint[2];
+      posArr[i3 + 2] = threeSpacePoint[1];
     }
-    return { positions: flatPositions, colors: flatColors };
-  }, [points, visuals, systemType, params, theme]);
 
-  /** Re-binds freshly calculated vertices directly onto the active BufferGeometry attributes */
-  useEffect(() => {
-    if (geometryRef.current && positions.length > 0) {
-      geometryRef.current.setAttribute(
-        "position",
-        new THREE.BufferAttribute(positions, 3),
-      );
-      geometryRef.current.setAttribute(
-        "color",
-        new THREE.BufferAttribute(colors, 3),
-      );
-      geometryRef.current.attributes.position.needsUpdate = true;
-      geometryRef.current.attributes.color.needsUpdate = true;
+    // Populate color values
+    if (visuals.useGradient) {
+      for (let i = 0; i < currentCount; i++) {
+        const i3 = i * 3;
+        const baseColor = new THREE.Color()
+          .copy(colorStart)
+          .lerp(colorEnd, i / (currentCount - 1));
+
+        colArr[i3] = baseColor.r * lAdjust;
+        colArr[i3 + 1] = baseColor.g * lAdjust;
+        colArr[i3 + 2] = baseColor.b * lAdjust;
+      }
+    } else {
+      for (let i = startIdx; i < currentCount; i++) {
+        const i3 = i * 3;
+        colArr[i3] = colorStart.r * lAdjust;
+        colArr[i3 + 1] = colorStart.g * lAdjust;
+        colArr[i3 + 2] = colorStart.b * lAdjust;
+      }
     }
-  }, [positions, colors]);
 
+    // Extract and synchronize low-level WebGL buffer attributes
+    let posAttr = geometry.getAttribute("position") as THREE.BufferAttribute;
+    let colAttr = geometry.getAttribute("color") as THREE.BufferAttribute;
+
+    if (!posAttr) {
+      posAttr = new THREE.BufferAttribute(posArr, 3);
+      colAttr = new THREE.BufferAttribute(colArr, 3);
+      geometry.setAttribute("position", posAttr);
+      geometry.setAttribute("color", colAttr);
+    }
+
+    // Direct WebGL driver sub-range upload configuration mapping
+    posAttr.needsUpdate = true;
+    posAttr.updateRanges = [];
+
+    if (!isSaturatedWindow && startIdx < currentCount) {
+      posAttr.updateRanges.push({
+        start: startIdx * 3,
+        count: (currentCount - startIdx) * 3,
+      });
+    } else {
+      posAttr.updateRanges.push({ start: 0, count: -1 });
+    }
+
+    colAttr.needsUpdate = true;
+    colAttr.updateRanges = [];
+
+    if (visuals.useGradient || isSaturatedWindow) {
+      colAttr.updateRanges.push({ start: 0, count: currentCount * 3 });
+    } else {
+      colAttr.updateRanges.push({
+        start: startIdx * 3,
+        count: (currentCount - startIdx) * 3,
+      });
+    }
+
+    geometry.setDrawRange(0, currentCount);
+    lastUploadedCountRef.current = currentCount;
+  }, [points, visuals, systemType, params, theme, maxPoints]);
+
+  // Render boundary safe checks
   if (points.length < 2) return null;
 
+  // clean JSX return structure
   return (
     <group>
       <ThreeLine frustumCulled={false}>

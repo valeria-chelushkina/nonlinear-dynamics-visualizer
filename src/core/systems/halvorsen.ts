@@ -16,7 +16,7 @@ export const halvorsenSystem: RegisteredSystem = {
       ];
     },
     initialState: [-5, 0, 0],
-    initialSpeed: 0.5,
+    initialSpeed: 2,
   },
 
   meta: {
@@ -36,11 +36,11 @@ export const halvorsenSystem: RegisteredSystem = {
       "Education in nonlinear dynamics symmetry",
       "Abstract 3D visualization",
     ],
-    
+
     sliders: [{ key: "a", label: "Param a", min: 0, max: 2.5, step: 0.01 }],
     cameraConfig: {
-      position: [-3.16, -6.52, -36.22],
-      target: [-3.02, -2.44, -2.8],
+      position: [-25.49, -23.63, -16.75],
+      target: [-4.19, -1.34, -3.2],
     },
   },
 };

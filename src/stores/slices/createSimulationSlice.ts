@@ -1,26 +1,30 @@
 /**
  * @file createSimulationSlice.ts
- * @description Manages multidimensional trajectory path state layers, parameter updates,
- * step-jump distance validations and view splitting triggers.
+ * @description Decoupled state slice managing coordinate history states, camera targets,
+ * and presentation metrics across decoupled left/right rendering contexts.
  */
 
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import type { StateVector } from "@/core/math/types";
 import type { Side, SimulationData } from "../types/simulation.types";
-import { SimulationValidator } from "@/core/utils/validation";
 
-export interface SimulationSlice {
+// TYPE DEFINITIONS & INTERFACES
+
+export interface SimulationStateSlice {
   /** Map of active simulation coordinate datasets bound to left and right viewports */
   sims: Record<Side, SimulationData>;
   /** Override flag to halt default automated system resets when processing active presets */
   skipNextReset: boolean;
+}
+
+export interface SimulationActionsSlice {
   /** Updates the state tracking flag determining automated system configuration resets */
   setSkipNextReset: (skip: boolean) => void;
   /** Alters target chaos equations model mappings assigned to an isolated viewport engine */
   setSystemType: (side: Side, type: string) => void;
   /** Merges new mathematical parameter configuration attributes into the active model instance */
   setParams: (side: Side, params: Partial<Record<string, number>>) => void;
-  /** Validates and appends a newly calculated coordinate point to a viewport trace array */
+  /** Appends a single newly calculated coordinate point to a viewport trace array */
   addPoint: (side: Side, point: StateVector) => void;
   /** Processes and batches a sequence of integration step coordinates down into trace arrays */
   addPoints: (side: Side, points: StateVector[]) => void;
@@ -55,6 +59,10 @@ export interface SimulationSlice {
     },
   ) => void;
 }
+
+export type SimulationSlice = SimulationStateSlice & SimulationActionsSlice;
+
+// CONSTANTS & FACTORY HELPERS
 
 const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
 
@@ -93,14 +101,17 @@ export const createDefaultSim = (
   };
 };
 
+// SLICE IMPLEMENTATION
+
 export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
+  // Data state
   sims: {
     left: createDefaultSim("lorenz", "left"),
     right: createDefaultSim("lorenz", "right"),
   },
-
   skipNextReset: false,
 
+  // Actions
   setSkipNextReset: (skip) => set(() => ({ skipNextReset: skip })),
 
   setCameraConfig: (side, config) =>
@@ -136,34 +147,23 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         };
       }
 
-      return {
-        sims: { ...state.sims, ...updates },
-      };
+      return { sims: { ...state.sims, ...updates } };
     }),
 
   addPoint: (side, point) =>
     set((state: any) => {
       const sim = state.sims[side];
-
-      // Structural numerical sanity validation step
-      if (!SimulationValidator.isValidPoint(point)) return;
-
-      // Integration step jump analysis
-      if (sim.points.length > 0) {
-        const last = sim.points[sim.points.length - 1];
-        return SimulationValidator.isStableStep(point, last, 5000);
-      }
-
       const newPoints = [...sim.points, point];
-      const slicedPoints =
-        newPoints.length > sim.maxPoints
-          ? newPoints.slice(newPoints.length - sim.maxPoints)
-          : newPoints;
-
+      
       return {
         sims: {
           ...state.sims,
-          [side]: { ...sim, points: slicedPoints },
+          [side]: {
+            ...sim,
+            points: newPoints.length > sim.maxPoints 
+              ? newPoints.slice(newPoints.length - sim.maxPoints) 
+              : newPoints,
+          },
         },
       };
     }),
@@ -173,17 +173,16 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       const sim = state.sims[side];
       if (newBatch.length === 0) return;
 
-      // Direct trace array injection—bypassing high-overhead calculation checks!
       const combinedPoints = [...sim.points, ...newBatch];
-      const slicedPoints =
-        combinedPoints.length > sim.maxPoints
-          ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
-          : combinedPoints;
-
       return {
         sims: {
           ...state.sims,
-          [side]: { ...sim, points: slicedPoints },
+          [side]: {
+            ...sim,
+            points: combinedPoints.length > sim.maxPoints
+              ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
+              : combinedPoints,
+          },
         },
       };
     }),
@@ -200,9 +199,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         updates.right = { ...state.sims.right, isPaused: nextPaused };
       }
 
-      return {
-        sims: { ...state.sims, ...updates },
-      };
+      return { sims: { ...state.sims, ...updates } };
     }),
 
   setPaused: (side, isPaused) =>
@@ -216,9 +213,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         updates.right = { ...state.sims.right, isPaused };
       }
 
-      return {
-        sims: { ...state.sims, ...updates },
-      };
+      return { sims: { ...state.sims, ...updates } };
     }),
 
   setSpeed: (side, speed) =>
@@ -232,9 +227,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         updates.right = { ...state.sims.right, speed };
       }
 
-      return {
-        sims: { ...state.sims, ...updates },
-      };
+      return { sims: { ...state.sims, ...updates } };
     }),
 
   setMaxPoints: (side, maxPoints) =>
@@ -248,9 +241,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         updates.right = { ...state.sims.right, maxPoints };
       }
 
-      return {
-        sims: { ...state.sims, ...updates },
-      };
+      return { sims: { ...state.sims, ...updates } };
     }),
 
   resetSimulation: (side) => {
@@ -258,52 +249,22 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const system = SYSTEM_REGISTRY[sims[side].systemType];
     const startPoint = system?.math.initialState || INITIAL_POINT;
 
-    if (butterflyMode && side === "left") {
-      set((state: any) => ({
-        sims: {
-          ...state.sims,
-          left: { ...state.sims.left, points: [], isPaused: true },
-          right: { ...state.sims.right, points: [], isPaused: true },
-        },
-      }));
+    // Complex timing loops are removed. 
+    set((state: any) => {
+      const updates: Record<string, any> = {};
 
-      setTimeout(() => {
+      if (butterflyMode && side === "left") {
         const secondPoint: StateVector = [...startPoint];
         secondPoint[0] += initialDifference;
 
-        set((state: any) => ({
-          sims: {
-            ...state.sims,
-            left: { ...state.sims.left, points: [startPoint], isPaused: false },
-            right: {
-              ...state.sims.right,
-              points: [secondPoint],
-              isPaused: false,
-            },
-          },
-        }));
-      }, 100);
-    } else {
-      set((state: any) => ({
-        sims: {
-          ...state.sims,
-          [side]: { ...state.sims[side], points: [], isPaused: true },
-        },
-      }));
+        updates.left = { ...state.sims.left, points: [startPoint], isPaused: false };
+        updates.right = { ...state.sims.right, points: [secondPoint], isPaused: false };
+      } else {
+        updates[side] = { ...state.sims[side], points: [startPoint], isPaused: false };
+      }
 
-      setTimeout(() => {
-        set((state: any) => ({
-          sims: {
-            ...state.sims,
-            [side]: {
-              ...state.sims[side],
-              points: [startPoint],
-              isPaused: false,
-            },
-          },
-        }));
-      }, 100);
-    }
+      return { sims: { ...state.sims, ...updates } };
+    });
   },
 
   resetParams: (side) => {
@@ -331,10 +292,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }
 
     const targetType = type || sims.left.systemType;
-    if (
-      sims.left.systemType === targetType &&
-      sims.right.systemType === targetType
-    ) {
+    if (sims.left.systemType === targetType && sims.right.systemType === targetType) {
       return;
     }
 
@@ -352,8 +310,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const defaultCamera = system.meta.cameraConfig
       ? { ...system.meta.cameraConfig }
       : { ...DEFAULT_CAMERA };
-    const finalCameraConfig = cameraConfig || defaultCamera;
-
+    
     set((state: any) => ({
       skipNextReset: true,
       sims: {
@@ -362,25 +319,12 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
           ...state.sims[side],
           systemType,
           params: newParams,
-          points: [],
-          isPaused: true,
-          cameraConfig: finalCameraConfig,
+          points: [startPoint], // synchronous setup handles canvas pipeline flushes natively
+          isPaused: false,
+          cameraConfig: cameraConfig || defaultCamera,
           visuals: visuals || state.sims[side].visuals,
         },
       },
     }));
-
-    setTimeout(() => {
-      set((state: any) => ({
-        sims: {
-          ...state.sims,
-          [side]: {
-            ...state.sims[side],
-            points: [startPoint],
-            isPaused: false,
-          },
-        },
-      }));
-    }, 100);
   },
 });

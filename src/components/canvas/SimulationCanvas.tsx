@@ -2,7 +2,7 @@
  * @file SimulationCanvas.ts
  * @description Main simulation canvas container
  * Orchestrates Three.js rendering via React Three Fiber.
- * Manages responsive environmental lighting, theme variations, grid systems, scene screenshot 
+ * Manages responsive environmental lighting, theme variations, grid systems, scene screenshot
  * captures and continuous camera position synchronization.
  */
 
@@ -101,6 +101,13 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
       number,
     ];
     const target = controls.target.toArray() as [number, number, number];
+
+    // Log the current config
+    /*
+    console.log('CAMERA CONFIG:', {
+      position: position.map((v: number) => Number(v.toFixed(2))),
+      target: target.map((v: number) => Number(v.toFixed(2)))
+    });*/
 
     const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
     const currentTarget = new THREE.Vector3().fromArray(sideConfig.target);
