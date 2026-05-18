@@ -45,6 +45,10 @@ export interface SimulationSlice {
       target: [number, number, number];
     },
   ) => void;
+  /** Internal flag to skip the next automatic reset (used when loading presets) */
+  skipNextReset: boolean;
+  /** Sets the skipNextReset flag */
+  setSkipNextReset: (skip: boolean) => void;
 }
 
 const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
@@ -87,9 +91,13 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     right: createDefaultSim("lorenz", "right"),
   },
 
+  skipNextReset: false,
+
+  setSkipNextReset: (skip) => set({ skipNextReset: skip }),
+
   setCameraConfig: (side, config) =>
     set((state: any) => {
-      // Keep it simple and handle sync in the final store
+      console.log(`[SimulationStore] setCameraConfig for ${side}:`, config);
       return {
         sims: {
           ...state.sims,
@@ -263,6 +271,13 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   },
 
   resetSimulationState: (type) => {
+
+    if (get().skipNextReset) {
+    console.log("[SimulationStore] Skipping resetSimulationState execution because a preset was loaded.");
+    set({ skipNextReset: false });
+    return; 
+  }
+
     const targetType = type || get().sims.left.systemType;
     set({
       sims: {
@@ -273,11 +288,20 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   },
 
   loadPreset: (side, systemType, newParams, cameraConfig, visuals) => {
+    console.log(`[SimulationStore] loadPreset started for ${side}:`, { systemType, cameraConfig });
     const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
     const startPoint =
       system.initialState || system.initialPoint || INITIAL_POINT;
 
+    const defaultCamera = system.cameraConfig
+      ? { ...system.cameraConfig }
+      : { ...DEFAULT_CAMERA };
+
+    const finalCameraConfig = cameraConfig || defaultCamera;
+    console.log(`[SimulationStore] loadPreset final cameraConfig for ${side}:`, finalCameraConfig);
+
     set((state: any) => ({
+      skipNextReset: true,
       sims: {
         ...state.sims,
         [side]: {
@@ -286,7 +310,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
           params: newParams,
           points: [],
           isPaused: true,
-          cameraConfig: cameraConfig || state.sims[side].cameraConfig,
+          cameraConfig: finalCameraConfig,
           visuals: visuals || state.sims[side].visuals,
         },
       },

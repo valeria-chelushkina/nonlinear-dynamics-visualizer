@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
 import styles from "./Library.module.css"; // Reusing styles
 import { User, Calendar, Book } from "lucide-react";
@@ -12,6 +13,7 @@ interface Preset {
   systemType: string;
   parameters: any;
   cameraConfig: any;
+  visuals?: any;
   isPublic: boolean;
   createdAt: string;
   user: {
@@ -31,6 +33,7 @@ const UserLibrary: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { loadPreset } = useSimulationStore();
+  const { setVisuals } = useVisualsStore();
   const { token } = useAuthStore();
   const navigate = useNavigate();
   const [targetSide, setTargetSide] = useState<Side>("left");
@@ -59,6 +62,11 @@ const UserLibrary: React.FC = () => {
   }, [userId, token]);
 
   const handleLoad = (preset: any) => {
+    console.log("[UserLibrary] handleLoad clicked for preset:", preset);
+    if (preset.visuals) {
+      setVisuals(targetSide, preset.visuals);
+    }
+
     loadPreset(
       targetSide,
       preset.systemType,
@@ -66,6 +74,7 @@ const UserLibrary: React.FC = () => {
       preset.cameraConfig,
       preset.visuals,
     );
+    console.log("[UserLibrary] Navigating to simulation...");
     navigate(`/sim/${preset.systemType}`);
   };
 

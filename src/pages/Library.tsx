@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { Clock, User, Trash2 } from "lucide-react";
 import styles from "./Library.module.css";
@@ -10,6 +11,7 @@ const Library: React.FC = () => {
   const navigate = useNavigate();
   const { loadPreset, comparisonMode } = useSimulationStore();
   const { user, token } = useAuthStore();
+  const { setVisuals } = useVisualsStore();
   const [presets, setPresets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [targetSide, setTargetSide] = useState<Side>("left");
@@ -27,6 +29,11 @@ const Library: React.FC = () => {
   }, []);
 
   const handleLoad = (preset: any) => {
+    console.log("[Library] handleLoad clicked for preset:", preset);
+    if (preset.visuals) {
+      setVisuals(targetSide, preset.visuals);
+    }
+
     loadPreset(
       targetSide,
       preset.systemType,
@@ -34,6 +41,7 @@ const Library: React.FC = () => {
       preset.cameraConfig,
       preset.visuals,
     );
+    console.log("[Library] Navigating to simulation...");
     navigate(`/sim/${preset.systemType}`);
   };
 

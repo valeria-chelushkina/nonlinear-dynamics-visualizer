@@ -44,16 +44,15 @@ const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
 const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
+  const isProgrammaticUpdate = useRef(false);
 
   const butterflyMode = useSimulationStore((state) => state.butterflyMode);
-  const sideConfig = useSimulationStore(
-    (state) => state.sims[side].cameraConfig,
-  );
+  const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
 
-  // Camera Syncing Logic
+  // Camera Syncing Logic (This handles updating the target safely!)
   useEffect(() => {
     if (!controlsRef.current) return;
 
@@ -64,22 +63,33 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const distTarget = controlsRef.current.target.distanceTo(currentTarget);
 
     if (distPos > 0.01 || distTarget > 0.01) {
+      console.log(`[CameraSync] Updating camera for ${side} to:`, sideConfig.position);
+      isProgrammaticUpdate.current = true;
       camera.position.copy(currentPos);
       controlsRef.current.target.copy(currentTarget);
       controlsRef.current.update();
+      
+      setTimeout(() => {
+        isProgrammaticUpdate.current = false;
+      }, 50);
     }
-  }, [sideConfig, camera]);
+  }, [sideConfig, camera, side]);
 
   const handleCameraChange = (e: any) => {
+    if (isProgrammaticUpdate.current) return;
+
     const controls = e.target;
-    const position = controls.object.position.toArray() as [
-      number,
-      number,
-      number,
-    ];
+    const position = controls.object.position.toArray() as [number, number, number];
     const target = controls.target.toArray() as [number, number, number];
 
-    setCameraConfig(side, { position, target });
+    const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
+    const currentTarget = new THREE.Vector3().fromArray(sideConfig.target);
+    const newPos = new THREE.Vector3().fromArray(position);
+    const newTarget = new THREE.Vector3().fromArray(target);
+
+    if (newPos.distanceTo(currentPos) > 0.01 || newTarget.distanceTo(currentTarget) > 0.01) {
+      setCameraConfig(side, { position, target });
+    }
   };
 
   return (
@@ -87,7 +97,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
       <OrbitControls
         ref={controlsRef}
         makeDefault
-        target={[0, 25, 0]}
+        // target={sideConfig.target} <-- REMOVED to prevent the update race condition
         enableDamping={true}
         dampingFactor={0.05}
         screenSpacePanning={true}
@@ -121,6 +131,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
   side = "left",
 }) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
+  const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
   const theme = useUIStore((state) => state.theme);
   const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
 
@@ -131,7 +142,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
   return (
     <div style={{ width: "100%", height: "100%", background: bgColor }}>
       <Canvas
-        camera={{ position: is2D ? [0, 0, 100] : [-108, 30, 40], fov: 45 }}
+        camera={{ position: is2D ? [0, 0, 100] : sideConfig.position, fov: 45 }}
         gl={{ antialias: false, stencil: false, depth: true }}
       >
         <color attach="background" args={[bgColor]} />
