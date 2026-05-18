@@ -271,14 +271,23 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   },
 
   resetSimulationState: (type) => {
+    const { skipNextReset, sims } = get();
 
-    if (get().skipNextReset) {
-    console.log("[SimulationStore] Skipping resetSimulationState execution because a preset was loaded.");
-    set({ skipNextReset: false });
-    return; 
-  }
+    if (skipNextReset) {
+      console.log("[SimulationStore] Skipping resetSimulationState execution because a preset was loaded.");
+      set({ skipNextReset: false });
+      return;
+    }
 
-    const targetType = type || get().sims.left.systemType;
+    const targetType = type || sims.left.systemType;
+
+    // Only reset if we are actually switching to a different system type
+    // This prevents overwriting preset data when navigating after loadPreset
+    if (sims.left.systemType === targetType && sims.right.systemType === targetType) {
+      console.log(`[SimulationStore] Already on ${targetType}, skipping reset.`);
+      return;
+    }
+
     set({
       sims: {
         left: createDefaultSim(targetType, "left"),

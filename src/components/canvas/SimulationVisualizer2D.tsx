@@ -1,13 +1,17 @@
+/**
+ * @file SimulationVisualizer2D.tsx
+ * @description 2D projection & mechanical visualizer component
+ * Flattens 3D vector trajectories onto a 2D plane and handles physical
+ * geometry overlays for classical mechanics models.
+ */
+
 import React, { useMemo, useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { useSimulationStore } from "@/stores/useSimulationStore";
-import { useVisualsStore } from "@/stores/useVisualsStore";
 import { useUIStore } from "@/stores/useUIStore";
+import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
-import type { StateVector } from "@/core/math/types";
-import { rk4 } from "@/core/math/integrator";
 import { SYSTEM_REGISTRY } from "@/core/systems";
+import { useSimulationLoop } from "./useSimulationLoop";
 
 interface SimulationVisualizer2DProps {
   side?: Side;
@@ -18,51 +22,25 @@ const ThreeLine = "line" as any;
 const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
   side = "left",
 }) => {
-  const sim = useSimulationStore((state) => state.sims[side]);
-  const addPoints = useSimulationStore((state) => state.addPoints);
-  const theme = useUIStore((state) => state.theme);
+  const { sim } = useSimulationLoop({ side });
 
+  const theme = useUIStore((state) => state.theme);
   const visuals = useVisualsStore((state) => state.configs[side]);
 
-  const { systemType, params, points, isPaused, speed } = sim;
+  const { systemType, params, points } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
-  // System elements (rods/first bob) should be white in dark mode, dark in light mode
   const systemColor = theme === "dark" ? "#ffffff" : "#1a1a1a";
 
-  const derivative = useMemo(() => {
-    const system = SYSTEM_REGISTRY[systemType];
-    return system?.getDerivative(params);
-  }, [systemType, params]);
-
-  useFrame((_state, delta) => {
-    if (isPaused || !derivative) return;
-    if (points.length === 0) return;
-
-    const lastPoint = points[points.length - 1];
-    const dt = 0.005;
-    const stepsPerFrame = Math.max(1, Math.floor((delta * speed) / dt));
-
-    const newBatch: StateVector[] = [];
-    let currentPoint = lastPoint;
-
-    for (let i = 0; i < stepsPerFrame; i++) {
-      currentPoint = rk4(currentPoint, 0, dt, derivative);
-      if (i % 2 === 0) {
-        newBatch.push(currentPoint);
-      }
-    }
-
-    addPoints(side, newBatch);
-  });
-
+  /** Flatten multi-axis coordinates onto a static 2D plane while computing localized color trail progressions */
   const { positions, colors, lastState } = useMemo(() => {
-    if (points.length < 2)
+    if (points.length < 2) {
       return {
         positions: new Float32Array(0),
         colors: new Float32Array(0),
         lastState: points[0],
       };
+    }
 
     const system = SYSTEM_REGISTRY[systemType];
     const mapFn = system?.mapStateToPoint || ((s: any) => [s[0], s[1], 0]);
@@ -78,7 +56,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
 
       flatPositions[i * 3] = renderPoint[0];
       flatPositions[i * 3 + 1] = renderPoint[1];
-      flatPositions[i * 3 + 2] = 0;
+      flatPositions[i * 3 + 2] = 0; // Fixed flat Z depth
 
       if (visuals.useGradient) {
         const t = i / (points.length - 1);
@@ -101,6 +79,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     };
   }, [points, visuals, systemType, params, theme]);
 
+  /** Bind flat coordinates straight onto the GPU vertex registry */
   useEffect(() => {
     if (geometryRef.current && positions.length > 0) {
       geometryRef.current.setAttribute(
@@ -116,11 +95,13 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     }
   }, [positions, colors]);
 
+  /** Maps current angular velocities and displacements to real-world geometric layout fields for multi-joint linkages */
   const pendulumParts = useMemo(() => {
     if (systemType !== "double-pendulum" || !lastState) return null;
     const [th1, th2] = lastState;
     const { l1, l2 } = params;
 
+    // Trig transformations determining real positions of joints relative to the anchor mount point
     const x1 = l1 * Math.sin(th1);
     const y1 = -l1 * Math.cos(th1) + 25;
     const x2 = x1 + l2 * Math.sin(th2);
@@ -130,13 +111,14 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     const p1 = new THREE.Vector3(x1, y1, 0.2);
     const p2 = new THREE.Vector3(x2, y2, 0.2);
 
+    // Calculate rotation transformations and length scales for linkage rods
     const center1 = new THREE.Vector3().addVectors(p0, p1).multiplyScalar(0.5);
     const length1 = p0.distanceTo(p1);
-    const angle1 = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+    const angle1 = Math.atan2(y1 - p0.y, x1 - p0.x);
 
     const center2 = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
     const length2 = p1.distanceTo(p2);
-    const angle2 = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+    const angle2 = Math.atan2(y2 - p1.y, x2 - p1.x);
 
     return {
       p0,
@@ -149,13 +131,13 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
 
   return (
     <group>
-      {/* Trail */}
+      {/* Structural system trail line */}
       <ThreeLine frustumCulled={false}>
         <bufferGeometry ref={geometryRef} />
         <lineBasicMaterial vertexColors transparent opacity={0.6} />
       </ThreeLine>
 
-      {/* Double Pendulum Specifics */}
+      {/* Conditional mechanical rig layout overlay */}
       {pendulumParts && (
         <>
           {/* Rod 1 */}
@@ -186,7 +168,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
             />
           </mesh>
 
-          {/* Bobs */}
+          {/* Joints & Weights Bobs */}
           <mesh position={pendulumParts.p1}>
             <circleGeometry args={[1, 32]} />
             <meshBasicMaterial color={systemColor} toneMapped={false} />
@@ -196,7 +178,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
             <meshBasicMaterial color={visuals.color} />
           </mesh>
 
-          {/* Pivot */}
+          {/* Core fixed mount pivot */}
           <mesh position={pendulumParts.p0}>
             <circleGeometry args={[0.5, 32]} />
             <meshBasicMaterial color="#888" toneMapped={false} />

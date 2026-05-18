@@ -1,3 +1,11 @@
+/**
+ * @file SimulationCanvas.ts
+ * @description Main simulation canvas container
+ * Orchestrates Three.js rendering via React Three Fiber.
+ * Manages responsive environmental lighting, theme variations, grid systems, scene screenshot 
+ * captures and continuous camera position synchronization.
+ */
+
 import React, { useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import {
@@ -18,6 +26,7 @@ interface SimulationCanvasProps {
   side?: Side;
 }
 
+/** Captures the current WebGL drawing buffer */
 const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
   const { gl, scene, camera } = useThree();
   const signal = useSimulationStore((state) => state.screenshotSignal);
@@ -41,18 +50,21 @@ const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
   return null;
 };
 
+/** Handles syncronization between two cameras */
 const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const isProgrammaticUpdate = useRef(false);
 
   const butterflyMode = useSimulationStore((state) => state.butterflyMode);
-  const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
+  const sideConfig = useSimulationStore(
+    (state) => state.sims[side].cameraConfig,
+  );
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
 
-  // Camera Syncing Logic (This handles updating the target safely!)
+  // Camera syncing logic
   useEffect(() => {
     if (!controlsRef.current) return;
 
@@ -63,23 +75,31 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const distTarget = controlsRef.current.target.distanceTo(currentTarget);
 
     if (distPos > 0.01 || distTarget > 0.01) {
-      console.log(`[CameraSync] Updating camera for ${side} to:`, sideConfig.position);
+      console.log(
+        `[CameraSync] Updating camera for ${side} to:`,
+        sideConfig.position,
+      );
       isProgrammaticUpdate.current = true;
       camera.position.copy(currentPos);
       controlsRef.current.target.copy(currentTarget);
       controlsRef.current.update();
-      
+
       setTimeout(() => {
         isProgrammaticUpdate.current = false;
       }, 50);
     }
   }, [sideConfig, camera, side]);
 
+  /** Direct physical user dragging interactions -> Zustand store */
   const handleCameraChange = (e: any) => {
     if (isProgrammaticUpdate.current) return;
 
     const controls = e.target;
-    const position = controls.object.position.toArray() as [number, number, number];
+    const position = controls.object.position.toArray() as [
+      number,
+      number,
+      number,
+    ];
     const target = controls.target.toArray() as [number, number, number];
 
     const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
@@ -87,7 +107,10 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     const newPos = new THREE.Vector3().fromArray(position);
     const newTarget = new THREE.Vector3().fromArray(target);
 
-    if (newPos.distanceTo(currentPos) > 0.01 || newTarget.distanceTo(currentTarget) > 0.01) {
+    if (
+      newPos.distanceTo(currentPos) > 0.01 ||
+      newTarget.distanceTo(currentTarget) > 0.01
+    ) {
       setCameraConfig(side, { position, target });
     }
   };
@@ -97,7 +120,6 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
       <OrbitControls
         ref={controlsRef}
         makeDefault
-        // target={sideConfig.target} <-- REMOVED to prevent the update race condition
         enableDamping={true}
         dampingFactor={0.05}
         screenSpacePanning={true}
@@ -131,7 +153,9 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
   side = "left",
 }) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
-  const sideConfig = useSimulationStore((state) => state.sims[side].cameraConfig);
+  const sideConfig = useSimulationStore(
+    (state) => state.sims[side].cameraConfig,
+  );
   const theme = useUIStore((state) => state.theme);
   const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
 

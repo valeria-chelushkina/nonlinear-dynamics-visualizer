@@ -33,16 +33,18 @@ const SimulationPage: React.FC = () => {
   const system = SYSTEM_REGISTRY[id || "lorenz"];
   const {
     resetSimulationState,
-    comparisonMode
+    comparisonMode,
+    sims
   } = useSimulationStore();
 
   useEffect(() => {
-
-    const currentId = id || "lorenz";
-    return () => {
-      resetSimulationState(currentId);
-    };
-  }, [id, resetSimulationState]);
+    const targetId = id || "lorenz";
+    // Only reset if the store is actually on a different system
+    // This protects preset data loaded via loadPreset() which navigates here
+    if (sims.left.systemType !== targetId) {
+      resetSimulationState(targetId);
+    }
+  }, [id, resetSimulationState, sims.left.systemType]);
 
   if (!system) {
     return (
