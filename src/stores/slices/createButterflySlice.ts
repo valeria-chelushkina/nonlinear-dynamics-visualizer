@@ -36,7 +36,7 @@ export const createButterflySlice = (set: any, get: any): ButterflySlice => ({
     const speed = sims.left.speed;
     const system = SYSTEM_REGISTRY[systemType];
     const startPoint =
-      system?.initialState || system?.initialPoint || INITIAL_POINT;
+      system?.math.initialState || INITIAL_POINT;
 
     // Reset both to empty and paused first
     set((state: any) => ({

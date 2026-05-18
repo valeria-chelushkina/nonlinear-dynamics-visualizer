@@ -40,7 +40,7 @@ export const ParameterSliders: React.FC<ParameterSlidersProps> = ({ side }) => {
     <div className={styles.section}>
       <div className={styles.paramsGrid}>
         {/* Render mathematical system parameters dynamically */}
-        {currentSystem.sliders.map((slider: SliderConfig) => (
+        {currentSystem.meta.sliders.map((slider: SliderConfig) => (
           <div key={slider.key} className={styles.controlGroup}>
             <label>
               {slider.label}{" "}

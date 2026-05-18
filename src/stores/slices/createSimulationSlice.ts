@@ -7,7 +7,7 @@
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import type { StateVector } from "@/core/math/types";
 import type { Side, SimulationData } from "../types/simulation.types";
-import { isValidVector, getDistanceSquared } from "@/utils/simulation";
+import { SimulationValidator } from "@/core/utils/validation";
 
 export interface SimulationSlice {
   /** Map of active simulation coordinate datasets bound to left and right viewports */
@@ -44,7 +44,7 @@ export interface SimulationSlice {
     systemType: string,
     newParams: Record<string, number>,
     cameraConfig: any,
-    visuals?: any
+    visuals?: any,
   ) => void;
   /** Reposition spatial projection perspective cameras across targeted view environments */
   setCameraConfig: (
@@ -52,11 +52,9 @@ export interface SimulationSlice {
     config: {
       position: [number, number, number];
       target: [number, number, number];
-    }
+    },
   ) => void;
 }
-
-
 
 const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
 
@@ -73,20 +71,20 @@ const DEFAULT_CAMERA: {
  */
 export const createDefaultSim = (
   type: string = "lorenz",
-  side: Side = "left"
+  side: Side = "left",
 ): SimulationData => {
   const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY["lorenz"];
-  const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
+  const startPoint = system.math.initialState || INITIAL_POINT;
 
   return {
-    systemType: system.id,
-    params: { ...system.defaultParams },
+    systemType: system.math.id,
+    params: { ...system.math.defaultParams },
     points: [startPoint],
     isPaused: false,
-    speed: system.initialSpeed || 1,
+    speed: system.math.initialSpeed || 1,
     maxPoints: 30000,
-    cameraConfig: system.cameraConfig
-      ? { ...system.cameraConfig }
+    cameraConfig: system.meta.cameraConfig
+      ? { ...system.meta.cameraConfig }
       : { ...DEFAULT_CAMERA },
     visuals: {
       color: side === "left" ? "#c026d3" : "#d32677",
@@ -146,15 +144,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   addPoint: (side, point) =>
     set((state: any) => {
       const sim = state.sims[side];
-      
+
       // Structural numerical sanity validation step
-      if (!isValidVector(point)) return;
+      if (!SimulationValidator.isValidPoint(point)) return;
 
       // Integration step jump analysis
       if (sim.points.length > 0) {
         const last = sim.points[sim.points.length - 1];
-        const distSq = getDistanceSquared(point, last);
-        if (distSq > 5000) return;
+        return SimulationValidator.isStableStep(point, last, 5000);
       }
 
       const newPoints = [...sim.points, point];
@@ -176,30 +173,8 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       const sim = state.sims[side];
       if (newBatch.length === 0) return;
 
-      const validBatch: StateVector[] = [];
-      let lastPoint = sim.points.length > 0 ? sim.points[sim.points.length - 1] : null;
-
-      for (const pt of newBatch) {
-        if (isValidVector(pt)) {
-          if (lastPoint) {
-            const distSq = getDistanceSquared(pt, lastPoint);
-            if (distSq < 10000) {
-              validBatch.push(pt);
-              lastPoint = pt;
-            } else {
-              // Terminate batch parsing instantly on severe numerical explosion boundaries
-              break;
-            }
-          } else {
-            validBatch.push(pt);
-            lastPoint = pt;
-          }
-        }
-      }
-
-      if (validBatch.length === 0) return;
-
-      const combinedPoints = [...sim.points, ...validBatch];
+      // Direct trace array injection—bypassing high-overhead calculation checks!
+      const combinedPoints = [...sim.points, ...newBatch];
       const slicedPoints =
         combinedPoints.length > sim.maxPoints
           ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
@@ -281,7 +256,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   resetSimulation: (side) => {
     const { sims, butterflyMode, initialDifference = 0.0001 } = get();
     const system = SYSTEM_REGISTRY[sims[side].systemType];
-    const startPoint = system?.initialState || system?.initialPoint || INITIAL_POINT;
+    const startPoint = system?.math.initialState || INITIAL_POINT;
 
     if (butterflyMode && side === "left") {
       set((state: any) => ({
@@ -300,7 +275,11 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
           sims: {
             ...state.sims,
             left: { ...state.sims.left, points: [startPoint], isPaused: false },
-            right: { ...state.sims.right, points: [secondPoint], isPaused: false },
+            right: {
+              ...state.sims.right,
+              points: [secondPoint],
+              isPaused: false,
+            },
           },
         }));
       }, 100);
@@ -316,7 +295,11 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         set((state: any) => ({
           sims: {
             ...state.sims,
-            [side]: { ...state.sims[side], points: [startPoint], isPaused: false },
+            [side]: {
+              ...state.sims[side],
+              points: [startPoint],
+              isPaused: false,
+            },
           },
         }));
       }, 100);
@@ -333,7 +316,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         ...state.sims,
         [side]: {
           ...state.sims[side],
-          params: { ...system.defaultParams },
+          params: { ...system.math.defaultParams },
         },
       },
     }));
@@ -348,7 +331,10 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }
 
     const targetType = type || sims.left.systemType;
-    if (sims.left.systemType === targetType && sims.right.systemType === targetType) {
+    if (
+      sims.left.systemType === targetType &&
+      sims.right.systemType === targetType
+    ) {
       return;
     }
 
@@ -362,8 +348,10 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
 
   loadPreset: (side, systemType, newParams, cameraConfig, visuals) => {
     const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
-    const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
-    const defaultCamera = system.cameraConfig ? { ...system.cameraConfig } : { ...DEFAULT_CAMERA };
+    const startPoint = system.math.initialState || INITIAL_POINT;
+    const defaultCamera = system.meta.cameraConfig
+      ? { ...system.meta.cameraConfig }
+      : { ...DEFAULT_CAMERA };
     const finalCameraConfig = cameraConfig || defaultCamera;
 
     set((state: any) => ({

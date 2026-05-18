@@ -6,10 +6,10 @@ import { hindmarshRoseSystem } from "./hindmarshRose";
 import { lorenzSystem } from "./lorenz";
 import { rosslerSystem } from "./rossler";
 import { thomasSystem } from "./thomas";
-import type { SystemDefinition } from "./types";
+import type { RegisteredSystem } from "./types";
 import { doublePendulumSystem } from "./doublePendulum";
 
-export const SYSTEM_REGISTRY: Record<string, SystemDefinition> = {
+export const SYSTEM_REGISTRY: Record<string, RegisteredSystem> = {
   lorenz: lorenzSystem,
   rossler: rosslerSystem,
   aizawa: aizawaSystem,
@@ -23,4 +23,4 @@ export const SYSTEM_REGISTRY: Record<string, SystemDefinition> = {
 
 export const SYSTEM_LIST = Object.values(SYSTEM_REGISTRY);
 
-export type { SystemDefinition, SliderConfig } from "./types";
+export type { RegisteredSystem, SliderConfig } from "./types";

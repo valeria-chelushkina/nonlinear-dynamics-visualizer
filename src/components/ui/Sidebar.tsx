@@ -14,11 +14,11 @@ const Sidebar: React.FC = () => {
       <div className={styles.list}>
         {systems.map((system) => (
           <button
-            key={system.id}
+            key={system.math.id}
             className={styles.item}
-            onClick={() => navigate(`/sim/${system.id}`)}
+            onClick={() => navigate(`/sim/${system.math.id}`)}
           >
-            <span>{system.name}</span>
+            <span>{system.meta.name}</span>
             <ChevronRight size={16} className={styles.icon} />
           </button>
         ))}

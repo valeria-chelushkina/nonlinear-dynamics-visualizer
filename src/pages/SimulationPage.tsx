@@ -63,7 +63,7 @@ const SimulationPage: React.FC = () => {
           className={`${styles.container} ${comparisonMode ? styles.wide : ""}`}
         >
           <header className={styles.header}>
-            <h1>{system.name}</h1>
+            <h1>{system.meta.name}</h1>
           </header>
 
           {!comparisonMode && (
@@ -111,13 +111,13 @@ const SimulationPage: React.FC = () => {
           <div className={styles.infoPart}>
             <section className={styles.infoCard}>
               <h3>About the model</h3>
-              <p>{system.description}</p>
+              <p>{system.meta.description}</p>
             </section>
 
             <section className={styles.infoCard}>
               <h3>Differential Equations</h3>
               <div className={styles.equationsList}>
-                {system.equations.map((eq: any, i: any) => (
+                {system.meta.equations.map((eq: any, i: any) => (
                   <div key={i} className={styles.equation}>
                     <code>{eq}</code>
                   </div>
@@ -127,13 +127,13 @@ const SimulationPage: React.FC = () => {
 
             <section className={styles.infoCard}>
               <h3>Historical significance</h3>
-              <p>{system.history}</p>
+              <p>{system.meta.history}</p>
             </section>
 
             <section className={styles.infoCard}>
               <h3>Real-World Applications</h3>
               <div className={styles.useList}>
-                {system.use.map((use: any, i: any) => (
+                {system.meta.use.map((use: any, i: any) => (
                   <div key={i} className={styles.use}>
                     {use}
                   </div>

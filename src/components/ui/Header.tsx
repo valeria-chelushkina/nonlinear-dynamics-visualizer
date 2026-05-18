@@ -60,14 +60,14 @@ const Header: React.FC = () => {
               <div className={styles.dropdownMenu}>
                 {systems.map((system) => (
                   <button
-                    key={system.id}
+                    key={system.math.id}
                     className={styles.dropdownItem}
                     onClick={() => {
-                      navigate(`/sim/${system.id}`);
+                      navigate(`/sim/${system.math.id}`);
                       setDropdownOpen(false);
                     }}
                   >
-                    {system.name}
+                    {system.meta.name}
                   </button>
                 ))}
               </div>

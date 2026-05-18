@@ -11,7 +11,7 @@ import { useUIStore } from "@/stores/useUIStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
-import { useSimulationLoop } from "./useSimulationLoop";
+import { useSimulationLoop } from "../../hooks/useSimulationLoop";
 
 interface SimulationVisualizer2DProps {
   side?: Side;
@@ -43,7 +43,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     }
 
     const system = SYSTEM_REGISTRY[systemType];
-    const mapFn = system?.mapStateToPoint || ((s: any) => [s[0], s[1], 0]);
+    const mapFn = system?.math.mapStateToPoint || ((s: any) => [s[0], s[1], 0]);
 
     const flatPositions = new Float32Array(points.length * 3);
     const flatColors = new Float32Array(points.length * 3);

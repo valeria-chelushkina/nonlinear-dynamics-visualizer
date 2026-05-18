@@ -62,7 +62,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   );
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
-  const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
+  const is2D = SYSTEM_REGISTRY[systemType]?.math.dimension === 2;
 
   // Camera syncing logic
   useEffect(() => {
@@ -157,7 +157,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
     (state) => state.sims[side].cameraConfig,
   );
   const theme = useUIStore((state) => state.theme);
-  const is2D = SYSTEM_REGISTRY[systemType]?.dimension === 2;
+  const is2D = SYSTEM_REGISTRY[systemType]?.math.dimension === 2;
 
   const bgColor = theme === "dark" ? "#050505" : "#f0f0f0";
   const gridColor = theme === "dark" ? "#222" : "#ccc";
