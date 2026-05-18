@@ -292,9 +292,6 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }
 
     const targetType = type || sims.left.systemType;
-    if (sims.left.systemType === targetType && sims.right.systemType === targetType) {
-      return;
-    }
 
     set(() => ({
       sims: {

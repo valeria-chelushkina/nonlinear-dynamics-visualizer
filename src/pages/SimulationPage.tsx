@@ -35,17 +35,24 @@ const SimulationPage: React.FC = () => {
   const {
     resetSimulationState,
     comparisonMode,
-    sims
   } = useSimulationStore();
+
+  const isMounted = React.useRef(false);
+  const lastId = React.useRef(id);
 
   useEffect(() => {
     const targetId = id || "lorenz";
-    // Only reset if the store is actually on a different system
-    // This protects preset data loaded via loadPreset() which navigates here
-    if (sims.left.systemType !== targetId) {
-      resetSimulationState(targetId);
+
+    if (lastId.current !== id) {
+      isMounted.current = false;
+      lastId.current = id;
     }
-  }, [id, resetSimulationState, sims.left.systemType]);
+
+    if (isMounted.current) return;
+    isMounted.current = true;
+
+    resetSimulationState(targetId);
+  }, [id, resetSimulationState]);
 
   if (!system) {
     return (
