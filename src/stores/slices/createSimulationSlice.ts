@@ -74,7 +74,7 @@ export const createDefaultSim = (
     points: [startPoint],
     isPaused: false,
     speed: system.initialSpeed || 1,
-    maxPoints: 100000,
+    maxPoints: 30000,
     cameraConfig: system.cameraConfig
       ? { ...system.cameraConfig }
       : { ...DEFAULT_CAMERA },
@@ -115,15 +115,29 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     })),
 
   setParams: (side, newParams) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
+    set((state: any) => {
+      const { butterflyMode } = state;
+      const updates: any = {
         [side]: {
           ...state.sims[side],
           params: { ...state.sims[side].params, ...newParams },
         },
-      },
-    })),
+      };
+
+      if (butterflyMode && side === "left") {
+        updates.right = {
+          ...state.sims.right,
+          params: { ...state.sims.right.params, ...newParams },
+        };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   addPoint: (side, point) =>
     set((state: any) => {
@@ -133,8 +147,12 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       if (sim.points.length > 0) {
         const last = sim.points[sim.points.length - 1];
         const distSq =
-          Math.pow(point[0] - last[0], 2) + Math.pow(point[1] - last[1], 2);
-        if (distSq > 1000) return state;
+          Math.pow(point[0] - last[0], 2) +
+          Math.pow(point[1] - last[1], 2) +
+          Math.pow(point[2] - last[2], 2);
+        
+        // Threshold for a single step jump (should be reasonable for dt=0.002)
+        if (distSq > 5000) return state;
       }
 
       const newPoints = [...sim.points, point];
@@ -165,11 +183,15 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
           if (lastPoint) {
             const distSq =
               Math.pow(pt[0] - lastPoint[0], 2) +
-              Math.pow(pt[1] - lastPoint[1], 2);
-            if (distSq < 2000) {
+              Math.pow(pt[1] - lastPoint[1], 2) +
+              Math.pow(pt[2] - lastPoint[2], 2);
+            
+            // If the jump is too large, it's likely a numerical explosion/instability
+            if (distSq < 10000) {
               validBatch.push(pt);
               lastPoint = pt;
             } else {
+              // Stop batch processing on first invalid jump to prevent erratic lines
               break;
             }
           } else {
@@ -196,62 +218,140 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }),
 
   togglePause: (side) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
-        [side]: { ...state.sims[side], isPaused: !state.sims[side].isPaused },
-      },
-    })),
+    set((state: any) => {
+      const { butterflyMode } = state;
+      const nextPaused = !state.sims[side].isPaused;
+      const updates: any = {
+        [side]: { ...state.sims[side], isPaused: nextPaused },
+      };
+
+      if (butterflyMode && side === "left") {
+        updates.right = { ...state.sims.right, isPaused: nextPaused };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   setPaused: (side, isPaused) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
+    set((state: any) => {
+      const { butterflyMode } = state;
+      const updates: any = {
         [side]: { ...state.sims[side], isPaused },
-      },
-    })),
+      };
+
+      if (butterflyMode && side === "left") {
+        updates.right = { ...state.sims.right, isPaused };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   setSpeed: (side, speed) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
+    set((state: any) => {
+      const { butterflyMode } = state;
+      const updates: any = {
         [side]: { ...state.sims[side], speed },
-      },
-    })),
+      };
+
+      if (butterflyMode && side === "left") {
+        updates.right = { ...state.sims.right, speed };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   setMaxPoints: (side, maxPoints) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
+    set((state: any) => {
+      const { butterflyMode } = state;
+      const updates: any = {
         [side]: { ...state.sims[side], maxPoints },
-      },
-    })),
+      };
+
+      if (butterflyMode && side === "left") {
+        updates.right = { ...state.sims.right, maxPoints };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   resetSimulation: (side) => {
-    const { sims } = get();
+    const { sims, butterflyMode, initialDifference } = get();
     const system = SYSTEM_REGISTRY[sims[side].systemType];
     const startPoint =
       system?.initialState || system?.initialPoint || INITIAL_POINT;
 
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
-        [side]: { ...state.sims[side], points: [], isPaused: true },
-      },
-    }));
-
-    setTimeout(() => {
+    if (butterflyMode && side === "left") {
+      // Reset both simulations in butterfly mode
       set((state: any) => ({
         sims: {
           ...state.sims,
-          [side]: {
-            ...state.sims[side],
-            points: [startPoint],
-            isPaused: false,
-          },
+          left: { ...state.sims.left, points: [], isPaused: true },
+          right: { ...state.sims.right, points: [], isPaused: true },
         },
       }));
-    }, 100);
+
+      setTimeout(() => {
+        const secondPoint = [...startPoint];
+        secondPoint[0] += initialDifference;
+        
+        set((state: any) => ({
+          sims: {
+            ...state.sims,
+            left: {
+              ...state.sims.left,
+              points: [startPoint],
+              isPaused: false,
+            },
+            right: {
+              ...state.sims.right,
+              points: [secondPoint],
+              isPaused: false,
+            },
+          },
+        }));
+      }, 100);
+    } else {
+      // Standard single side reset
+      set((state: any) => ({
+        sims: {
+          ...state.sims,
+          [side]: { ...state.sims[side], points: [], isPaused: true },
+        },
+      }));
+
+      setTimeout(() => {
+        set((state: any) => ({
+          sims: {
+            ...state.sims,
+            [side]: {
+              ...state.sims[side],
+              points: [startPoint],
+              isPaused: false,
+            },
+          },
+        }));
+      }, 100);
+    }
   },
 
   resetParams: (side) => {

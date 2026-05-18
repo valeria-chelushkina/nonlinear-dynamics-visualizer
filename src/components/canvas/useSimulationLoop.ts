@@ -33,18 +33,26 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     const lastPoint = points[points.length - 1];
     if (!lastPoint) return;
 
-    const dt = 0.005;
+    const dt = 0.002;
     // Adapt steps per frame fluidly based on current monitor refresh rate/delta drops
-    const stepsPerFrame = Math.max(1, Math.floor((delta * speed) / dt));
+    const stepsPerFrame = Math.min(500, Math.max(1, Math.floor((delta * speed) / dt)));
 
     const newBatch: StateVector[] = [];
     let currentPoint = lastPoint;
 
     for (let i = 0; i < stepsPerFrame; i++) {
-      currentPoint = rk4(currentPoint, 0, dt, derivative);
+      const nextPoint = rk4(currentPoint, 0, dt, derivative);
+      
+      // Safety check: if integration results in non-finite values, stop this batch
+      if (!nextPoint.every(v => Number.isFinite(v))) {
+        break;
+      }
+      
+      currentPoint = nextPoint;
 
       // Downsample data streams slightly to maintain performant GPU buffer bounds
-      if (i % 2 === 0) {
+      // With smaller dt, we can downsample a bit more to keep performance
+      if (i % 4 === 0) {
         newBatch.push(currentPoint);
       }
     }

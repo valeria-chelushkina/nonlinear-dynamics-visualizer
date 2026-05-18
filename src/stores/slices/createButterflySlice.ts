@@ -33,6 +33,7 @@ export const createButterflySlice = (set: any, get: any): ButterflySlice => ({
     const { initialDifference, sims } = get();
     const leftParams = sims.left.params;
     const systemType = sims.left.systemType;
+    const speed = sims.left.speed;
     const system = SYSTEM_REGISTRY[systemType];
     const startPoint =
       system?.initialState || system?.initialPoint || INITIAL_POINT;
@@ -47,6 +48,7 @@ export const createButterflySlice = (set: any, get: any): ButterflySlice => ({
           params: { ...leftParams },
           points: [],
           isPaused: true,
+          speed: speed,
         },
         right: {
           ...state.sims.right,
@@ -54,6 +56,7 @@ export const createButterflySlice = (set: any, get: any): ButterflySlice => ({
           params: { ...leftParams },
           points: [],
           isPaused: true,
+          speed: speed,
         },
       },
     }));
