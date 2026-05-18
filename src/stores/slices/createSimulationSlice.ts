@@ -1,57 +1,72 @@
+/**
+ * @file createSimulationSlice.ts
+ * @description Manages multidimensional trajectory path state layers, parameter updates,
+ * step-jump distance validations and view splitting triggers.
+ */
+
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import type { StateVector } from "@/core/math/types";
 import type { Side, SimulationData } from "../types/simulation.types";
+import { isValidVector, getDistanceSquared } from "@/utils/simulation";
 
 export interface SimulationSlice {
-  /** Map of simulation data for left and right viewports */
+  /** Map of active simulation coordinate datasets bound to left and right viewports */
   sims: Record<Side, SimulationData>;
-
-  // Actions
-  /** Changes the system type for a side and resets its state */
+  /** Override flag to halt default automated system resets when processing active presets */
+  skipNextReset: boolean;
+  /** Updates the state tracking flag determining automated system configuration resets */
+  setSkipNextReset: (skip: boolean) => void;
+  /** Alters target chaos equations model mappings assigned to an isolated viewport engine */
   setSystemType: (side: Side, type: string) => void;
-  /** Merges new parameters into the existing simulation parameters */
+  /** Merges new mathematical parameter configuration attributes into the active model instance */
   setParams: (side: Side, params: Partial<Record<string, number>>) => void;
-  /** Adds a single point to the simulation trail with validation */
+  /** Validates and appends a newly calculated coordinate point to a viewport trace array */
   addPoint: (side: Side, point: StateVector) => void;
-  /** Adds a batch of points to the simulation trail with validation */
+  /** Processes and batches a sequence of integration step coordinates down into trace arrays */
   addPoints: (side: Side, points: StateVector[]) => void;
-  /** Toggles the pause state for a specific side */
+  /** Flips the current running execution state of a specific rendering context */
   togglePause: (side: Side) => void;
-  /** Sets the pause state for a specific side */
+  /** Directly sets the operational execution boundary of an active rendering engine */
   setPaused: (side: Side, isPaused: boolean) => void;
-  /** Updates simulation integration speed */
+  /** Modifies the integration multiplier speed of the solver pipeline */
   setSpeed: (side: Side, speed: number) => void;
-  /** Updates the maximum number of points to keep in history */
+  /** Dictates upper historical trace point length boundaries to optimize memory profiles */
   setMaxPoints: (side: Side, maxPoints: number) => void;
-  /** Resets the simulation trail to the initial state */
+  /** Clears and re-initializes vector trace state values back to designated origin points */
   resetSimulation: (side: Side) => void;
-  /** Resets parameters to the system's defaults */
+  /** Restores numerical configuration variables back to system engine default limits */
   resetParams: (side: Side) => void;
-  /** Resets the entire simulation store state to defaults */
+  /** Globally flushes all active viewport slice properties back to primary application baselines */
   resetSimulationState: (type?: string) => void;
-  /** Loads a full simulation preset */
+  /** Instantly applies structural multi-variable configurations derived from custom definitions */
   loadPreset: (
     side: Side,
     systemType: string,
-    newParams: any,
+    newParams: Record<string, number>,
     cameraConfig: any,
-    visuals?: any,
+    visuals?: any
   ) => void;
-  /** Updates camera position and target */
+  /** Reposition spatial projection perspective cameras across targeted view environments */
   setCameraConfig: (
     side: Side,
     config: {
       position: [number, number, number];
       target: [number, number, number];
-    },
+    }
   ) => void;
-  /** Internal flag to skip the next automatic reset (used when loading presets) */
-  skipNextReset: boolean;
-  /** Sets the skipNextReset flag */
-  setSkipNextReset: (skip: boolean) => void;
+}
+
+/**
+ * Extended Interface modeling properties managed by adjacent 
+ * cross-slice store modules.
+ */
+interface GlobalStoreState extends SimulationSlice {
+  butterflyMode?: boolean;
+  initialDifference?: number;
 }
 
 const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
+
 const DEFAULT_CAMERA: {
   position: [number, number, number];
   target: [number, number, number];
@@ -60,13 +75,15 @@ const DEFAULT_CAMERA: {
   target: [0, 25, 0],
 };
 
+/**
+ * Factory creating initial fallback state objects for a simulation engine viewport layer.
+ */
 export const createDefaultSim = (
   type: string = "lorenz",
-  side: Side = "left",
+  side: Side = "left"
 ): SimulationData => {
   const system = SYSTEM_REGISTRY[type] || SYSTEM_REGISTRY["lorenz"];
-  const startPoint =
-    system.initialState || system.initialPoint || INITIAL_POINT;
+  const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
 
   return {
     systemType: system.id,
@@ -85,7 +102,13 @@ export const createDefaultSim = (
   };
 };
 
-export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
+export const createSimulationSlice = (
+  set: (
+    modifier: (state: GlobalStoreState) => Partial<GlobalStoreState> | void,
+    replace?: boolean
+  ) => void,
+  get: () => GlobalStoreState
+): SimulationSlice => ({
   sims: {
     left: createDefaultSim("lorenz", "left"),
     right: createDefaultSim("lorenz", "right"),
@@ -93,21 +116,18 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
 
   skipNextReset: false,
 
-  setSkipNextReset: (skip) => set({ skipNextReset: skip }),
+  setSkipNextReset: (skip) => set(() => ({ skipNextReset: skip })),
 
   setCameraConfig: (side, config) =>
-    set((state: any) => {
-      console.log(`[SimulationStore] setCameraConfig for ${side}:`, config);
-      return {
-        sims: {
-          ...state.sims,
-          [side]: { ...state.sims[side], cameraConfig: config },
-        },
-      };
-    }),
+    set((state) => ({
+      sims: {
+        ...state.sims,
+        [side]: { ...state.sims[side], cameraConfig: config },
+      },
+    })),
 
   setSystemType: (side, type) =>
-    set((state: any) => ({
+    set((state) => ({
       sims: {
         ...state.sims,
         [side]: createDefaultSim(type, side),
@@ -115,9 +135,9 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     })),
 
   setParams: (side, newParams) =>
-    set((state: any) => {
+    set((state) => {
       const { butterflyMode } = state;
-      const updates: any = {
+      const updates: Record<string, any> = {
         [side]: {
           ...state.sims[side],
           params: { ...state.sims[side].params, ...newParams },
@@ -132,27 +152,22 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }
 
       return {
-        sims: {
-          ...state.sims,
-          ...updates,
-        },
+        sims: { ...state.sims, ...updates },
       };
     }),
 
   addPoint: (side, point) =>
-    set((state: any) => {
+    set((state) => {
       const sim = state.sims[side];
-      if (!point.every((val) => Number.isFinite(val))) return state;
+      
+      // Structural numerical sanity validation step
+      if (!isValidVector(point)) return;
 
+      // Integration step jump analysis
       if (sim.points.length > 0) {
         const last = sim.points[sim.points.length - 1];
-        const distSq =
-          Math.pow(point[0] - last[0], 2) +
-          Math.pow(point[1] - last[1], 2) +
-          Math.pow(point[2] - last[2], 2);
-        
-        // Threshold for a single step jump (should be reasonable for dt=0.002)
-        if (distSq > 5000) return state;
+        const distSq = getDistanceSquared(point, last);
+        if (distSq > 5000) return;
       }
 
       const newPoints = [...sim.points, point];
@@ -170,28 +185,22 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }),
 
   addPoints: (side, newBatch) =>
-    set((state: any) => {
+    set((state) => {
       const sim = state.sims[side];
-      if (newBatch.length === 0) return state;
+      if (newBatch.length === 0) return;
 
       const validBatch: StateVector[] = [];
-      let lastPoint =
-        sim.points.length > 0 ? sim.points[sim.points.length - 1] : null;
+      let lastPoint = sim.points.length > 0 ? sim.points[sim.points.length - 1] : null;
 
       for (const pt of newBatch) {
-        if (pt.every((val) => Number.isFinite(val))) {
+        if (isValidVector(pt)) {
           if (lastPoint) {
-            const distSq =
-              Math.pow(pt[0] - lastPoint[0], 2) +
-              Math.pow(pt[1] - lastPoint[1], 2) +
-              Math.pow(pt[2] - lastPoint[2], 2);
-            
-            // If the jump is too large, it's likely a numerical explosion/instability
+            const distSq = getDistanceSquared(pt, lastPoint);
             if (distSq < 10000) {
               validBatch.push(pt);
               lastPoint = pt;
             } else {
-              // Stop batch processing on first invalid jump to prevent erratic lines
+              // Terminate batch parsing instantly on severe numerical explosion boundaries
               break;
             }
           } else {
@@ -201,7 +210,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         }
       }
 
-      if (validBatch.length === 0) return state;
+      if (validBatch.length === 0) return;
 
       const combinedPoints = [...sim.points, ...validBatch];
       const slicedPoints =
@@ -218,10 +227,10 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }),
 
   togglePause: (side) =>
-    set((state: any) => {
+    set((state) => {
       const { butterflyMode } = state;
       const nextPaused = !state.sims[side].isPaused;
-      const updates: any = {
+      const updates: Record<string, any> = {
         [side]: { ...state.sims[side], isPaused: nextPaused },
       };
 
@@ -230,17 +239,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }
 
       return {
-        sims: {
-          ...state.sims,
-          ...updates,
-        },
+        sims: { ...state.sims, ...updates },
       };
     }),
 
   setPaused: (side, isPaused) =>
-    set((state: any) => {
+    set((state) => {
       const { butterflyMode } = state;
-      const updates: any = {
+      const updates: Record<string, any> = {
         [side]: { ...state.sims[side], isPaused },
       };
 
@@ -249,17 +255,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }
 
       return {
-        sims: {
-          ...state.sims,
-          ...updates,
-        },
+        sims: { ...state.sims, ...updates },
       };
     }),
 
   setSpeed: (side, speed) =>
-    set((state: any) => {
+    set((state) => {
       const { butterflyMode } = state;
-      const updates: any = {
+      const updates: Record<string, any> = {
         [side]: { ...state.sims[side], speed },
       };
 
@@ -268,17 +271,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }
 
       return {
-        sims: {
-          ...state.sims,
-          ...updates,
-        },
+        sims: { ...state.sims, ...updates },
       };
     }),
 
   setMaxPoints: (side, maxPoints) =>
-    set((state: any) => {
+    set((state) => {
       const { butterflyMode } = state;
-      const updates: any = {
+      const updates: Record<string, any> = {
         [side]: { ...state.sims[side], maxPoints },
       };
 
@@ -287,22 +287,17 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }
 
       return {
-        sims: {
-          ...state.sims,
-          ...updates,
-        },
+        sims: { ...state.sims, ...updates },
       };
     }),
 
   resetSimulation: (side) => {
-    const { sims, butterflyMode, initialDifference } = get();
+    const { sims, butterflyMode, initialDifference = 0.0001 } = get();
     const system = SYSTEM_REGISTRY[sims[side].systemType];
-    const startPoint =
-      system?.initialState || system?.initialPoint || INITIAL_POINT;
+    const startPoint = system?.initialState || system?.initialPoint || INITIAL_POINT;
 
     if (butterflyMode && side === "left") {
-      // Reset both simulations in butterfly mode
-      set((state: any) => ({
+      set((state) => ({
         sims: {
           ...state.sims,
           left: { ...state.sims.left, points: [], isPaused: true },
@@ -311,28 +306,19 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }));
 
       setTimeout(() => {
-        const secondPoint = [...startPoint];
+        const secondPoint: StateVector = [...startPoint];
         secondPoint[0] += initialDifference;
-        
-        set((state: any) => ({
+
+        set((state) => ({
           sims: {
             ...state.sims,
-            left: {
-              ...state.sims.left,
-              points: [startPoint],
-              isPaused: false,
-            },
-            right: {
-              ...state.sims.right,
-              points: [secondPoint],
-              isPaused: false,
-            },
+            left: { ...state.sims.left, points: [startPoint], isPaused: false },
+            right: { ...state.sims.right, points: [secondPoint], isPaused: false },
           },
         }));
       }, 100);
     } else {
-      // Standard single side reset
-      set((state: any) => ({
+      set((state) => ({
         sims: {
           ...state.sims,
           [side]: { ...state.sims[side], points: [], isPaused: true },
@@ -340,14 +326,10 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       }));
 
       setTimeout(() => {
-        set((state: any) => ({
+        set((state) => ({
           sims: {
             ...state.sims,
-            [side]: {
-              ...state.sims[side],
-              points: [startPoint],
-              isPaused: false,
-            },
+            [side]: { ...state.sims[side], points: [startPoint], isPaused: false },
           },
         }));
       }, 100);
@@ -359,7 +341,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const system = SYSTEM_REGISTRY[sims[side].systemType];
     if (!system) return;
 
-    set((state: any) => ({
+    set((state) => ({
       sims: {
         ...state.sims,
         [side]: {
@@ -374,42 +356,30 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const { skipNextReset, sims } = get();
 
     if (skipNextReset) {
-      console.log("[SimulationStore] Skipping resetSimulationState execution because a preset was loaded.");
-      set({ skipNextReset: false });
+      set(() => ({ skipNextReset: false }));
       return;
     }
 
     const targetType = type || sims.left.systemType;
-
-    // Only reset if we are actually switching to a different system type
-    // This prevents overwriting preset data when navigating after loadPreset
     if (sims.left.systemType === targetType && sims.right.systemType === targetType) {
-      console.log(`[SimulationStore] Already on ${targetType}, skipping reset.`);
       return;
     }
 
-    set({
+    set(() => ({
       sims: {
         left: createDefaultSim(targetType, "left"),
         right: createDefaultSim(targetType, "right"),
       },
-    });
+    }));
   },
 
   loadPreset: (side, systemType, newParams, cameraConfig, visuals) => {
-    console.log(`[SimulationStore] loadPreset started for ${side}:`, { systemType, cameraConfig });
     const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
-    const startPoint =
-      system.initialState || system.initialPoint || INITIAL_POINT;
-
-    const defaultCamera = system.cameraConfig
-      ? { ...system.cameraConfig }
-      : { ...DEFAULT_CAMERA };
-
+    const startPoint = system.initialState || system.initialPoint || INITIAL_POINT;
+    const defaultCamera = system.cameraConfig ? { ...system.cameraConfig } : { ...DEFAULT_CAMERA };
     const finalCameraConfig = cameraConfig || defaultCamera;
-    console.log(`[SimulationStore] loadPreset final cameraConfig for ${side}:`, finalCameraConfig);
 
-    set((state: any) => ({
+    set((state) => ({
       skipNextReset: true,
       sims: {
         ...state.sims,
@@ -426,7 +396,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     }));
 
     setTimeout(() => {
-      set((state: any) => ({
+      set((state) => ({
         sims: {
           ...state.sims,
           [side]: {

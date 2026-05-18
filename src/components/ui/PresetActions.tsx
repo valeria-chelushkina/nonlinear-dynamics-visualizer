@@ -1,6 +1,7 @@
 /**
  * @file PresetActions.tsx
- * @description Manages state forms and transmission logic required to save system variations.
+ * @description Exposes form elements and interaction triggers to package active chaotic
+ * simulation parameters and securely upload them via the centralized API layer.
  */
 
 import React, { useState } from "react";
@@ -8,6 +9,7 @@ import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
+import { savePresetApi } from "@/api/presets";
 import styles from "./Controls.module.css";
 
 interface PresetActionsProps {
@@ -23,42 +25,46 @@ export const PresetActions: React.FC<PresetActionsProps> = ({ side }) => {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
 
-  // Local interaction state definitions
+  // Local user input state bindings
   const [presetName, setPresetName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [saveCamera, setSaveCamera] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  /** Package parameters and POST them securely to local API endpoints */
+  /**
+   * Packages the current visual and mechanical state criteria,
+   * offloading transport entirely to the external API client abstraction layer.
+   */
   const handleSave = async () => {
     if (!presetName) return alert("Enter a name for your preset.");
+    if (!token)
+      return alert("Authentication token is missing. Please re-login.");
 
     setIsSaving(true);
     try {
-      const response = await fetch("http://localhost:3000/api/presets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+      await savePresetApi(
+        {
           name: presetName,
           systemType: sim.systemType,
           parameters: sim.params,
           isPublic: isPublic,
           cameraConfig: saveCamera ? sim.cameraConfig : null,
-          visuals: visuals,
-        }),
-      });
+          visuals: {
+            color: visuals.color,
+            useGradient: visuals.useGradient,
+            colorEnd: visuals.colorEnd,
+          },
+        },
+        token,
+      );
 
-      if (response.ok) {
-        alert("Preset saved successfully.");
-        setPresetName("");
-      } else {
-        throw new Error("Server processing error");
-      }
+      alert("Preset saved successfully.");
+      setPresetName("");
     } catch (error) {
-      alert("Failed to save a preset.");
+      console.error("[PresetActions] Save routine failure:", error);
+      alert(
+        "Failed to save preset. Please verify connection metrics and retry.",
+      );
     } finally {
       setIsSaving(false);
     }
