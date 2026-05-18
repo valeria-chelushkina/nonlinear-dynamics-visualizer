@@ -6,6 +6,7 @@ import { SYSTEM_REGISTRY } from "@/core/systems";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import styles from "./SimulationPage.module.css";
 import { Play, Pause, RotateCcw } from "lucide-react";
+import ControlsGuide from "@/components/ui/ControlsGuide";
 import Sidebar from "@/components/ui/Sidebar";
 
 const MasterControls: React.FC = () => {
@@ -136,8 +137,7 @@ const SimulationPage: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* A placeholder */}
-      {!comparisonMode && <Sidebar />}
+      {!comparisonMode && <ControlsGuide />}
     </div>
   );
 };

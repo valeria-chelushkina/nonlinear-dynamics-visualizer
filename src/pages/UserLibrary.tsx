@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
-import styles from "./Library.module.css"; // Reusing styles
+import { SYSTEM_REGISTRY } from "@/core/systems";
+import styles from "./Library.module.css";
 import { User, Calendar, Book } from "lucide-react";
+
+const PRESETS_PER_PAGE = 18;
 
 interface Preset {
   id: number;
@@ -32,11 +35,19 @@ const UserLibrary: React.FC = () => {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Filtering, Sorting & Pagination state
+  const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [visibleCount, setVisibleCount] = useState(PRESETS_PER_PAGE);
+
   const { loadPreset } = useSimulationStore();
   const { setVisuals } = useVisualsStore();
   const { token } = useAuthStore();
   const navigate = useNavigate();
   const [targetSide, setTargetSide] = useState<Side>("left");
+
+  const systemTypes = useMemo(() => Object.keys(SYSTEM_REGISTRY), []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +73,6 @@ const UserLibrary: React.FC = () => {
   }, [userId, token]);
 
   const handleLoad = (preset: any) => {
-    console.log("[UserLibrary] handleLoad clicked for preset:", preset);
     if (preset.visuals) {
       setVisuals(targetSide, preset.visuals);
     }
@@ -74,9 +84,37 @@ const UserLibrary: React.FC = () => {
       preset.cameraConfig,
       preset.visuals,
     );
-    console.log("[UserLibrary] Navigating to simulation...");
     navigate(`/sim/${preset.systemType}`);
   };
+
+  const toggleSystemFilter = (type: string) => {
+    setSelectedSystems(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type) 
+        : [...prev, type]
+    );
+    setVisibleCount(PRESETS_PER_PAGE);
+  };
+
+  const processedPresets = useMemo(() => {
+    // Filter
+    let filtered = selectedSystems.length === 0 
+      ? presets 
+      : presets.filter(p => selectedSystems.includes(p.systemType));
+    
+    // Sort
+    return [...filtered].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
+    });
+  }, [presets, selectedSystems, sortOrder]);
+
+  const visiblePresets = useMemo(() => {
+    return processedPresets.slice(0, visibleCount);
+  }, [processedPresets, visibleCount]);
+
+  const hasMore = visibleCount < processedPresets.length;
 
   if (isLoading)
     return (
@@ -164,54 +202,102 @@ const UserLibrary: React.FC = () => {
           </button>
         </div>
 
-        {presets.length === 0 ? (
+        <div className={styles.controlsRow}>
+          <div className={styles.filterBar} style={{ margin: 0, padding: 0 }}>
+            {systemTypes.map(type => (
+              <button
+                key={type}
+                className={`${styles.filterButton} ${selectedSystems.includes(type) ? styles.active : ""}`}
+                onClick={() => toggleSystemFilter(type)}
+              >
+                {type.replace('-', ' ')}
+              </button>
+            ))}
+            {selectedSystems.length > 0 && (
+              <button 
+                className={styles.filterButton} 
+                onClick={() => setSelectedSystems([])}
+                style={{ opacity: 0.6 }}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+
+          <div className={styles.sortControl}>
+            <label>Sort By:</label>
+            <select 
+              className={styles.sortSelect}
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as any)}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
+        </div>
+
+        {processedPresets.length === 0 ? (
           <div className={styles.loginMessage}>
-            No presets found for this user.
+            No presets found for selected filters.
           </div>
         ) : (
-          <div className={styles.grid}>
-            {presets.map((preset) => (
-              <div key={preset.id} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h3>{preset.name}</h3>
-                  <span className={styles.systemTag}>{preset.systemType}</span>
-                </div>
-
-                <div className={styles.paramsPreview}>
-                  {Object.entries(preset.parameters)
-                    .slice(0, 3)
-                    .map(([k, v]) => (
-                      <div key={k} className={styles.paramItem}>
-                        <span className={styles.paramKey}>{k}:</span>
-                        <span className={styles.paramVal}>
-                          {(v as number).toFixed(2)}
-                        </span>
-                      </div>
-                    ))}
-                  {Object.keys(preset.parameters).length > 3 && (
-                    <span>...</span>
-                  )}
-                </div>
-
-                <div className={styles.cardFooter}>
-                  <div className={styles.presetMeta}>
-                    {!preset.isPublic && (
-                      <span className={styles.privateBadge}>Private</span>
-                    )}
-                    <span>
-                      {new Date(preset.createdAt).toLocaleDateString()}
-                    </span>
+          <>
+            <div className={styles.grid}>
+              {visiblePresets.map((preset) => (
+                <div key={preset.id} className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <h3>{preset.name}</h3>
+                    <span className={styles.systemTag}>{preset.systemType}</span>
                   </div>
-                  <button
-                    onClick={() => handleLoad(preset)}
-                    className={styles.loadButton}
-                  >
-                    Load Preset
-                  </button>
+
+                  <div className={styles.paramsPreview}>
+                    {Object.entries(preset.parameters)
+                      .slice(0, 3)
+                      .map(([k, v]) => (
+                        <div key={k} className={styles.paramItem}>
+                          <span className={styles.paramKey}>{k}:</span>
+                          <span className={styles.paramVal}>
+                            {(v as number).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                    {Object.keys(preset.parameters).length > 3 && (
+                      <span>...</span>
+                    )}
+                  </div>
+
+                  <div className={styles.cardFooter}>
+                    <div className={styles.presetMeta}>
+                      {!preset.isPublic && (
+                        <span className={styles.privateBadge}>Private</span>
+                      )}
+                      <span>
+                        {new Date(preset.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleLoad(preset)}
+                      className={styles.loadButton}
+                    >
+                      Load Preset
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className={styles.pagination}>
+                <button 
+                  className={styles.loadMoreButton}
+                  onClick={() => setVisibleCount(prev => prev + PRESETS_PER_PAGE)}
+                >
+                  Load More
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </main>
     </div>

@@ -1,0 +1,117 @@
+.guideContainer {
+  width: 220px;
+  padding: 24px;
+  position: sticky;
+  top: 60px;
+  background: var(--card-bg);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-right: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-h);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.instructionGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.instructionItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background: var(--surface-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.iconWrapper {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 8px;
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.description {
+  font-size: 12px;
+  color: var(--text);
+  opacity: 0.6;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  opacity: 0.5;
+}
+
+.modeCard {
+  background: var(--surface-bg);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modeHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modeHeader h4 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-h);
+}
+
+.modeCard p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.icon {
+  color: #c026d3;
+}
