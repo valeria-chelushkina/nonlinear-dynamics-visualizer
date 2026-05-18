@@ -37,6 +37,16 @@
   color: var(--text-h);
 }
 
+@media (max-width: 768px) {
+  .profileText h1 {
+    font-size: 24px;
+  }
+
+  .profileHeader {
+    margin-bottom: 20px;
+  }
+}
+
 .profileStats {
   display: flex;
   gap: 20px;
@@ -73,12 +83,24 @@
   margin: 0 auto 60px auto;
   text-align: center;
 }
-
 .titleGroup h1 {
   font-size: 48px;
   margin: 0;
   color: var(--text-h);
   letter-spacing: -1px;
+  line-height: 40px;
+}
+
+@media (max-width: 1024px) {
+  .titleGroup h1 {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .titleGroup h1 {
+    font-size: 28px;
+  }
 }
 
 .content {
@@ -95,9 +117,38 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 32px;
   justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .sideSelector {
+    flex-direction: column;
+    border-radius: 20px;
+    width: 100%;
+    gap: 10px;
+    padding: 15px;
+  }
+
+  .sideButton {
+    width: 100%;
+  }
+
+  .filterBar {
+    gap: 8px;
+  }
+
+  .filterButton {
+    flex: 1;
+    text-align: center;
+    padding: 8px 10px;
+  }
 }
 
 .card {

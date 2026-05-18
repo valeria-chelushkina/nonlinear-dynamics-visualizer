@@ -6,12 +6,13 @@ import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import styles from "./Library.module.css";
-import { User, Calendar, Book } from "lucide-react";
+import { User, Calendar, Book, Clock, Trash2 } from "lucide-react";
 
 const PRESETS_PER_PAGE = 18;
 
 interface Preset {
   id: number;
+  userId: string;
   name: string;
   systemType: string;
   parameters: any;
@@ -43,7 +44,7 @@ const UserLibrary: React.FC = () => {
 
   const { loadPreset } = useSimulationStore();
   const { setVisuals } = useVisualsStore();
-  const { token } = useAuthStore();
+  const { user, token } = useAuthStore();
   const navigate = useNavigate();
   const [targetSide, setTargetSide] = useState<Side>("left");
 
@@ -85,6 +86,30 @@ const UserLibrary: React.FC = () => {
       preset.visuals,
     );
     navigate(`/sim/${preset.systemType}`);
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this preset?")) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/presets/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setPresets(presets.filter((p) => p.id !== id));
+      } else {
+        const errData = await response.json();
+        alert(errData.error || "Failed to delete preset");
+      }
+    } catch (err) {
+      console.error("Failed to delete preset:", err);
+      alert("Failed to delete preset");
+    }
   };
 
   const toggleSystemFilter = (type: string) => {
@@ -152,7 +177,7 @@ const UserLibrary: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.sideSelector}>
+        <div className={styles.sideSelector} style={{marginBottom: '60px'}}>
           <span>Load into:</span>
           <button
             className={`${styles.sideButton} ${targetSide === "left" ? styles.active : ""}`}
@@ -211,44 +236,50 @@ const UserLibrary: React.FC = () => {
           <>
             <div className={styles.grid}>
               {visiblePresets.map((preset) => (
-                <div key={preset.id} className={styles.card}>
+                <div
+                  key={preset.id}
+                  className={styles.card}
+                  onClick={() => handleLoad(preset)}
+                >
                   <div className={styles.cardHeader}>
                     <h3>{preset.name}</h3>
-                    <span className={styles.systemTag}>{preset.systemType}</span>
-                  </div>
-
-                  <div className={styles.paramsPreview}>
-                    {Object.entries(preset.parameters)
-                      .slice(0, 3)
-                      .map(([k, v]) => (
-                        <div key={k} className={styles.paramItem}>
-                          <span className={styles.paramKey}>{k}:</span>
-                          <span className={styles.paramVal}>
-                            {(v as number).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
-                    {Object.keys(preset.parameters).length > 3 && (
-                      <span>...</span>
-                    )}
-                  </div>
-
-                  <div className={styles.cardFooter}>
-                    <div className={styles.presetMeta}>
+                    <div className={styles.cardActions}>
                       {!preset.isPublic && (
                         <span className={styles.privateBadge}>Private</span>
                       )}
+                      <span className={styles.badge}>{preset.systemType}</span>
+                      {user && user.id === preset.userId && (
+                        <button
+                          className={styles.deleteButton}
+                          onClick={(e) => handleDelete(e, preset.id)}
+                          title="Delete preset"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.details}>
+                    <div className={styles.detailItem}>
+                      <Clock size={14} />
                       <span>
                         {new Date(preset.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <button
-                      onClick={() => handleLoad(preset)}
-                      className={styles.loadButton}
-                    >
-                      Load Preset
-                    </button>
                   </div>
+
+                  <div className={styles.paramsPreview}>
+                    {Object.entries(preset.parameters).map(([key, val]: any) => (
+                      <div key={key} className={styles.paramTag}>
+                        {key}: {val.toFixed(1)}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button className={styles.loadButton}>
+                    Load into {targetSide.toUpperCase()}
+                  </button>
                 </div>
               ))}
             </div>
