@@ -7,7 +7,7 @@ import type { RegisteredSystem } from "./types";
  */
 export const logisticMapSystem: RegisteredSystem = {
   math: {
-    id: "logistic-map",
+    id: "logistic",
     type: "map",
     dimension: 2,
     defaultParams: {

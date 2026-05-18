@@ -46,9 +46,45 @@
   }
 }
 
-.controlGroup {
-  margin-bottom: 12px;
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
+
+.numberInput {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 2px 6px;
+  font-size: 13px;
+  width: 70px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+:global(.light-theme) .numberInput {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1a1a1a;
+}
+
+.numberInput:focus {
+  border-color: var(--accent-primary);
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+.controlGroup {
+  margin-bottom: 20px;
+}
+
 
 .controlGroup label {
   display: block;
