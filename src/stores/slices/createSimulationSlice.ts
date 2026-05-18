@@ -56,14 +56,7 @@ export interface SimulationSlice {
   ) => void;
 }
 
-/**
- * Extended Interface modeling properties managed by adjacent 
- * cross-slice store modules.
- */
-interface GlobalStoreState extends SimulationSlice {
-  butterflyMode?: boolean;
-  initialDifference?: number;
-}
+
 
 const INITIAL_POINT: StateVector = [0.1, 0.1, 0.1];
 
@@ -102,13 +95,7 @@ export const createDefaultSim = (
   };
 };
 
-export const createSimulationSlice = (
-  set: (
-    modifier: (state: GlobalStoreState) => Partial<GlobalStoreState> | void,
-    replace?: boolean
-  ) => void,
-  get: () => GlobalStoreState
-): SimulationSlice => ({
+export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   sims: {
     left: createDefaultSim("lorenz", "left"),
     right: createDefaultSim("lorenz", "right"),
@@ -119,7 +106,7 @@ export const createSimulationSlice = (
   setSkipNextReset: (skip) => set(() => ({ skipNextReset: skip })),
 
   setCameraConfig: (side, config) =>
-    set((state) => ({
+    set((state: any) => ({
       sims: {
         ...state.sims,
         [side]: { ...state.sims[side], cameraConfig: config },
@@ -127,7 +114,7 @@ export const createSimulationSlice = (
     })),
 
   setSystemType: (side, type) =>
-    set((state) => ({
+    set((state: any) => ({
       sims: {
         ...state.sims,
         [side]: createDefaultSim(type, side),
@@ -135,7 +122,7 @@ export const createSimulationSlice = (
     })),
 
   setParams: (side, newParams) =>
-    set((state) => {
+    set((state: any) => {
       const { butterflyMode } = state;
       const updates: Record<string, any> = {
         [side]: {
@@ -157,7 +144,7 @@ export const createSimulationSlice = (
     }),
 
   addPoint: (side, point) =>
-    set((state) => {
+    set((state: any) => {
       const sim = state.sims[side];
       
       // Structural numerical sanity validation step
@@ -185,7 +172,7 @@ export const createSimulationSlice = (
     }),
 
   addPoints: (side, newBatch) =>
-    set((state) => {
+    set((state: any) => {
       const sim = state.sims[side];
       if (newBatch.length === 0) return;
 
@@ -227,7 +214,7 @@ export const createSimulationSlice = (
     }),
 
   togglePause: (side) =>
-    set((state) => {
+    set((state: any) => {
       const { butterflyMode } = state;
       const nextPaused = !state.sims[side].isPaused;
       const updates: Record<string, any> = {
@@ -244,7 +231,7 @@ export const createSimulationSlice = (
     }),
 
   setPaused: (side, isPaused) =>
-    set((state) => {
+    set((state: any) => {
       const { butterflyMode } = state;
       const updates: Record<string, any> = {
         [side]: { ...state.sims[side], isPaused },
@@ -260,7 +247,7 @@ export const createSimulationSlice = (
     }),
 
   setSpeed: (side, speed) =>
-    set((state) => {
+    set((state: any) => {
       const { butterflyMode } = state;
       const updates: Record<string, any> = {
         [side]: { ...state.sims[side], speed },
@@ -276,7 +263,7 @@ export const createSimulationSlice = (
     }),
 
   setMaxPoints: (side, maxPoints) =>
-    set((state) => {
+    set((state: any) => {
       const { butterflyMode } = state;
       const updates: Record<string, any> = {
         [side]: { ...state.sims[side], maxPoints },
@@ -297,7 +284,7 @@ export const createSimulationSlice = (
     const startPoint = system?.initialState || system?.initialPoint || INITIAL_POINT;
 
     if (butterflyMode && side === "left") {
-      set((state) => ({
+      set((state: any) => ({
         sims: {
           ...state.sims,
           left: { ...state.sims.left, points: [], isPaused: true },
@@ -309,7 +296,7 @@ export const createSimulationSlice = (
         const secondPoint: StateVector = [...startPoint];
         secondPoint[0] += initialDifference;
 
-        set((state) => ({
+        set((state: any) => ({
           sims: {
             ...state.sims,
             left: { ...state.sims.left, points: [startPoint], isPaused: false },
@@ -318,7 +305,7 @@ export const createSimulationSlice = (
         }));
       }, 100);
     } else {
-      set((state) => ({
+      set((state: any) => ({
         sims: {
           ...state.sims,
           [side]: { ...state.sims[side], points: [], isPaused: true },
@@ -326,7 +313,7 @@ export const createSimulationSlice = (
       }));
 
       setTimeout(() => {
-        set((state) => ({
+        set((state: any) => ({
           sims: {
             ...state.sims,
             [side]: { ...state.sims[side], points: [startPoint], isPaused: false },
@@ -341,7 +328,7 @@ export const createSimulationSlice = (
     const system = SYSTEM_REGISTRY[sims[side].systemType];
     if (!system) return;
 
-    set((state) => ({
+    set((state: any) => ({
       sims: {
         ...state.sims,
         [side]: {
@@ -379,7 +366,7 @@ export const createSimulationSlice = (
     const defaultCamera = system.cameraConfig ? { ...system.cameraConfig } : { ...DEFAULT_CAMERA };
     const finalCameraConfig = cameraConfig || defaultCamera;
 
-    set((state) => ({
+    set((state: any) => ({
       skipNextReset: true,
       sims: {
         ...state.sims,
@@ -396,7 +383,7 @@ export const createSimulationSlice = (
     }));
 
     setTimeout(() => {
-      set((state) => ({
+      set((state: any) => ({
         sims: {
           ...state.sims,
           [side]: {

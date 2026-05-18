@@ -84,7 +84,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     }
   }, [positions, colors]);
 
-  if (points.length < 5) return null;
+  if (points.length < 2) return null;
 
   return (
     <group>
