@@ -66,6 +66,12 @@ const SimulationPage: React.FC = () => {
             <h1>{system.name}</h1>
           </header>
 
+          {!comparisonMode && (
+            <div className={styles.mobileGuide}>
+              <ControlsGuide />
+            </div>
+          )}
+
           {comparisonMode && (
             <div className={styles.masterWrapper}>
               <MasterControls />
@@ -137,7 +143,11 @@ const SimulationPage: React.FC = () => {
           </div>
         </div>
       </div>
-      {!comparisonMode && <ControlsGuide />}
+      {!comparisonMode && (
+        <div className={styles.desktopGuide}>
+          <ControlsGuide />
+        </div>
+      )}
     </div>
   );
 };

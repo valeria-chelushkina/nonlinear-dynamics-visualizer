@@ -1,5 +1,6 @@
 .sidebar {
   width: 220px;
+  flex-shrink: 0;
   padding: 32px 16px;
   position: sticky;
   top: 60px;
@@ -11,6 +12,12 @@
   border: 1px solid var(--border);
   border-left: none;
   background: var(--card-bg);
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    display: none;
+  }
 }
 
 .title {

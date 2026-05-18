@@ -93,6 +93,63 @@
   letter-spacing: -0.5px;
 }
 
+@media (max-width: 1024px) {
+  .logo span {
+    display: none;
+  }
+  
+  .container {
+    padding: 0 10px;
+  }
+
+  .navLink span,
+  .userInfo span,
+  .logoutButton span,
+  .dropdownButton span {
+    display: none;
+  }
+
+  .nav {
+    gap: 10px;
+  }
+
+  .leftSection {
+    gap: 10px;
+  }
+
+  .dropdownButton {
+    padding: 8px;
+  }
+
+  .logoutButton {
+    padding: 8px;
+  }
+
+  .userInfo {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav {
+    gap: 8px;
+  }
+
+  .leftSection {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .divider {
+    display: none;
+  }
+  
+  .nav {
+    gap: 5px;
+  }
+}
+
 .nav {
   display: flex;
   align-items: center;

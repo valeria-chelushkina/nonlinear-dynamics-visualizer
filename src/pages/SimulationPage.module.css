@@ -162,6 +162,8 @@
 .masterButtons {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .masterButton {
@@ -183,4 +185,78 @@
   background: var(--btn-hover);
   color: var(--accent);
   border-color: var(--accent-hover);
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .container {
+    width: 90%;
+  }
+
+  .simPart.split {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .simColumn {
+    width: 100%;
+  }
+}
+
+.mobileGuide {
+  display: none;
+}
+
+.desktopGuide {
+  display: block;
+  position: sticky;
+  top: 60px;
+  height: 100%;
+}
+
+@media (max-width: 1024px) {
+  .mobileGuide {
+    display: block;
+    margin-bottom: -20px;
+  }
+
+  .desktopGuide {
+    display: none;
+  }
+
+  .page {
+    padding: 20px 0;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0 20px;
+    gap: 30px;
+  }
+
+  .header h1 {
+    font-size: 32px;
+  }
+
+  .simPart {
+    width: 100%;
+  }
+
+  .controlsCard {
+    padding: 20px;
+  }
+
+  .infoPart {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  .header h1 {
+    font-size: 28px;
+  }
 }

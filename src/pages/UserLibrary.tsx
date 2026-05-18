@@ -132,47 +132,19 @@ const UserLibrary: React.FC = () => {
   return (
     <div className={styles.page}>
       <main className={styles.content}>
-        <div className={styles.header} style={{ marginBottom: "40px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "20px",
-              marginBottom: "10px",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                background: "#eb6bff",
-                padding: "15px",
-                borderRadius: "50%",
-                color: "black",
-              }}
-            >
+        <div className={styles.profileHeader}>
+          <div className={styles.profileInfo}>
+            <div className={styles.avatar}>
               <User size={40} />
             </div>
-            <div style={{ textAlign: "left" }}>
-              <h1 style={{ margin: 0, fontSize: "32px" }}>
-                {profile.username}'s Collection
-              </h1>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "20px",
-                  color: "#666",
-                  marginTop: "5px",
-                }}
-              >
-                <span
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
-                >
+            <div className={styles.profileText}>
+              <h1>{profile.username}'s Collection</h1>
+              <div className={styles.profileStats}>
+                <span className={styles.statItem}>
                   <Calendar size={14} /> Joined{" "}
                   {new Date(profile.createdAt).toLocaleDateString()}
                 </span>
-                <span
-                  style={{ display: "flex", alignItems: "center", gap: "5px" }}
-                >
+                <span className={styles.statItem}>
                   <Book size={14} /> {presets.length} presets
                 </span>
               </div>
@@ -180,25 +152,19 @@ const UserLibrary: React.FC = () => {
           </div>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            marginBottom: "30px",
-            justifyContent: "center",
-          }}
-        >
+        <div className={styles.sideSelector}>
+          <span>Load into:</span>
           <button
             className={`${styles.sideButton} ${targetSide === "left" ? styles.active : ""}`}
             onClick={() => setTargetSide("left")}
           >
-            Load into LEFT
+            Left view
           </button>
           <button
             className={`${styles.sideButton} ${targetSide === "right" ? styles.active : ""}`}
             onClick={() => setTargetSide("right")}
           >
-            Load into RIGHT
+            Right view
           </button>
         </div>
 

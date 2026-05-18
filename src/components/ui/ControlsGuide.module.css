@@ -2,15 +2,74 @@
   width: 220px;
   padding: 24px;
   position: sticky;
-  top: 60px;
   background: var(--card-bg);
-  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 32px;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-right: none;
+  transition: all 0.3s ease;
+}
+
+.mobileToggle {
+  display: none;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 10px 15px;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+}
+
+.toggleText {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (max-width: 1024px) {
+  .guideContainer {
+    width: 100%;
+    position: relative;
+    top: 0;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .mobileToggle {
+    display: flex;
+  }
+
+  .content {
+    max-height: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .guideContainer.open .content {
+    max-height: 1000px;
+    opacity: 1;
+    padding: 20px 10px;
+    pointer-events: auto;
+  }
 }
 
 .section {
@@ -43,9 +102,6 @@
   align-items: center;
   gap: 16px;
   padding: 12px;
-  background: var(--surface-bg);
-  border-radius: 12px;
-  border: 1px solid var(--border);
 }
 
 .iconWrapper {
@@ -83,10 +139,7 @@
 }
 
 .modeCard {
-  background: var(--surface-bg);
   padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 8px;

@@ -40,7 +40,7 @@
   margin-bottom: 24px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .paramsGrid {
     grid-template-columns: 1fr;
   }

@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --text: #4b5563;
   --text-h: #1f2937;

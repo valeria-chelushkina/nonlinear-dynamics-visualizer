@@ -6,6 +6,68 @@
   min-height: calc(100vh - 60px);
 }
 
+.profileHeader {
+  margin-bottom: 40px;
+}
+
+.profileInfo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+}
+
+.avatar {
+  background: var(--accent);
+  padding: 15px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileText {
+  text-align: left;
+}
+
+.profileText h1 {
+  margin: 0;
+  font-size: 32px;
+  color: var(--text-h);
+}
+
+.profileStats {
+  display: flex;
+  gap: 20px;
+  color: var(--text);
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .profileInfo {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profileText {
+    text-align: center;
+  }
+
+  .profileStats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
 .header {
   max-width: 1200px;
   margin: 0 auto 60px auto;
