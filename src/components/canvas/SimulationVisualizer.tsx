@@ -79,8 +79,8 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
       const i3 = i * 3;
 
       posArr[i3] = threeSpacePoint[0];
-      posArr[i3 + 1] = threeSpacePoint[2];
-      posArr[i3 + 2] = threeSpacePoint[1];
+      posArr[i3 + 1] = threeSpacePoint[1];
+      posArr[i3 + 2] = threeSpacePoint[2];
     }
 
     // Populate color values

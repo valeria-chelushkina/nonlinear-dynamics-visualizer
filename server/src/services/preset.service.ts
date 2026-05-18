@@ -1,11 +1,11 @@
 /**
  * @file preset.service.ts
- * @description Data access layer isolating Preset CRUD database actions.
+ * @description Class-based service isolating Preset CRUD database actions with manual DI.
  */
 
-import { prisma } from "../lib/prisma.js";
+import type { PrismaClient } from "@prisma/client";
 
-interface CreatePresetInput {
+export interface CreatePresetInput {
   name: string;
   systemType: string;
   parameters: any;
@@ -15,42 +15,43 @@ interface CreatePresetInput {
   userId: string;
 }
 
-export const createPreset = async (data: CreatePresetInput) => {
-  return await prisma.preset.create({ data });
-};
+export class PresetService {
+  constructor(private readonly prisma: PrismaClient) {}
 
-export const findPresetById = async (id: number) => {
-  return await prisma.preset.findUnique({
-    where: { id },
-  });
-};
+  public async createPreset(data: CreatePresetInput) {
+    return await this.prisma.preset.create({ data });
+  }
 
-export const getPresetsList = async (requesterId: string | undefined) => {
-  return await prisma.preset.findMany({
-    where: {
-      OR: [{ isPublic: true }, { userId: requesterId || "NONE" }],
-    },
-    include: { user: { select: { username: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-};
+  public async findPresetById(id: number) {
+    return await this.prisma.preset.findUnique({
+      where: { id },
+    });
+  }
 
-export const getPresetsByUserId = async (
-  targetUserId: string,
-  requesterId: string | undefined,
-) => {
-  return await prisma.preset.findMany({
-    where: {
-      userId: targetUserId,
-      OR: requesterId === targetUserId ? undefined : [{ isPublic: true }],
-    },
-    include: { user: { select: { username: true } } },
-    orderBy: { createdAt: "desc" },
-  });
-};
+  public async getPresetsList(requesterId: string | undefined) {
+    return await this.prisma.preset.findMany({
+      where: {
+        OR: [{ isPublic: true }, { userId: requesterId || "NONE" }],
+      },
+      include: { user: { select: { username: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 
-export const deletePresetById = async (id: number) => {
-  return await prisma.preset.delete({
-    where: { id },
-  });
-};
+  public async getPresetsByUserId(targetUserId: string, requesterId: string | undefined) {
+    return await this.prisma.preset.findMany({
+      where: {
+        userId: targetUserId,
+        OR: requesterId === targetUserId ? undefined : [{ isPublic: true }],
+      },
+      include: { user: { select: { username: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  public async deletePresetById(id: number) {
+    return await this.prisma.preset.delete({
+      where: { id },
+    });
+  }
+}

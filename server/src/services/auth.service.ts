@@ -1,35 +1,35 @@
 /**
  * @file auth.service.ts
- * @description Core data access abstractions for User profiles.
+ * @description Class-based service isolating User profile data access layers.
  */
 
-import { prisma } from "../lib/prisma.js";
+import type { PrismaClient } from "@prisma/client";
 
-interface CreateUserInput {
+export interface CreateUserInput {
   username: string;
   email: string;
   passwordHash: string;
 }
 
-export const createUser = async ({
-  username,
-  email,
-  passwordHash,
-}: CreateUserInput) => {
-  return await prisma.user.create({
-    data: { username, email, passwordHash },
-  });
-};
+export class AuthService {
+  constructor(private readonly prisma: PrismaClient) {}
 
-export const findUserByEmail = async (email: string) => {
-  return await prisma.user.findUnique({
-    where: { email },
-  });
-};
+  public async createUser({ username, email, passwordHash }: CreateUserInput) {
+    return await this.prisma.user.create({
+      data: { username, email, passwordHash },
+    });
+  }
 
-export const findUserById = async (id: string) => {
-  return await prisma.user.findUnique({
-    where: { id },
-    select: { id: true, username: true, createdAt: true },
-  });
-};
+  public async findUserByEmail(email: string) {
+    return await this.prisma.user.findUnique({
+      where: { email },
+    });
+  }
+
+  public async findUserById(id: string) {
+    return await this.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, username: true, createdAt: true },
+    });
+  }
+}

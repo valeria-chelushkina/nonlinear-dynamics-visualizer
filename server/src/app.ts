@@ -7,6 +7,7 @@ import express from "express";
 import cors from "cors";
 import authRouter from "./routes/auth.routes.js";
 import presetRouter from "./routes/preset.routes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -38,6 +39,8 @@ app.use("/api", presetRouter);
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "Application is configured cleanly" });
 });
+
+app.use(errorHandler);
 
 // Export the configured app instance
 export default app;
