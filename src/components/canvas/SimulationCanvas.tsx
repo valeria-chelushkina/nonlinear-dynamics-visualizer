@@ -16,6 +16,7 @@ import {
 } from "@react-three/drei";
 import SimulationVisualizer from "@/components/canvas/SimulationVisualizer";
 import SimulationVisualizer2D from "@/components/canvas/SimulationVisualizer2D";
+import SimulationVisualizerMap from "@/components/canvas/SimulationVisualizerMap";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useUIStore } from "@/stores/useUIStore";
 import type { Side } from "@/stores/useSimulationStore";
@@ -25,6 +26,18 @@ import { SYSTEM_REGISTRY } from "@/core/systems";
 interface SimulationCanvasProps {
   side?: Side;
 }
+
+/** Visualizer Selector Helper */
+const VisualizerSwitcher: React.FC<{ side: Side }> = ({ side }) => {
+  const systemType = useSimulationStore((state) => state.sims[side].systemType);
+  const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
+  const is2D = system.math.dimension === 2;
+  const isMap = system.math.type === "map";
+
+  if (isMap) return <SimulationVisualizerMap side={side} />;
+  if (is2D) return <SimulationVisualizer2D side={side} />;
+  return <SimulationVisualizer side={side} />;
+};
 
 /** Captures the current WebGL drawing buffer */
 const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
@@ -62,7 +75,8 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   );
   const setCameraConfig = useSimulationStore((state) => state.setCameraConfig);
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
-  const is2D = SYSTEM_REGISTRY[systemType]?.math.dimension === 2;
+  const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
+  const is2D = system.math.dimension === 2;
 
   // Camera syncing logic
   useEffect(() => {
@@ -102,13 +116,6 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     ];
     const target = controls.target.toArray() as [number, number, number];
 
-    // Log the current config
-    /*
-    console.log('CAMERA CONFIG:', {
-      position: position.map((v: number) => Number(v.toFixed(2))),
-      target: target.map((v: number) => Number(v.toFixed(2)))
-    });*/
-
     const currentPos = new THREE.Vector3().fromArray(sideConfig.position);
     const currentTarget = new THREE.Vector3().fromArray(sideConfig.target);
     const newPos = new THREE.Vector3().fromArray(position);
@@ -136,21 +143,11 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
       />
       {butterflyMode ? (
         <>
-          {is2D ? (
-            <SimulationVisualizer2D side="left" />
-          ) : (
-            <SimulationVisualizer side="left" />
-          )}
-          {is2D ? (
-            <SimulationVisualizer2D side="right" />
-          ) : (
-            <SimulationVisualizer side="right" />
-          )}
+          <VisualizerSwitcher side="left" />
+          <VisualizerSwitcher side="right" />
         </>
-      ) : is2D ? (
-        <SimulationVisualizer2D side={side} />
       ) : (
-        <SimulationVisualizer side={side} />
+        <VisualizerSwitcher side={side} />
       )}
     </>
   );

@@ -20,7 +20,11 @@ interface ParameterSlidersProps {
  * ParameterSliders Component
  */
 export const ParameterSliders: React.FC<ParameterSlidersProps> = ({ side }) => {
-  const sim = useSimulationStore((state) => state.sims[side]);
+  const systemType = useSimulationStore((state) => state.sims[side].systemType);
+  const params = useSimulationStore((state) => state.sims[side].params);
+  const speed = useSimulationStore((state) => state.sims[side].speed);
+  const maxPoints = useSimulationStore((state) => state.sims[side].maxPoints);
+  
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
 
   const {
@@ -32,7 +36,6 @@ export const ParameterSliders: React.FC<ParameterSlidersProps> = ({ side }) => {
     resetParams,
   } = useSimulationStore();
 
-  const { systemType, params, speed, maxPoints } = sim;
   const otherSide: Side = side === "left" ? "right" : "left";
   const currentSystem = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
 

@@ -40,6 +40,8 @@ export interface SimulationActionsSlice {
   resetSimulation: (side: Side) => void;
   /** Restores numerical configuration variables back to system engine default limits */
   resetParams: (side: Side) => void;
+  /** Directly sets the entire coordinate trace history array (used for static maps) */
+  setPoints: (side: Side, points: StateVector[]) => void;
   /** Globally flushes all active viewport slice properties back to primary application baselines */
   resetSimulationState: (type?: string) => void;
   /** Instantly applies structural multi-variable configurations derived from custom definitions */
@@ -282,6 +284,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       },
     }));
   },
+
+  setPoints: (side, points) =>
+    set((state: any) => ({
+      sims: {
+        ...state.sims,
+        [side]: { ...state.sims[side], points },
+      },
+    })),
 
   resetSimulationState: (type) => {
     const { skipNextReset, sims } = get();

@@ -112,6 +112,67 @@ export class SimulationEngine {
     return frameBatch;
   }
 
+  /**
+   * Evaluates sequential iterations for discrete maps.
+   */
+  public stepMap(
+    speed: number,
+    nextStateFn: (state: StateVector) => StateVector,
+  ): StateVector[] {
+    if (this.points.length === 0) return [];
+
+    const lastPoint = this.points[this.points.length - 1];
+    
+    // For maps, speed determines how many iterations per frame
+    const iterations = Math.max(1, Math.floor(speed * 10));
+    const frameBatch: StateVector[] = [];
+    let currentPoint = lastPoint;
+
+    for (let i = 0; i < iterations; i++) {
+      const nextPoint = nextStateFn(currentPoint);
+
+      if (!SimulationValidator.isValidPoint(nextPoint as any)) {
+        break;
+      }
+
+      currentPoint = nextPoint;
+      frameBatch.push(Array.from(currentPoint));
+    }
+
+    if (frameBatch.length > 0) {
+      this.points.push(...frameBatch);
+      if (this.points.length > this.maxPoints) {
+        this.points.splice(0, this.points.length - this.maxPoints);
+      }
+    }
+
+    return frameBatch;
+  }
+
+  /**
+   * Computes a full batch of points for a map at once (static view).
+   */
+  public computeMapBatch(
+    count: number,
+    startPoint: StateVector,
+    nextStateFn: (state: StateVector) => StateVector,
+  ): StateVector[] {
+    const batch: StateVector[] = [[...startPoint]];
+    let currentPoint = startPoint;
+
+    for (let i = 0; i < count; i++) {
+      const nextPoint = nextStateFn(currentPoint);
+      if (!SimulationValidator.isValidPoint(nextPoint as any)) {
+        break;
+      }
+      currentPoint = nextPoint;
+      batch.push(Array.from(currentPoint));
+    }
+
+    this.points = batch;
+    return batch;
+  }
+
   public getPoints(): StateVector[] {
     return this.points;
   }
@@ -126,5 +187,9 @@ export class SimulationEngine {
   public clear(): void {
     this.points = [];
     this.lastSavedPoint = null;
+  }
+
+  public getDimension(): number {
+    return this.scratch.y2.length;
   }
 }

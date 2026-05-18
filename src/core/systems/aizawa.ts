@@ -4,6 +4,7 @@ import type { RegisteredSystem } from "./types";
 export const aizawaSystem: RegisteredSystem = {
   math: {
     id: "aizawa",
+    type: "ode",
     initialSpeed: 5,
     defaultParams: {
       a: 0.95,

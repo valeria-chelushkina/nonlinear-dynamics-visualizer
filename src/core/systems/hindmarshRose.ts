@@ -4,6 +4,7 @@ import type { RegisteredSystem } from "./types";
 export const hindmarshRoseSystem: RegisteredSystem = {
   math: {
     id: "hindmarsh-rose",
+    type: "ode",
     defaultParams: {
       a: 1.0,
       b: 3.0,

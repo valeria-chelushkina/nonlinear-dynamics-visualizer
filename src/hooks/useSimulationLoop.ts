@@ -22,14 +22,24 @@ interface UseSimulationLoopProps {
 export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   const addPoints = useSimulationStore((state) => state.addPoints);
 
+  const setPoints = useSimulationStore((state) => state.setPoints);
+
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const params = useSimulationStore((state) => state.sims[side].params);
   const maxPoints = useSimulationStore((state) => state.sims[side].maxPoints);
 
+  const system = useMemo(() => {
+    return SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
+  }, [systemType]);
+
+  const stateDimension = useMemo(() => {
+    return system.math.initialState?.length || 3;
+  }, [system]);
+
   /** Persistent reference cache capturing the pure standalone math engine instance */
   const engineRef = useRef<SimulationEngine | null>(null);
-  if (!engineRef.current) {
-    engineRef.current = new SimulationEngine(3, maxPoints);
+  if (!engineRef.current || engineRef.current.getDimension() !== stateDimension) {
+    engineRef.current = new SimulationEngine(stateDimension, maxPoints);
   }
 
   /** Keep constraints synchronized */
@@ -37,11 +47,28 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     engineRef.current?.setMaxPoints(maxPoints);
   }, [maxPoints]);
 
-  /** Memoized vector field derivative equations provider */
+  /** Memoized vector field derivative equations provider (for ODEs) */
   const derivative = useMemo(() => {
-    const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
-    return system?.math.getDerivative(params);
-  }, [systemType, params]);
+    if (system.math.type !== "ode") return null;
+    return system.math.getDerivative?.(params);
+  }, [system, params]);
+
+  /** Memoized next state function (for Maps) */
+  const nextStateFn = useMemo(() => {
+    if (system.math.type !== "map") return null;
+    return system.math.getNextState?.(params);
+  }, [system, params]);
+
+  /** 
+   * Static computation for Maps when parameters change
+   */
+  useEffect(() => {
+    if (system.math.type === "map" && nextStateFn && engineRef.current) {
+      const initial = system.math.initialState || [0.1, 0.1, 0];
+      const batch = engineRef.current.computeMapBatch(5000, initial, nextStateFn);
+      setPoints(side, batch);
+    }
+  }, [system, nextStateFn, side, setPoints]);
 
   /**
    * Tracks historical array structures to catch manual user timeline events and synchronizes
@@ -49,13 +76,13 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
    */
   const storePoints = useSimulationStore((state) => state.sims[side].points);
   useEffect(() => {
-    if (storePoints.length <= 1 && engineRef.current) {
+    if (storePoints.length <= 1 && engineRef.current && system.math.type === "ode") {
       engineRef.current.clear();
       if (storePoints.length === 1) {
         engineRef.current.init(storePoints[0]);
       }
     }
-  }, [storePoints, systemType]);
+  }, [storePoints, system, side]);
 
   /** React Three Fiber Core Animation Tick Bridge */
   useFrame((_state, delta) => {
@@ -63,12 +90,17 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     if (!realTimeSim) return;
 
     const { isPaused, speed } = realTimeSim;
-    if (isPaused || !derivative || !engineRef.current) return;
+    if (isPaused || !engineRef.current) return;
 
-    const newBatch = engineRef.current.step(delta, speed, derivative);
-
-    if (newBatch.length > 0) {
-      addPoints(side, newBatch);
+    if (system.math.type === "ode" && derivative) {
+      const newBatch = engineRef.current.step(delta, speed, derivative);
+      if (newBatch.length > 0) {
+        addPoints(side, newBatch);
+      }
+    } else if (system.math.type === "map" && nextStateFn) {
+      // If not paused, we can still "evolve" the map if we want, 
+      // but usually maps are viewed statically. 
+      // For now, let's just keep it static as requested.
     }
   });
 

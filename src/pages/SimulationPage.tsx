@@ -10,8 +10,12 @@ import ControlsGuide from "@/components/ui/ControlsGuide";
 import Sidebar from "@/components/ui/Sidebar";
 
 const MasterControls: React.FC = () => {
-  const { toggleAllPause, syncAll, sims } = useSimulationStore();
-  const bothPaused = sims.left.isPaused && sims.right.isPaused;
+  const toggleAllPause = useSimulationStore((state) => state.toggleAllPause);
+  const syncAll = useSimulationStore((state) => state.syncAll);
+  const leftPaused = useSimulationStore((state) => state.sims.left.isPaused);
+  const rightPaused = useSimulationStore((state) => state.sims.right.isPaused);
+  
+  const bothPaused = leftPaused && rightPaused;
 
   return (
     <div className={styles.masterControls}>
@@ -32,26 +36,19 @@ const MasterControls: React.FC = () => {
 const SimulationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const system = SYSTEM_REGISTRY[id || "lorenz"];
-  const {
-    resetSimulationState,
-    comparisonMode,
-  } = useSimulationStore();
+  
+  const resetSimulationState = useSimulationStore((state) => state.resetSimulationState);
+  const comparisonMode = useSimulationStore((state) => state.comparisonMode);
 
-  const isMounted = React.useRef(false);
-  const lastId = React.useRef(id);
+  const lastId = React.useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const targetId = id || "lorenz";
 
     if (lastId.current !== id) {
-      isMounted.current = false;
       lastId.current = id;
+      resetSimulationState(targetId);
     }
-
-    if (isMounted.current) return;
-    isMounted.current = true;
-
-    resetSimulationState(targetId);
   }, [id, resetSimulationState]);
 
   if (!system) {
@@ -63,7 +60,7 @@ const SimulationPage: React.FC = () => {
   }
 
   return (
-    <div className={styles.pageWrapper} key={id}>
+    <div className={styles.pageWrapper}>
       {!comparisonMode && <Sidebar />}
       <div className={styles.page}>
         <div

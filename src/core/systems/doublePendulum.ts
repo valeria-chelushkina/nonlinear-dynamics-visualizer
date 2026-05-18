@@ -3,6 +3,7 @@ import type { RegisteredSystem } from "./types";
 export const doublePendulumSystem: RegisteredSystem = {
   math: {
     id: "double-pendulum",
+    type: "ode",
     dimension: 2,
     defaultParams: {
       m1: 10,

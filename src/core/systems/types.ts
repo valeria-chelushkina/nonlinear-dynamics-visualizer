@@ -12,6 +12,8 @@ import type { StateVector, Vector3, DerivativeFn } from "@/core/math/types";
 export interface IDynamicalSystem {
   /** Id of the system */
   id: string;
+  /** Type of the system: continuous (ode) or discrete (map) */
+  type: "ode" | "map";
   /** Either 2 or 3 dimension simulation (3D by default) */
   dimension?: 2 | 3;
   /** Default parameters for equations, can be changed in simulation */
@@ -20,8 +22,10 @@ export interface IDynamicalSystem {
   initialState?: StateVector;
   /** Speed at what simulation starts (default: 1) */
   initialSpeed?: number;
-  /** Evaluates derivatives relative to real-time parameter mappings */
-  getDerivative: (params: Record<string, number>) => DerivativeFn;
+  /** Evaluates derivatives relative to real-time parameter mappings (for ODEs) */
+  getDerivative?: (params: Record<string, number>) => DerivativeFn;
+  /** Evaluates the next state directly (for discrete maps) */
+  getNextState?: (params: Record<string, number>) => (state: StateVector) => StateVector;
   /** Translates high-dimensional state arrays into 3D Cartesian coordinates */
   mapStateToPoint?: (state: StateVector, params: Record<string, number>) => Vector3;
 }

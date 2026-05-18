@@ -4,6 +4,7 @@ import type { RegisteredSystem } from "./types";
 export const thomasSystem: RegisteredSystem = {
   math: {
     id: "thomas",
+    type: "ode",
     defaultParams: {
       b: 0.19,
     },
