@@ -17,6 +17,7 @@ import {
 import SimulationVisualizer from "@/components/canvas/SimulationVisualizer";
 import SimulationVisualizer2D from "@/components/canvas/SimulationVisualizer2D";
 import SimulationVisualizerMap from "@/components/canvas/SimulationVisualizerMap";
+import CoordinateHUD from "@/components/canvas/CoordinateHUD";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useUIStore } from "@/stores/useUIStore";
 import type { Side } from "@/stores/useSimulationStore";
@@ -168,7 +169,14 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
   const sectionColor = theme === "dark" ? "#444" : "#bbb";
 
   return (
-    <div style={{ width: "100%", height: "100%", background: bgColor }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        background: bgColor,
+        position: "relative",
+      }}
+    >
       <Canvas
         camera={{ position: is2D ? [0, 0, 100] : sideConfig.position, fov: 45 }}
         gl={{ antialias: false, stencil: false, depth: true }}
@@ -203,6 +211,7 @@ const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
           />
         )}
       </Canvas>
+      <CoordinateHUD side={side} />
     </div>
   );
 };
