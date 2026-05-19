@@ -8,6 +8,7 @@ import React from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
+import { SYSTEM_REGISTRY } from "@/core/systems";
 import {
   Play,
   Pause,
@@ -33,7 +34,12 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
   const butterflyMode = useSimulationStore((state) => state.butterflyMode);
-  const initialDifference = useSimulationStore((state) => state.initialDifference);
+  const initialDifference = useSimulationStore(
+    (state) => state.initialDifference,
+  );
+  const systemType = useSimulationStore((state) => state.sims[side].systemType);
+
+  const isMap = SYSTEM_REGISTRY[systemType].math.type === "map";
 
   // Store actions
   const {
@@ -54,17 +60,23 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
     <>
       <div className={styles.headerRow}>
         <div className={styles.headerActions}>
-          <button
-            className={`${styles.button} ${isPaused ? styles.buttonPrimary : ""}`}
-            onClick={() => togglePause(side)}
-          >
-            {isPaused ? <Play size={18} /> : <Pause size={18} />}
-            {isPaused ? "Resume" : "Pause"}
-          </button>
-
-          <button className={styles.button} onClick={() => resetSimulation(side)}>
-            <RotateCcw size={18} /> Reset
-          </button>
+          {!isMap && (
+            <>
+              <button
+                className={`${styles.button} ${isPaused ? styles.buttonPrimary : ""}`}
+                onClick={() => togglePause(side)}
+              >
+                {isPaused ? <Play size={18} /> : <Pause size={18} />}
+                {isPaused ? "Resume" : "Pause"}
+              </button>
+              <button
+                className={styles.button}
+                onClick={() => resetSimulation(side)}
+              >
+                <RotateCcw size={18} /> Reset
+              </button>
+            </>
+          )}
 
           <button
             className={styles.button}
@@ -114,7 +126,9 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
           <div className={styles.controlGroup} style={{ marginBottom: 0 }}>
             <label>
               Initial Diff:{" "}
-              <span className={styles.value}>{initialDifference.toFixed(5)}</span>
+              <span className={styles.value}>
+                {initialDifference.toFixed(5)}
+              </span>
             </label>
             <input
               type="range"
@@ -131,7 +145,9 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
                 <input
                   type="color"
                   value={butterflyVisuals.color}
-                  onChange={(e) => setVisuals("right", { color: e.target.value })}
+                  onChange={(e) =>
+                    setVisuals("right", { color: e.target.value })
+                  }
                   className={styles.colorPicker}
                 />
               </div>
