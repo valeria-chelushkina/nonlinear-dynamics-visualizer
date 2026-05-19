@@ -29,7 +29,7 @@ export const henonSystem: RegisteredSystem = {
     name: "Hénon Map",
     description:
       "One of the most-studied examples of dynamical systems that exhibit chaotic behavior. It takes a point (x, y) and maps it to a new point in the plane.",
-    equations: ["x_{n+1} = 1 - a x_n^2 + y_n", "y_{n+1} = b x_n"],
+    equations: ["xₙ₊₁ = 1 - a xₙ² + yₙ", "yₙ₊₁ = b xₙ"],
     history:
       "Introduced by Michel Hénon in 1976 as a simplified model of the Poincaré section of the Lorenz model. It shows how simple 2D quadratic maps can lead to complex fractal structures.",
     use: [

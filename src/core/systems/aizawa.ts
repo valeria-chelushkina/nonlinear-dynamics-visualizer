@@ -32,9 +32,9 @@ export const aizawaSystem: RegisteredSystem = {
     description:
       "The Aizawa attractor is a system of equations that, when applied iteratively on three-dimensional coordinates, evolves in such a way as to have the resulting coordinates map out a three dimensional shape, in this case a sphere with a tube-like structure penetrating one of it's axis.",
     equations: [
-      "dx/dt = (z - b)x - dy",
-      "dy/dt = dx + (z - b)y",
-      "dz/dt = c + az - z^3/3 - (x^2 + y^2)(1 + ez) + fzx^3",
+      "ẋ = (z - b)x - dy",
+      "ẏ = dx + (z - b)y",
+      "ż = c + az - z³/3 - (x² + y²)(1 + ez) + fzx³",
     ],
     history: "It represents a significant evolution in the study of deterministic chaos, known for its complex visual patterns and fractal properties.",
     use: ["Mathematical art and visualization", "Testing integration algorithms", "Chaos theory research"],

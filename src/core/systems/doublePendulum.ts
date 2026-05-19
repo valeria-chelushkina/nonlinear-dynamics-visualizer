@@ -53,10 +53,10 @@ export const doublePendulumSystem: RegisteredSystem = {
     description:
       "A pendulum with another pendulum attached to its end, exhibiting rich dynamic behavior and strong sensitivity to initial conditions.",
     equations: [
-      "θ1' = ω1",
-      "θ2' = ω2",
-      "ω1' = (-g(2m1 + m2)sinθ1 - m2gsin(θ1-2θ2) - 2sin(θ1-θ2)m2(ω2^2L2 + ω1^2L1cos(θ1-θ2))) / (L1(2m1 + m2 - m2cos(2θ1-2θ2)))",
-      "ω2' = (2sin(θ1-θ2)(ω1^2L1(m1 + m2) + g(m1 + m2)cosθ1 + ω2^2L2m2cos(θ1-θ2))) / (L2(2m1 + m2 - m2cos(2θ1-2θ2)))",
+      "θ̇₁ = ω₁",
+      "θ̇₂ = ω₂",
+      "ω̇₁ = (-g(2m₁ + m₂)sin θ₁ - m₂g sin(θ₁ - 2θ₂) - 2sin(θ₁ - θ₂)m₂(ω₂²L₂ + ω₁²L₁cos(θ₁ - θ₂))) / (L₁(2m₁ + m₂ - m₂cos(2θ₁ - 2θ₂)))",
+      "ω̇₂ = (2sin(θ₁ - θ₂)(ω₁²L₁(m₁ + m₂) + g(m₁ + m₂)cos θ₁ + ω₂²L₂m₂cos(θ₁ - θ₂))) / (L₂(2m₁ + m₂ - m₂cos(2θ₁ - 2θ₂)))",
     ],
     history:
       "The double pendulum is one of the simplest dynamical systems that can exhibit chaotic behavior. It is a classic example used to demonstrate chaos theory.",

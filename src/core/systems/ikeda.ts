@@ -33,9 +33,9 @@ export const ikedaSystem: RegisteredSystem = {
     description:
       "A discrete-time dynamical system showing complex trajectories and a strange attractor. It models light propagation in a nonlinear optical cavity.",
     equations: [
-      "t_n = 0.4 - 6 / (1 + x_n^2 + y_n^2)",
-      "x_{n+1} = 1 + u(x_n \\cos t_n - y_n \\sin t_n)",
-      "y_{n+1} = u(x_n \\sin t_n + y_n \\cos t_n)",
+      "tₙ = 0.4 - 6 / (1 + (xₙ)² + (yₙ)²)",
+      "xₙ₊₁ = 1 + u(xₙ cos tₙ - yₙ sin tₙ)",
+      "yₙ₊₁ = u(xₙ sin tₙ + yₙ cos tₙ)",
     ],
     history:
       "First proposed by Kensuke Ikeda in 1979 to describe the stationary state of the light field in a ring cavity containing a nonlinear dielectric medium.",

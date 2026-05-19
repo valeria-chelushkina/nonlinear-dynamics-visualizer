@@ -29,9 +29,9 @@ export const chuaSystem: RegisteredSystem = {
     description:
       "Invented in 1983 by Leon Chua, this is a non-linear electronic circuit that exhibits chaotic behavior. It was the first system where chaos was mathematically proven and physically observed in hardware, making it a landmark in the transition from theory to real-world engineering.",
     equations: [
-      "dx/dt = α(y - x - f(x))",
-      "dy/dt = x - y + z",
-      "dz/dt = -βy",
+      "ẋ = α(y - x - f(x))",
+      "ẏ = x - y + z",
+      "ż = -βy",
       "f(x) = m₁x + 0.5(m₀ - m₁)(|x+1| - |x-1|)",
     ],
     history:
@@ -51,7 +51,8 @@ export const chuaSystem: RegisteredSystem = {
         max: 25,
         step: 0.1,
         description: "The ratio of capacitance between the two capacitors",
-        impact: "Primary bifurcation parameter; controls the transition to chaos",
+        impact:
+          "Primary bifurcation parameter; controls the transition to chaos",
       },
       {
         key: "beta",

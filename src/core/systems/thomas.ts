@@ -24,11 +24,7 @@ export const thomasSystem: RegisteredSystem = {
     name: "Thomas' Attractor",
     description:
       "A cyclically symmetric attractor proposed by René Thomas. It is known for its beautiful, labyrinth-like structure and high degree of mathematical symmetry. It represents a flow in a 3D space that can create complex, repeating patterns.",
-    equations: [
-      "dx/dt = sin(y) - bx",
-      "dy/dt = sin(z) - by",
-      "dz/dt = sin(x) - bz",
-    ],
+    equations: ["ẋ = sin y - bx", "ẏ = sin z - by", "ż = sin x - bz"],
     history:
       "René Thomas developed this system as a 'pure' mathematical exploration of symmetry in chaos. Unlike the Lorenz system which came from weather, this was designed to find the simplest equations that could generate complex topological structures like 'chaotic labyrinths.'",
     use: [

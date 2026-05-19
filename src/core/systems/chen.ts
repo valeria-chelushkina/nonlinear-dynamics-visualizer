@@ -25,9 +25,9 @@ export const chenSystem: RegisteredSystem = {
     description:
       "Discovered in 1999, the Chen system is a dual to the Lorenz system. It represents a more complex 'butterfly' with higher density and different topological invariants. It is a key model in the classification of chaotic systems.",
     equations: [
-      "dx/dt = a(y - x)",
-      "dy/dt = (c - a)x - xz + cy",
-      "dz/dt = xy - bz",
+      "ẋ = a(y - x)",
+      "ẏ = (c - a)x - xz + cy",
+      "ż = xy - bz",
     ],
     history:
       "Guanrong Chen discovered this system while exploring the 'bridge' between the Lorenz and Lü systems. It proved that the Lorenz-style attractor was just one member of a broader family of chaotic flows, sparking a new wave of research into the mathematical structure of chaos in the late 90s.",

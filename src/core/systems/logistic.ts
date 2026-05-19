@@ -33,8 +33,8 @@ export const logisticMapSystem: RegisteredSystem = {
     description:
       "A 2D phase-space projection of the logistic map. By plotting x_{n} against x_{n-1}, we visualize the parabolic attractor that governs the system's evolution.",
     equations: [
-      "x_{n+1} = r x_n (1 - x_n)",
-      "Plotting: (x_n, x_{n-1})"
+      "xₙ₊₁ = r xₙ (1 - xₙ)",
+      "Plotting: (xₙ, xₙ₋₁)"
     ],
     history:
       "Popularized by Robert May in 1976. This 2D projection reveals the 'hump' shape that causes chaos through stretching and folding.",

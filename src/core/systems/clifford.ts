@@ -38,8 +38,8 @@ export const cliffordSystem: RegisteredSystem = {
     description:
       "A chaotic attractor defined by trigonometric functions. Small changes in parameters a, b, c, or d lead to radically different fractal shapes.",
     equations: [
-      "x_{n+1} = \\sin(a y_n) + c \\cos(a x_n)",
-      "y_{n+1} = \\sin(b x_n) + d \\cos(b y_n)",
+      "xₙ₊₁ = sin(a*yₙ) + c*cos(a*xₙ)",
+      "yₙ₊₁ = sin(b*xₙ) + d*cos(b*yₙ)",
     ],
     history:
       "Named after Clifford Pickover, who explored these types of attractors in his work on computer-generated art and chaos theory.",

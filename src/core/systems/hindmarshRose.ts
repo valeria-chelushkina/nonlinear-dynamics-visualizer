@@ -31,9 +31,9 @@ export const hindmarshRoseSystem: RegisteredSystem = {
     description:
       "A mathematical model used in neuroscience to represent the electrical activity of a single neuron. It is particularly famous for its ability to simulate 'chaotic bursting'—the random sequence of spikes followed by a quiescent period, which is a fundamental behavior of brain cells.",
     equations: [
-      "dx/dt = y - ax³ + bx² - z + I",
-      "dy/dt = c - dx² - y",
-      "dz/dt = r[s(x - xR) - z]",
+      "ẋ = y - ax³ + bx² - z + I",
+      "ẏ = c - dx² - y",
+      "ż = r[s(x - xR) - z]",
     ],
     history:
       "Developed in the 1980s by J.L. Hindmarsh and R.M. Rose, this model was a breakthrough in computational neuroscience. It successfully bridged the gap between complex biological models and simpler mathematical ones, proving that even a single neuron can exhibit deterministic chaos.",

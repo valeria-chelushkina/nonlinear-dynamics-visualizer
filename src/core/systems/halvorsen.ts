@@ -25,9 +25,9 @@ export const halvorsenSystem: RegisteredSystem = {
     description:
       "A highly symmetric chaotic system that produces a distinct triangular or trefoil-like shape. It is one of the most visually balanced strange attractors, where the trajectory sweeps through three symmetric lobes.",
     equations: [
-      "dx/dt = -ax - 4y - 4z - y²",
-      "dy/dt = -ay - 4z - 4x - z²",
-      "dz/dt = -az - 4x - 4y - x²",
+      "ẋ = -ax - 4y - 4z - y²",
+      "ẏ = -ay - 4z - 4x - z²",
+      "ż = -az - 4x - 4y - x²",
     ],
     history:
       "Discovered during numerical searches for symmetric chaotic flows. It is a member of a class of systems where the equations are cyclic permutations of each other, leading to its characteristic 3-fold rotational symmetry.",

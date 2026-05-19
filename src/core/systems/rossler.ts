@@ -24,7 +24,7 @@ export const rosslerSystem: RegisteredSystem = {
     name: "Rössler Attractor",
     description:
       "The Rössler attractor is a system of three non-linear ordinary differential equations. It was intended to behave similarly to the Lorenz attractor but be easier to analyze mathematically, featuring only one nonlinear term.",
-    equations: ["dx/dt = -y - z", "dy/dt = x + ay", "dz/dt = b + z(x - c)"],
+    equations: ["ẋ = -y - z", "ẏ = x + ay", "ż = b + z(x - c)"],
     history:
       "Otto Rössler designed this system in 1976 specifically to provide a simpler version of the Lorenz attractor that was easier to analyze. By using only one nonlinear term, he created a system that exhibits the same 'folding' behavior seen in paper-making, providing deep insights into how chaos is generated in 3D flows.",
     use: [
