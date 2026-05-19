@@ -5,6 +5,8 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { logger } from "./middleware/log.middleware";
 import { createSimulationSlice } from "./slices/createSimulationSlice";
 import type { SimulationSlice } from "./slices/createSimulationSlice";
 import { createComparisonSlice } from "./slices/createComparisonSlice";
@@ -22,17 +24,21 @@ export interface SimulationStore
   triggerScreenshot: (side: Side) => void;
 }
 
-export const useSimulationStore = create<SimulationStore>((set, get) => ({
-  ...createSimulationSlice(set, get),
-  ...createComparisonSlice(set, get),
-  ...createButterflySlice(set, get),
+export const useSimulationStore = create<SimulationStore>()(
+  devtools(
+    logger("Simulation")((set: any, get: any) => ({
+      ...createSimulationSlice(set, get),
+      ...createComparisonSlice(set, get),
+      ...createButterflySlice(set, get),
 
-  screenshotSignal: { side: null, timestamp: 0 },
+      screenshotSignal: { side: null, timestamp: 0 },
 
-  triggerScreenshot: (side: Side) =>
-    set({
-      screenshotSignal: { side, timestamp: Date.now() },
-    }),
-}));
+      triggerScreenshot: (side: Side) =>
+        set({
+          screenshotSignal: { side, timestamp: Date.now() },
+        }),
+    })),
+  ),
+);
 
 export type { Side };

@@ -8,13 +8,12 @@ import jwt from "jsonwebtoken";
 import type { PresetService } from "../services/preset.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
-
 export class PresetController {
   constructor(private readonly presetService: PresetService) {}
 
   /** Helper method to extract token payload information across public/private contexts */
   private parseOptionalToken = (req: Request): string | undefined => {
+    const JWT_SECRET = process.env.JWT_SECRET as string;
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(" ")[1];
     if (!token) return undefined;

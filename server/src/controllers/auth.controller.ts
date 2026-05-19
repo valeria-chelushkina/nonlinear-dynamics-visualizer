@@ -9,8 +9,6 @@ import jwt from "jsonwebtoken";
 import type { AuthService } from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const JWT_SECRET = process.env.JWT_SECRET as string;
-
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -32,6 +30,7 @@ export class AuthController {
 
   public login = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
+      const JWT_SECRET = process.env.JWT_SECRET as string;
       const { email, password } = req.body;
       const user = await this.authService.findUserByEmail(email);
 

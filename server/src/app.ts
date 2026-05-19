@@ -5,6 +5,7 @@
 
 import express from "express";
 import cors from "cors";
+import { requestLogger } from "./middleware/requestLogger.js";
 import authRouter from "./routes/auth.routes.js";
 import presetRouter from "./routes/preset.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -12,6 +13,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 
 // Global middleware
+app.use(requestLogger);
 app.use(cors()); // Enables cross-origin requests
 app.use(express.json()); // Parses incoming 'application/json' bodies
 

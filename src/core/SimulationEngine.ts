@@ -10,6 +10,7 @@ import {
   type RK4ScratchContext,
 } from "./math/integrator";
 import { SimulationValidator } from "./utils/validation";
+import { AppLogger } from "./utils/logger";
 import type { StateVector } from "./math/types";
 
 export class SimulationEngine {
@@ -53,11 +54,25 @@ export class SimulationEngine {
 
       // Operational Safety Checks
       if (!SimulationValidator.isValidPoint(nextPoint as any)) {
+        AppLogger.warn(
+          "Simulation Engine: NaN or Infinite point detected. Stopping integration.",
+          {
+            lastValid: currentPoint,
+            invalid: nextPoint,
+          },
+        );
         break;
       }
       if (
         !SimulationValidator.isStableStep(currentPoint, nextPoint as any, 10000)
       ) {
+        AppLogger.warn(
+          "Simulation Engine: Mathematical explosion (divergence) detected. Stopping integration.",
+          {
+            from: currentPoint,
+            to: nextPoint,
+          },
+        );
         break; // Stop integration updates instantly if a math explosion is caught
       }
 

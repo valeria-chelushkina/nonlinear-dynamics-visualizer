@@ -4,6 +4,8 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { logger } from "./middleware/log.middleware";
 import type { VisualConfig, Side } from "./types/simulation.types";
 
 interface VisualsStore {
@@ -45,21 +47,28 @@ const getInitialVisuals = (side: Side): VisualConfig => {
   return DEFAULT_VISUALS[side];
 };
 
-export const useVisualsStore = create<VisualsStore>((set) => ({
-  configs: {
-    left: getInitialVisuals("left"),
-    right: getInitialVisuals("right"),
-  },
+export const useVisualsStore = create<VisualsStore>()(
+  devtools(
+    logger("Visuals")((set: any) => ({
+      configs: {
+        left: getInitialVisuals("left"),
+        right: getInitialVisuals("right"),
+      },
 
-  setVisuals: (side, newConfig) =>
-    set((state) => {
-      const updatedConfig = { ...state.configs[side], ...newConfig };
-      localStorage.setItem(`visuals_${side}`, JSON.stringify(updatedConfig));
-      return {
-        configs: {
-          ...state.configs,
-          [side]: updatedConfig,
-        },
-      };
-    }),
-}));
+      setVisuals: (side: any, newConfig: any) =>
+        set((state: any) => {
+          const updatedConfig = { ...state.configs[side], ...newConfig };
+          localStorage.setItem(
+            `visuals_${side}`,
+            JSON.stringify(updatedConfig),
+          );
+          return {
+            configs: {
+              ...state.configs,
+              [side]: updatedConfig,
+            },
+          };
+        }),
+    })),
+  ),
+);

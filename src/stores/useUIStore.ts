@@ -4,6 +4,8 @@
  */
 
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { logger } from "./middleware/log.middleware";
 
 type Theme = "light" | "dark";
 
@@ -30,39 +32,43 @@ const applyThemeToRoot = (theme: Theme) => {
   localStorage.setItem("theme", theme);
 };
 
-export const useUIStore = create<UIStore>((set) => ({
-  // Initialize theme from storage or default to light
-  theme: (() => {
-    const saved = localStorage.getItem("theme") as Theme;
-    const theme = saved || "light";
-    // Apply it immediately on load
-    if (typeof document !== "undefined") {
-      document.documentElement.setAttribute("data-theme", theme);
-    }
-    return theme;
-  })(),
+export const useUIStore = create<UIStore>()(
+  devtools(
+    logger("UI")((set: any) => ({
+      // Initialize theme from storage or default to light
+      theme: (() => {
+        const saved = localStorage.getItem("theme") as Theme;
+        const theme = saved || "light";
+        // Apply it immediately on load
+        if (typeof document !== "undefined") {
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+        return theme;
+      })(),
 
-  isLibraryOpen: false,
+      isLibraryOpen: false,
 
-  toggleTheme: () =>
-    set((state) => {
-      const nextTheme = state.theme === "light" ? "dark" : "light";
-      applyThemeToRoot(nextTheme);
-      return { theme: nextTheme };
-    }),
+      toggleTheme: () =>
+        set((state: any) => {
+          const nextTheme = state.theme === "light" ? "dark" : "light";
+          applyThemeToRoot(nextTheme);
+          return { theme: nextTheme };
+        }),
 
-  setTheme: (theme) => {
-    applyThemeToRoot(theme);
-    set({ theme });
-  },
+      setTheme: (theme: any) => {
+        applyThemeToRoot(theme);
+        set({ theme });
+      },
 
-  toggleLibrary: () =>
-    set((state) => ({
-      isLibraryOpen: !state.isLibraryOpen,
+      toggleLibrary: () =>
+        set((state: any) => ({
+          isLibraryOpen: !state.isLibraryOpen,
+        })),
+
+      setLibraryOpen: (isOpen: any) =>
+        set({
+          isLibraryOpen: isOpen,
+        }),
     })),
-
-  setLibraryOpen: (isOpen) =>
-    set({
-      isLibraryOpen: isOpen,
-    }),
-}));
+  ),
+);
