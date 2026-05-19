@@ -1,9 +1,9 @@
 import type { RegisteredSystem } from "./types";
 
 /**
- * Logistic Map
+ * Logistic Map (2D Projection)
  * x_{n+1} = r * x_n * (1 - x_n)
- * Although 1D, we visualize it as a time series or recurrence plot.
+ * We visualize it as (x_n, x_{n+1}) to create the iconic "tent" or "arch" shape.
  */
 export const logisticMapSystem: RegisteredSystem = {
   math: {
@@ -13,23 +13,31 @@ export const logisticMapSystem: RegisteredSystem = {
     defaultParams: {
       r: 3.9,
     },
-    initialState: [0.5, 0, 0],
+    initialState: [0.5, 0.5, 0],
     getNextState: (params) => {
-      return (state) => [
-        params.r * state[0] * (1 - state[0]),
-        0,
-        0,
-      ];
+      return (state) => {
+        const nextX = params.r * state[0] * (1 - state[0]);
+        // We store x_n in state[0] and x_{n+1} in state[1] for 2D visualization
+        return [nextX, state[0], 0];
+      };
     },
-    mapStateToPoint: (state) => [state[0] * 40 - 20, 0, 0],
+    // We map [x_n, x_{n-1}] to 2D space for the phase plot
+    mapStateToPoint: (state) => [
+      state[0] * 60 - 30, // Scale x_n
+      state[1] * 60 - 30, // Scale x_{n-1}
+      0
+    ],
   },
   meta: {
     name: "Logistic Map",
     description:
-      "A polynomial mapping of degree 2, often cited as an archetypal example of how complex, chaotic behaviour can arise from very simple non-linear dynamical equations.",
-    equations: ["x_{n+1} = r x_n (1 - x_n)"],
+      "A 2D phase-space projection of the logistic map. By plotting x_{n} against x_{n-1}, we visualize the parabolic attractor that governs the system's evolution.",
+    equations: [
+      "x_{n+1} = r x_n (1 - x_n)",
+      "Plotting: (x_n, x_{n-1})"
+    ],
     history:
-      "Popularized in a 1976 paper by the biologist Robert May, in part as a discrete-time demographic model analogous to the logistic equation first created by Pierre François Verhulst.",
+      "Popularized by Robert May in 1976. This 2D projection reveals the 'hump' shape that causes chaos through stretching and folding.",
     use: [
       "Population dynamics",
       "Chaos theory",
@@ -41,13 +49,13 @@ export const logisticMapSystem: RegisteredSystem = {
         label: "Parameter r",
         min: 0,
         max: 4,
-        step: 0.01,
+        step: 0.001,
         description: "Growth rate parameter",
-        impact: "Determines behavior: < 1 extinction, 1-3 stable, 3.57+ chaos",
+        impact: "3.57+ leads to chaos; 4.0 is fully chaotic.",
       },
     ],
     cameraConfig: {
-      position: [0, 0, 100],
+      position: [0, 0, 80],
       target: [0, 0, 0],
     },
   },
