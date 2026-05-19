@@ -88,7 +88,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
 
           {side === "left" && (
             <>
-              {!comparisonMode && (
+              {!comparisonMode && !isMap && (
                 <button
                   className={`${styles.button} ${butterflyMode ? styles.active : ""}`}
                   onClick={toggleButterflyMode}
