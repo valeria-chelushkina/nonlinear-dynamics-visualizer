@@ -39,8 +39,24 @@ export const henonSystem: RegisteredSystem = {
       "Statistical mechanics",
     ],
     sliders: [
-      { key: "a", label: "Parameter a", min: 0, max: 2, step: 0.01 },
-      { key: "b", label: "Parameter b", min: 0, max: 0.5, step: 0.01 },
+      {
+        key: "a",
+        label: "Parameter a",
+        min: 0,
+        max: 2,
+        step: 0.01,
+        description: "Nonlinearity parameter",
+        impact: "Controls the degree of quadratic folding; higher values lead to chaos",
+      },
+      {
+        key: "b",
+        label: "Parameter b",
+        min: 0,
+        max: 0.5,
+        step: 0.01,
+        description: "Area-preserving (dissipation) parameter",
+        impact: "Determines how much the system 'remembers' its previous state",
+      },
     ],
     cameraConfig: {
       position: [0, 0, 100],

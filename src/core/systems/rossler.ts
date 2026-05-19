@@ -25,12 +25,42 @@ export const rosslerSystem: RegisteredSystem = {
     description:
       "The Rössler attractor is a system of three non-linear ordinary differential equations. It was intended to behave similarly to the Lorenz attractor but be easier to analyze mathematically, featuring only one nonlinear term.",
     equations: ["dx/dt = -y - z", "dy/dt = x + ay", "dz/dt = b + z(x - c)"],
-    history: "",
-    use: [],
+    history:
+      "Otto Rössler designed this system in 1976 specifically to provide a simpler version of the Lorenz attractor that was easier to analyze. By using only one nonlinear term, he created a system that exhibits the same 'folding' behavior seen in paper-making, providing deep insights into how chaos is generated in 3D flows.",
+    use: [
+      "Chemical kinetics",
+      "Electronic oscillations",
+      "Biological rhythms",
+      "Studying the topology of chaos",
+    ],
     sliders: [
-      { key: "a", label: "Param A", min: 0, max: 1, step: 0.01 },
-      { key: "b", label: "Param B", min: 0, max: 1, step: 0.01 },
-      { key: "c", label: "Param C", min: 0, max: 20, step: 0.1 },
+      {
+        key: "a",
+        label: "Param A",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        description: "Bifurcation parameter affecting spiral growth",
+        impact: "Controls the degree of spiraling in the XY plane",
+      },
+      {
+        key: "b",
+        label: "Param B",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        description: "Controls the z-axis threshold",
+        impact: "Influences the frequency of 'spikes' into the Z dimension",
+      },
+      {
+        key: "c",
+        label: "Param C",
+        min: 0,
+        max: 20,
+        step: 0.1,
+        description: "The primary bifurcation parameter",
+        impact: "Determines the transition from periodic orbits to chaos",
+      },
     ],
     cameraConfig: {
       position: [-28.4, 16.12, 20.62],

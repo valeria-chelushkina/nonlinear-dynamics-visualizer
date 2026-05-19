@@ -39,6 +39,8 @@ export interface SliderConfig {
   min: number;
   max: number;
   step: number;
+  description: string;
+  impact: string;
 }
 
 /**

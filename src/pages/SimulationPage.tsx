@@ -130,6 +130,19 @@ const SimulationPage: React.FC = () => {
             </section>
 
             <section className={styles.infoCard}>
+              <h3>Parameter Details</h3>
+              <div className={styles.parametersList}>
+                {system.meta.sliders.map((slider: any, i: any) => (
+                  <div key={i} className={styles.parameter}>
+                    <span className={styles.parameterName}>{slider.label}</span>
+                    <span className={styles.parameterDescription}>{slider.description}</span>
+                    <span className={styles.parameterImpact}><strong>Impact:</strong> {slider.impact}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className={styles.infoCard}>
               <h3>Historical significance</h3>
               <p>{system.meta.history}</p>
             </section>

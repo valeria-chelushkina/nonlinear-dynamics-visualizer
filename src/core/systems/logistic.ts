@@ -36,7 +36,15 @@ export const logisticMapSystem: RegisteredSystem = {
       "Bifurcation analysis",
     ],
     sliders: [
-      { key: "r", label: "Parameter r", min: 0, max: 4, step: 0.01 },
+      {
+        key: "r",
+        label: "Parameter r",
+        min: 0,
+        max: 4,
+        step: 0.01,
+        description: "Growth rate parameter",
+        impact: "Determines behavior: < 1 extinction, 1-3 stable, 3.57+ chaos",
+      },
     ],
     cameraConfig: {
       position: [0, 0, 100],

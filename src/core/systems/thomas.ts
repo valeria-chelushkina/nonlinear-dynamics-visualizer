@@ -38,7 +38,15 @@ export const thomasSystem: RegisteredSystem = {
       "Theoretical physics",
     ],
     sliders: [
-      { key: "b", label: "Dissipation (b)", min: 0, max: 0.5, step: 0.001 },
+      {
+        key: "b",
+        label: "Dissipation (b)",
+        min: 0,
+        max: 0.5,
+        step: 0.001,
+        description: "Friction or dissipation coefficient",
+        impact: "Lower values allow for more complex 'labyrinth' exploration",
+      },
     ],
     cameraConfig: {
       position: [3.61, -0.6, -10.73],

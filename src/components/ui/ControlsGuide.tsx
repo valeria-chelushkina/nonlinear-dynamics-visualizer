@@ -5,8 +5,6 @@ import {
   Search,
   EqualApproximately,
   Columns,
-  Zap,
-  MousePointerClick,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -22,7 +20,6 @@ const ControlsGuide: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className={styles.toggleText}>
-          <MousePointerClick size={18} />
           <span>Controls Guide</span>
         </div>
         {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -31,7 +28,7 @@ const ControlsGuide: React.FC = () => {
       <div className={styles.content}>
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>
-            <MousePointerClick size={18} /> Camera Controls
+            Camera Controls
           </h3>
           <div className={styles.instructionGrid}>
             <div className={styles.instructionItem}>
@@ -70,7 +67,7 @@ const ControlsGuide: React.FC = () => {
 
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>
-            <Zap size={18} /> Advanced Modes
+            Advanced Modes
           </h3>
 
           <div className={styles.modeCard}>

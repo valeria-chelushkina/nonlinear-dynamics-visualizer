@@ -45,7 +45,17 @@ export const ikedaSystem: RegisteredSystem = {
       "Chaos in optics",
       "Nonlinear systems research",
     ],
-    sliders: [{ key: "u", label: "Parameter u", min: 0, max: 1, step: 0.01 }],
+    sliders: [
+      {
+        key: "u",
+        label: "Parameter u",
+        min: 0,
+        max: 1,
+        step: 0.01,
+        description: "Saturation or loss parameter of the optical cavity",
+        impact: "Controls the amount of energy retained; chaos typically emerges around u = 0.9",
+      },
+    ],
     cameraConfig: {
       position: [0, 0, 100],
       target: [0, 0, 0],

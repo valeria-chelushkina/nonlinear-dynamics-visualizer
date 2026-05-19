@@ -110,9 +110,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--accent-bg);
   color: var(--accent);
-  border-radius: 8px;
 }
 
 .textGroup {

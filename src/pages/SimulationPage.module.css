@@ -109,10 +109,43 @@
 }
 
 .equationsList,
-.useList {
+.useList,
+.parametersList {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.parameter {
+  padding: 15px 16px;;
+}
+
+.parameter:not(:first-child){
+  border-top: 1px solid var(--accent);
+}
+
+.parameterName {
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+  display: block;
+  font-size: 15px;
+}
+
+.parameterDescription {
+  display: block;
+  font-size: 15px;
+  color: var(--text-h);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.parameterImpact {
+  display: block;
+  font-size: 13px;
+  color: var(--text);
+  font-style: italic;
+  opacity: 0.8;
 }
 
 .equation code {

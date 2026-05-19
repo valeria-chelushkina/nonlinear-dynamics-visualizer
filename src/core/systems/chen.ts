@@ -39,9 +39,33 @@ export const chenSystem: RegisteredSystem = {
     ],
 
     sliders: [
-      { key: "a", label: "Param a", min: 0, max: 50, step: 0.1 },
-      { key: "b", label: "Param b", min: 0, max: 10, step: 0.1 },
-      { key: "c", label: "Param c", min: 0, max: 40, step: 0.1 },
+      {
+        key: "a",
+        label: "Param a",
+        min: 0,
+        max: 50,
+        step: 0.1,
+        description: "Coupling coefficient between x and y",
+        impact: "Controls the strength of interaction between horizontal variables",
+      },
+      {
+        key: "b",
+        label: "Param b",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        description: "Dissipation parameter",
+        impact: "Affects the rate at which trajectories converge toward the attractor",
+      },
+      {
+        key: "c",
+        label: "Param c",
+        min: 0,
+        max: 40,
+        step: 0.1,
+        description: "Vertical feedback parameter",
+        impact: "Determines the complexity of the 'wings' and the transition to chaos",
+      },
     ],
     cameraConfig: {
       position: [-89.42, 37.6, 37.16],

@@ -38,7 +38,17 @@ export const halvorsenSystem: RegisteredSystem = {
       "Abstract 3D visualization",
     ],
 
-    sliders: [{ key: "a", label: "Param a", min: 0, max: 2.5, step: 0.01 }],
+    sliders: [
+      {
+        key: "a",
+        label: "Param a",
+        min: 0,
+        max: 2.5,
+        step: 0.01,
+        description: "The primary control parameter",
+        impact: "Determines whether the system collapses or expands into chaos",
+      },
+    ],
     cameraConfig: {
       position: [-25.49, -23.63, -16.75],
       target: [-4.19, -1.34, -3.2],
