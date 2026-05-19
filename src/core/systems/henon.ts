@@ -1,11 +1,5 @@
 import type { RegisteredSystem } from "./types";
 
-/**
- * The Hénon Map
- * A discrete-time dynamical system that exhibits chaotic behavior.
- * x_{n+1} = 1 - a x_n^2 + y_n
- * y_{n+1} = b x_n
- */
 export const henonSystem: RegisteredSystem = {
   math: {
     id: "henon",

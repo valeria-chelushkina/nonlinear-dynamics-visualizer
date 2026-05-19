@@ -29,7 +29,34 @@ export class AuthService {
   public async findUserById(id: string) {
     return await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, username: true, createdAt: true },
+      select: { id: true, username: true, email: true, createdAt: true },
+    });
+  }
+
+  public async setResetToken(email: string, token: string, expires: Date) {
+    return await this.prisma.user.update({
+      where: { email },
+      data: {
+        resetPasswordToken: token,
+        resetPasswordExpires: expires,
+      },
+    });
+  }
+
+  public async findUserByResetToken(token: string) {
+    return await this.prisma.user.findUnique({
+      where: { resetPasswordToken: token },
+    });
+  }
+
+  public async updatePassword(userId: string, passwordHash: string) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
     });
   }
 }

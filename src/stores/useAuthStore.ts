@@ -8,6 +8,7 @@ import { create } from "zustand";
 interface User {
   id: string;
   username: string;
+  email?: string;
 }
 
 interface AuthStore {
@@ -70,11 +71,11 @@ export const useAuthStore = create<AuthStore>((set) => ({
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     }
-    set({ user, token });
+    set({ user, token, isAuthenticated: !!(user && token) });
   },
   logout: () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    set({ user: null, token: null });
+    set({ user: null, token: null, isAuthenticated: false });
   },
 }));

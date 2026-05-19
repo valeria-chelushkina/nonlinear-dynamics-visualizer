@@ -1,10 +1,5 @@
 import type { RegisteredSystem } from "./types";
 
-/**
- * The Ikeda Map
- * A discrete-time dynamical system first proposed by Kensuke Ikeda as a model 
- * of light going around across a nonlinear optical resonator.
- */
 export const ikedaSystem: RegisteredSystem = {
   math: {
     id: "ikeda",

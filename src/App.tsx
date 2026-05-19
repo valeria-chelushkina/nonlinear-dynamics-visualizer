@@ -9,6 +9,9 @@ import Library from "@/pages/Library";
 import UserLibrary from "@/pages/UserLibrary";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
+import ChangePassword from "@/pages/ChangePassword";
 import Header from "@/components/ui/Header";
 import "@/styles/App.css";
 
@@ -31,6 +34,9 @@ function App() {
             <Route path="/user/:userId" element={<UserLibrary />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/change-password" element={<ChangePassword />} />
           </Routes>
         </main>
       </div>

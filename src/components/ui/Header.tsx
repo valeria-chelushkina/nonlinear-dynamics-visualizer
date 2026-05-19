@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Moon,
   Sun,
+  Settings,
 } from "lucide-react";
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import styles from "./Header.module.css";
@@ -102,6 +103,14 @@ const Header: React.FC = () => {
               >
                 <UserIcon size={18} />
                 <span>{user.username}</span>
+              </Link>
+              <Link
+                to="/change-password"
+                className={styles.navLink}
+                title="Change Password"
+                style={{ padding: "0 8px", minWidth: "auto" }}
+              >
+                <Settings size={18} />
               </Link>
               <button onClick={logout} className={styles.logoutButton}>
                 <LogOut size={18} />

@@ -61,7 +61,12 @@ const Login: React.FC = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <label>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label>Password</label>
+              <Link to="/forgot-password" className={styles.link} style={{ fontSize: '0.85rem' }}>
+                Forgot Password?
+              </Link>
+            </div>
             <input
               type="password"
               className={styles.input}

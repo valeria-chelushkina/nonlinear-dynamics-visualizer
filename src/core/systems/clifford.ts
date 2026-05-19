@@ -1,11 +1,5 @@
 import type { RegisteredSystem } from "./types";
 
-/**
- * Clifford Attractor
- * A type of fractal attractor created by a simple set of iterative equations.
- * x_{n+1} = sin(a * y_n) + c * cos(a * x_n)
- * y_{n+1} = sin(b * x_n) + d * cos(b * y_n)
- */
 export const cliffordSystem: RegisteredSystem = {
   math: {
     id: "clifford",

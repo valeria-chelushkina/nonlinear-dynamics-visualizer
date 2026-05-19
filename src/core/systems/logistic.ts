@@ -1,10 +1,5 @@
 import type { RegisteredSystem } from "./types";
 
-/**
- * Logistic Map (2D Projection)
- * x_{n+1} = r * x_n * (1 - x_n)
- * We visualize it as (x_n, x_{n+1}) to create the iconic "tent" or "arch" shape.
- */
 export const logisticMapSystem: RegisteredSystem = {
   math: {
     id: "logistic",
@@ -17,11 +12,11 @@ export const logisticMapSystem: RegisteredSystem = {
     getNextState: (params) => {
       return (state) => {
         const nextX = params.r * state[0] * (1 - state[0]);
-        // We store x_n in state[0] and x_{n+1} in state[1] for 2D visualization
+        // Store x_n in state[0] and x_{n+1} in state[1] for 2D visualization
         return [nextX, state[0], 0];
       };
     },
-    // We map [x_n, x_{n-1}] to 2D space for the phase plot
+    // Map [x_n, x_{n-1}] to 2D space for the phase plot
     mapStateToPoint: (state) => [
       state[0] * 60 - 30, // Scale x_n
       state[1] * 60 - 30, // Scale x_{n-1}
