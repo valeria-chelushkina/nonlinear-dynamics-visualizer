@@ -1,8 +1,7 @@
 /**
  * @file SimulationEngine.ts
  * @description Standalone execution engine for higher-order dynamical systems.
- * Manages numerical integration state cycles, cross-frame spatial filtering
- * and track history arrays entirely isolated from React rendering loops.
+ * Manages numerical integration state cycles entirely isolated from React rendering loops.
  */
 
 import {
@@ -14,25 +13,14 @@ import { SimulationValidator } from "./utils/validation";
 import type { StateVector } from "./math/types";
 
 export class SimulationEngine {
-  private points: StateVector[] = [];
   private lastSavedPoint: StateVector | null = null;
   private scratch: RK4ScratchContext;
-  private maxPoints: number;
 
   /**
    * Instantiates a standalone simulation calculation engine instance.
    */
-  constructor(dimension: number = 3, maxPoints: number = 30000) {
-    this.maxPoints = maxPoints;
+  constructor(dimension: number = 3) {
     this.scratch = createRK4ScratchContext(dimension);
-  }
-
-  /**
-   * Initializes or forces a hard state wipe of the trajectory tracking history.
-   */
-  public init(startPoint: StateVector): void {
-    this.points = [[...startPoint]];
-    this.lastSavedPoint = [...startPoint];
   }
 
   /**
@@ -40,13 +28,11 @@ export class SimulationEngine {
    * Runs internal step filters and divergence guards before modifying state records.
    */
   public step(
+    lastPoint: StateVector,
     delta: number,
     speed: number,
     derivative: (state: StateVector, t: number) => StateVector,
   ): StateVector[] {
-    if (this.points.length === 0) return [];
-
-    const lastPoint = this.points[this.points.length - 1];
     if (!this.lastSavedPoint) {
       this.lastSavedPoint = lastPoint;
     }
@@ -101,14 +87,6 @@ export class SimulationEngine {
       this.lastSavedPoint = fallbackPt;
     }
 
-    // Mutate state track history limits smoothly
-    if (frameBatch.length > 0) {
-      this.points.push(...frameBatch);
-      if (this.points.length > this.maxPoints) {
-        this.points.splice(0, this.points.length - this.maxPoints);
-      }
-    }
-
     return frameBatch;
   }
 
@@ -116,13 +94,10 @@ export class SimulationEngine {
    * Evaluates sequential iterations for discrete maps.
    */
   public stepMap(
+    lastPoint: StateVector,
     speed: number,
     nextStateFn: (state: StateVector) => StateVector,
   ): StateVector[] {
-    if (this.points.length === 0) return [];
-
-    const lastPoint = this.points[this.points.length - 1];
-    
     // For maps, speed determines how many iterations per frame
     const iterations = Math.max(1, Math.floor(speed * 10));
     const frameBatch: StateVector[] = [];
@@ -137,13 +112,6 @@ export class SimulationEngine {
 
       currentPoint = nextPoint;
       frameBatch.push(Array.from(currentPoint));
-    }
-
-    if (frameBatch.length > 0) {
-      this.points.push(...frameBatch);
-      if (this.points.length > this.maxPoints) {
-        this.points.splice(0, this.points.length - this.maxPoints);
-      }
     }
 
     return frameBatch;
@@ -169,23 +137,10 @@ export class SimulationEngine {
       batch.push(Array.from(currentPoint));
     }
 
-    this.points = batch;
     return batch;
   }
 
-  public getPoints(): StateVector[] {
-    return this.points;
-  }
-
-  public setMaxPoints(maxPoints: number): void {
-    this.maxPoints = maxPoints;
-    if (this.points.length > this.maxPoints) {
-      this.points.splice(0, this.points.length - this.maxPoints);
-    }
-  }
-
   public clear(): void {
-    this.points = [];
     this.lastSavedPoint = null;
   }
 

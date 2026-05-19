@@ -26,7 +26,6 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
 
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const params = useSimulationStore((state) => state.sims[side].params);
-  const maxPoints = useSimulationStore((state) => state.sims[side].maxPoints);
 
   const system = useMemo(() => {
     return SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
@@ -39,13 +38,8 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   /** Persistent reference cache capturing the pure standalone math engine instance */
   const engineRef = useRef<SimulationEngine | null>(null);
   if (!engineRef.current || engineRef.current.getDimension() !== stateDimension) {
-    engineRef.current = new SimulationEngine(stateDimension, maxPoints);
+    engineRef.current = new SimulationEngine(stateDimension);
   }
-
-  /** Keep constraints synchronized */
-  useEffect(() => {
-    engineRef.current?.setMaxPoints(maxPoints);
-  }, [maxPoints]);
 
   /** Memoized vector field derivative equations provider (for ODEs) */
   const derivative = useMemo(() => {
@@ -78,9 +72,6 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   useEffect(() => {
     if (storePoints.length <= 1 && engineRef.current && system.math.type === "ode") {
       engineRef.current.clear();
-      if (storePoints.length === 1) {
-        engineRef.current.init(storePoints[0]);
-      }
     }
   }, [storePoints, system, side]);
 
@@ -89,11 +80,13 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     const realTimeSim = useSimulationStore.getState().sims[side];
     if (!realTimeSim) return;
 
-    const { isPaused, speed } = realTimeSim;
-    if (isPaused || !engineRef.current) return;
+    const { isPaused, speed, points: currentStorePoints } = realTimeSim;
+    if (isPaused || !engineRef.current || currentStorePoints.length === 0) return;
+
+    const lastPoint = currentStorePoints[currentStorePoints.length - 1];
 
     if (system.math.type === "ode" && derivative) {
-      const newBatch = engineRef.current.step(delta, speed, derivative);
+      const newBatch = engineRef.current.step(lastPoint, delta, speed, derivative);
       if (newBatch.length > 0) {
         addPoints(side, newBatch);
       }

@@ -16,6 +16,8 @@ interface SimulationVisualizerMapProps {
   side?: Side;
 }
 
+const ThreeLine = "line" as any;
+
 const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
   side = "left",
 }) => {
@@ -114,10 +116,10 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       </points>
 
       {/* Time Series Projection (Lower Section) */}
-      <line frustumCulled={false} position={[0, -10, 0]}>
+      <ThreeLine frustumCulled={false} position={[0, -10, 0]}>
         <bufferGeometry ref={timeSeriesGeometryRef} />
         <lineBasicMaterial vertexColors transparent opacity={0.4} />
-      </line>
+      </ThreeLine>
     </group>
   );
 };

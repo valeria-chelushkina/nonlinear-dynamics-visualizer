@@ -48,7 +48,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     const geometry = geometryRef.current;
     if (!geometry) return;
 
-    const currentCount = points.length;
+    const currentCount = Math.min(points.length, maxPoints);
 
     if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
       lastUploadedCountRef.current = 0;
@@ -108,14 +108,15 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     let posAttr = geometry.getAttribute("position") as THREE.BufferAttribute;
     let colAttr = geometry.getAttribute("color") as THREE.BufferAttribute;
 
-    if (!posAttr) {
+    const needsRebind = !posAttr || posAttr.array !== posArr;
+
+    if (needsRebind) {
       posAttr = new THREE.BufferAttribute(posArr, 3);
       colAttr = new THREE.BufferAttribute(colArr, 3);
       geometry.setAttribute("position", posAttr);
       geometry.setAttribute("color", colAttr);
     }
 
-    // Direct WebGL driver sub-range upload configuration mapping
     posAttr.needsUpdate = true;
     posAttr.updateRanges = [];
 
@@ -125,14 +126,20 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
         count: (currentCount - startIdx) * 3,
       });
     } else {
-      posAttr.updateRanges.push({ start: 0, count: -1 });
+      posAttr.updateRanges.push({ 
+        start: 0, 
+        count: currentCount * 3 
+      });
     }
 
     colAttr.needsUpdate = true;
     colAttr.updateRanges = [];
 
     if (visuals.useGradient || isSaturatedWindow) {
-      colAttr.updateRanges.push({ start: 0, count: currentCount * 3 });
+      colAttr.updateRanges.push({ 
+        start: 0, 
+        count: currentCount * 3 
+      });
     } else {
       colAttr.updateRanges.push({
         start: startIdx * 3,
@@ -141,6 +148,9 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     }
 
     geometry.setDrawRange(0, currentCount);
+    geometry.computeBoundingBox();
+    geometry.computeBoundingSphere();
+
     lastUploadedCountRef.current = currentCount;
   }, [points, visuals, systemType, params, theme, maxPoints]);
 

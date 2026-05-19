@@ -235,12 +235,21 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   setMaxPoints: (side, maxPoints) =>
     set((state: any) => {
       const { butterflyMode } = state;
+      
+      const updateSim = (sim: any) => ({
+        ...sim,
+        maxPoints,
+        points: sim.points.length > maxPoints 
+          ? sim.points.slice(sim.points.length - maxPoints) 
+          : sim.points,
+      });
+
       const updates: Record<string, any> = {
-        [side]: { ...state.sims[side], maxPoints },
+        [side]: updateSim(state.sims[side]),
       };
 
       if (butterflyMode && side === "left") {
-        updates.right = { ...state.sims.right, maxPoints };
+        updates.right = updateSim(state.sims.right);
       }
 
       return { sims: { ...state.sims, ...updates } };
