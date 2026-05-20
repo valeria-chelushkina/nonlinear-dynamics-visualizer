@@ -1,10 +1,9 @@
 /**
  * @file asyncHandler.ts
- * @description Function wrapper eliminating repetitive try/catch blocks
- * in asynchronous Express routing handlers.
+ * @description Eliminates try/catch blocks in async Express routing handlers.
  */
 
-import type { Request, Response, NextFunction, RequestHandler } from "express";
+import type { Request, Response, NextFunction } from "express";
 
 export const asyncHandler = (fn: (...args: any[]) => Promise<any>): any => {
   return (req: Request, res: Response, next: NextFunction) => {

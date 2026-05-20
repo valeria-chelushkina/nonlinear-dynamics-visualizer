@@ -1,7 +1,6 @@
 /**
  * @file logger.ts
- * @description Centralized logging utility for the backend.
- * Provides structured logging with levels and timestamps.
+ * @description Provides logging for backend with levels and timestamps.
  */
 
 type LogLevel = "info" | "warn" | "error" | "debug";

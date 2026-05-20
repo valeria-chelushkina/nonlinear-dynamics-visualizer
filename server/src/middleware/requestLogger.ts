@@ -13,7 +13,6 @@ export const requestLogger = (
 ) => {
   const start = Date.now();
 
-  // Log when the request finishes
   res.on("finish", () => {
     const duration = Date.now() - start;
     const message = `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`;

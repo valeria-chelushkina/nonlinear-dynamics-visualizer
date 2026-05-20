@@ -1,5 +1,10 @@
+/**
+ * @file auth.routes.ts
+ * @description Express routing config for user authentication and account management.
+ * Handles register, login, getting user profile and passwords options.
+ */
+
 import { Router } from "express";
-import { validate } from "../middleware/validate.js";
 import { prisma } from "../lib/prisma.js";
 import { AuthService } from "../services/auth.service.js";
 import { EmailService } from "../services/email.service.js";

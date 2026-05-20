@@ -1,6 +1,6 @@
 /**
  * @file auth.controller.ts
- * @description Class-based controller processing registration, session validation, and profiles.
+ * @description Processes registration, session validation and profiles.
  */
 
 import type { Request, Response } from "express";
@@ -10,7 +10,6 @@ import crypto from "crypto";
 import type { AuthService } from "../services/auth.service.js";
 import type { EmailService } from "../services/email.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { logger } from "../utils/logger.js";
 
 export class AuthController {
   constructor(
@@ -82,7 +81,6 @@ export class AuthController {
       const user = await this.authService.findUserByEmail(email);
 
       if (!user) {
-        // For security, don't reveal if user exists
         res.json({
           message: "If an account with that email exists, we sent a reset link.",
         });
@@ -90,11 +88,10 @@ export class AuthController {
       }
 
       const token = crypto.randomBytes(32).toString("hex");
-      const expires = new Date(Date.now() + 3600000); // 1 hour
+      const expires = new Date(Date.now() + 3600000);
 
       await this.authService.setResetToken(email, token, expires);
 
-      // Send actual email
       await this.emailService.sendPasswordResetEmail(email, token);
 
       res.json({
@@ -127,7 +124,7 @@ export class AuthController {
 
   public changePassword = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
-      const userId = req.userId; // Set by authenticate middleware
+      const userId = req.userId;
       const { oldPassword, newPassword } = req.body;
 
       if (!userId) {
@@ -136,8 +133,6 @@ export class AuthController {
       }
 
       const user = await this.authService.findUserById(userId);
-      // We need passwordHash which is not in findUserById (select id, username, email, createdAt)
-      // I should update findUserById or just find full user here.
       const fullUser = await this.authService.findUserByEmail(user?.email || "");
 
       if (

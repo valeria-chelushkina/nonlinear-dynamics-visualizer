@@ -11,7 +11,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export class PresetController {
   constructor(private readonly presetService: PresetService) {}
 
-  /** Helper method to extract token payload information across public/private contexts */
+  //  Helper function for getting a user
   private parseOptionalToken = (req: Request): string | undefined => {
     const JWT_SECRET = process.env.JWT_SECRET as string;
     const authHeader = req.headers.authorization;

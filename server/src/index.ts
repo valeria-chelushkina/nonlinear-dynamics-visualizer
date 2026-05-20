@@ -1,6 +1,6 @@
 /**
  * @file index.ts
- * @description Binds the configured Express application factory to a physical network port.
+ * @description Binds the configured Express application to a network port.
  */
 
 import "dotenv/config";
@@ -14,6 +14,5 @@ if (!process.env.JWT_SECRET) {
 }
 
 app.listen(PORT, () => {
-  // Server restarted to pick up new Prisma Client
-  console.log(`Production server executing at: http://localhost:${PORT}`);
+  console.log(`Starting server at: http://localhost:${PORT}`);
 });

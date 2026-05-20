@@ -1,6 +1,6 @@
 /**
  * @file auth.ts
- * @description Authentication middleware for JWT validation and request enrichment.
+ * @description Authentication middleware for JWT validation------.
  */
 
 import { Request, Response, NextFunction } from "express";
@@ -26,23 +26,17 @@ export const authenticate = (
   }
 
   if (!JWT_SECRET) {
-    logger.error("CRITICAL: JWT_SECRET is not defined in the environment.");
+    logger.error("JWT_SECRET is not defined in your .env configuration.");
     return res.status(500).json({
       error: "Internal server configuration error.",
     });
   }
 
   try {
-    // Verify token signature and expiration
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-
-    // Attach userId to the request object
     req.userId = decoded.userId;
-
-    // Proceed to the next middleware or controller
     next();
   } catch (err) {
-    // Distinguish between expired and invalid tokens if needed
     const message =
       err instanceof jwt.TokenExpiredError
         ? "Session expired. Please log in again."

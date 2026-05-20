@@ -1,5 +1,5 @@
 /**
- * @file preseta.ts
+ * @file presets.ts
  * @description Presets API Data Access Object (DAO)
  * Handles all network requests, header serialization, and payload transport
  * for user system configurations and simulation presets.

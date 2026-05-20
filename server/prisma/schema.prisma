@@ -44,6 +44,6 @@ model Preset {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([systemType]) // for faster searches by system type
+  @@index([systemType])
   @@map("presets")
 }

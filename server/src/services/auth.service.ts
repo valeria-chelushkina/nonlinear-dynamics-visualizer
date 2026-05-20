@@ -1,6 +1,6 @@
 /**
  * @file auth.service.ts
- * @description Class-based service isolating User profile data access layers.
+ * @description Service that isolates user profile data access.
  */
 
 import type { PrismaClient } from "@prisma/client";

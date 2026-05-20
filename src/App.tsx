@@ -1,5 +1,5 @@
 import {
-  BrowserRouter as Router,
+  BrowserRouter,
   Routes,
   Route,
   Navigate,
@@ -17,19 +17,16 @@ import "@/styles/App.css";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <div
         style={{ display: "flex", flexDirection: "column", height: "100vh" }}
       >
         <Header />
         <main style={{ flex: 1, position: "relative", overflowY: "auto" }}>
           <Routes>
-            {/* Redirect root to lorenz simulation */}
+            {/* Lorenz simulation - is default for this project, so we navigate to it when starting the website. */}
             <Route path="/" element={<Navigate to="/sim/lorenz" replace />} />
-
-            {/* Dynamic simulation route */}
             <Route path="/sim/:id" element={<SimulationPage />} />
-
             <Route path="/library" element={<Library />} />
             <Route path="/user/:userId" element={<UserLibrary />} />
             <Route path="/login" element={<Login />} />
@@ -40,7 +37,7 @@ function App() {
           </Routes>
         </main>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 }
 

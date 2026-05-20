@@ -1,3 +1,8 @@
+/**
+ * @file auth.routes.ts
+ * @description Express routing config for handling presets.
+ */
+
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { PresetService } from "../services/preset.service.js";

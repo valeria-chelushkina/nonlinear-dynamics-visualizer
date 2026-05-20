@@ -1,9 +1,14 @@
+/**
+ * @file preset.validation.ts
+ * @description Validates preset object using TypeScript validaiton library ('zod').
+ */
+
 import { z } from "zod";
 
 export const SavePresetSchema = z.object({
   body: z.object({
     name: z.string().min(1, "Preset name is required").max(100),
-    systemType: z.string().min(1, "System calculation type is required"),
+    systemType: z.string().min(1, "System type is required"),
     parameters: z.record(
       z.string(),
       z.number({ message: "Parameters must contain numbers" }),

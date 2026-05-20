@@ -1,10 +1,9 @@
 /**
  * @file prisma.ts
- * @description Shared Prisma Client lifecycle instance.
- * Configures the Prisma PostgreSQL driver adapter using a connection pool.
+ * @description Configures Prisma PostgreSQL driver adapter using a connection pool.
  */
 
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"; // Prisma ORM's generated query builder
 import pg from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -15,6 +14,7 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
+// Connect to the DB
 const pool = new pg.Pool({ connectionString: databaseUrl });
 const adapter = new PrismaPg(pool);
 

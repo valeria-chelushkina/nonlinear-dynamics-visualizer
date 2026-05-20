@@ -1,6 +1,6 @@
 /**
  * @file email.service.ts
- * @description Sandbox (for coursework) service for sending emails using Nodemailer.
+ * @description Service for sending sandbox (for coursework) emails using Nodemailer.
  */
 
 import nodemailer from "nodemailer";
@@ -17,7 +17,7 @@ export class EmailService {
 
     if (!user || !pass) {
       logger.warn(
-        "SMTP credentials (SMTP_USER/SMTP_PASS) are missing. Emails will fail to send unless the SMTP server allows anonymous connections.",
+        "SMTP credentials (SMTP_USER/SMTP_PASS) are missing.",
       );
     }
 
@@ -30,7 +30,7 @@ export class EmailService {
 
   /**
    * Sends a password reset email to the user.
-   * @param email - Recipient email address
+   * @param email - User's email address
    * @param token - Password reset token
    */
   public async sendPasswordResetEmail(email: string, token: string) {
@@ -53,7 +53,7 @@ export class EmailService {
           <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
           <p style="font-size: 12px; color: #94a3b8; text-align: center;">
             Nonlinear Dynamics Visualizer<br />
-            Educational Coursework Project 2026
+            Coursework Project 2026
           </p>
         </div>
       `,

@@ -1,6 +1,6 @@
 import * as express from "express";
 
-// Extend Express Request type to include userId
+// Extend Express request type to include userId
 declare global {
   namespace Express {
     interface Request {

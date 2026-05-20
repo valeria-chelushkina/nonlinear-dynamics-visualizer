@@ -15,34 +15,32 @@ const app = express();
 // Global middleware
 app.use(requestLogger);
 app.use(cors()); // Enables cross-origin requests
-app.use(express.json()); // Parses incoming 'application/json' bodies
+app.use(express.json());
 
 /**
- * Auth Network Mapping.
+ * Auth mapping.
  *
  * - POST /api/auth/register -> Creates a new user profile
- * - POST /api/auth/login    -> Validates credentials and signs JSON Web Tokens
- * - GET  /api/users/:userId -> Extracts high-level profile statistics
+ * - POST /api/auth/login    -> Validates credentials and signs JWT
+ * - GET  /api/users/:userId -> Gets profile statistics
  */
 app.use("/api/auth", authRouter);
 app.use("/api", authRouter);
 
 /**
- * Attractor Config & Presets Network Mapping.
+ * Presets mapping.
  *
- * - GET    /api/presets               -> Retreives shared / public preset lists
- * - POST   /api/presets               -> Appends a new calculation setup (Protected)
- * - DELETE /api/presets/:id           -> Remotely drops a mathematical setup configuration (Protected)
- * - GET    /api/users/:userId/presets -> Fetches configurations linked to a specific developer profile
+ * - GET    /api/presets               -> Gets public presets lists
+ * - POST   /api/presets               -> Creates a new preset
+ * - DELETE /api/presets/:id           -> Deletes a preset by id (only user that created can delete it)
+ * - GET    /api/users/:userId/presets -> Gets all presets by a specific user
  */
 app.use("/api", presetRouter);
 
-// 3. System Diagnostics & Utilities
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "Application is configured cleanly" });
 });
 
 app.use(errorHandler);
 
-// Export the configured app instance
 export default app;

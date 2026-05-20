@@ -1,6 +1,6 @@
 /**
  * @file preset.service.ts
- * @description Class-based service isolating Preset CRUD database actions with manual DI.
+ * @description Service that isolates preset CRUD database actions.
  */
 
 import type { PrismaClient } from "@prisma/client";

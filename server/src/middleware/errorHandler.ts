@@ -1,6 +1,6 @@
 /**
  * @file errorHandler.ts
- * @description Central error interceptor normalizing API exception responses and validation payloads.
+ * @description Error interceptor that normalizes API exception responses and validation payloads.
  */
 
 import type {
