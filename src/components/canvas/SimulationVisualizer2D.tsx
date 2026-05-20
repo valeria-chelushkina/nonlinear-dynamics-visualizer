@@ -1,8 +1,7 @@
 /**
  * @file SimulationVisualizer2D.tsx
- * @description Optimized 2D projection & mechanical visualizer component
- * Flattens 3D vector trajectories onto a 2D plane and handles physical
- * geometry overlays with high-performance buffer updates.
+ * @description Draws 2D physics simulations, like a double pendulum.
+ * Flattens 3D paths onto a flat 2D plane and draws mechanical rods and hinges.
  */
 
 import React, { useRef, useEffect } from "react";
@@ -31,14 +30,14 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
   const { systemType, params, points, maxPoints } = sim;
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
-  // Mechanical part refs for smooth frame-by-frame updates
+  // References to the individual pendulum rods and circular joints
   const rod1Ref = useRef<THREE.Mesh>(null);
   const rod2Ref = useRef<THREE.Mesh>(null);
   const joint1Ref = useRef<THREE.Mesh>(null);
   const joint2Ref = useRef<THREE.Mesh>(null);
   const mountRef = useRef<THREE.Mesh>(null);
 
-  // Persistent memory references holding stable WebGL-bound structures
+  // Pre-allocated memory arrays to hold position and color data without lag
   const positionsRef = useRef<Float32Array | null>(null);
   const colorsRef = useRef<Float32Array | null>(null);
   const lastUploadedCountRef = useRef<number>(0);
@@ -46,7 +45,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
 
   const systemColor = theme === "dark" ? "#ffffff" : "#1a1a1a";
 
-  // Buffer pre-allocation lifecycle boundary
+  // If the arrays haven't been created yet or the max limit changed, allocate memory once
   if (!positionsRef.current || currentCapacityRef.current !== maxPoints) {
     positionsRef.current = new Float32Array(maxPoints * 3);
     colorsRef.current = new Float32Array(maxPoints * 3);
@@ -54,17 +53,19 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     lastUploadedCountRef.current = 0;
   }
 
-  /** Sync trail buffers with GPU */
+  /** Only sends new points to the GPU instead of rebuilding the whole line trail. */
   useEffect(() => {
     const geometry = geometryRef.current;
     if (!geometry) return;
 
     const currentCount = points.length;
 
+    // Reset tracker if the simulation was cleared or restarted
     if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
       lastUploadedCountRef.current = 0;
     }
 
+    // Don't draw anything if there aren't enough points to connect a line
     if (currentCount < 2) {
       geometry.setDrawRange(0, 0);
       return;
@@ -82,16 +83,17 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     const isSaturatedWindow = currentCount >= maxPoints;
     const startIdx = isSaturatedWindow ? 0 : lastUploadedCountRef.current;
 
+    // Convert raw math points into flat 2D coordinates (Z = 0)
     for (let i = startIdx; i < currentCount; i++) {
       const renderPoint = mapFn(points[i], params);
       const i3 = i * 3;
 
       posArr[i3] = renderPoint[0];
       posArr[i3 + 1] = renderPoint[1];
-      posArr[i3 + 2] = 0; // Fixed flat Z depth
+      posArr[i3 + 2] = 0;
     }
 
-    // Populate color values
+    // Handles custom gradients or solid lines
     if (visuals.useGradient) {
       for (let i = 0; i < currentCount; i++) {
         const i3 = i * 3;
@@ -129,8 +131,9 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     lastUploadedCountRef.current = currentCount;
   }, [points, visuals, systemType, params, theme, maxPoints]);
 
-  /** Smooth mechanical pendulum updates tied to the frame loop */
+  /** Smooth frame-by-frame updates for the moving mechanical pieces. */
   useFrame(() => {
+    // If aren't displaying a double pendulum, hide the mechanical rods and exit
     if (systemType !== "double-pendulum" || points.length === 0) {
       if (rod1Ref.current) rod1Ref.current.visible = false;
       if (rod2Ref.current) rod2Ref.current.visible = false;
@@ -144,7 +147,7 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     const [th1, th2] = lastState;
     const { l1, l2 } = params;
 
-    // Trig transformations determining real positions of joints
+    // Trigonometry to find exactly where the joints are in 2D space
     const x1 = l1 * Math.sin(th1);
     const y1 = -l1 * Math.cos(th1) + 25;
     const x2 = x1 + l2 * Math.sin(th2);
@@ -198,13 +201,11 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
 
   return (
     <group>
-      {/* Optimized trail line */}
       <ThreeLine frustumCulled={false}>
         <bufferGeometry ref={geometryRef} />
         <lineBasicMaterial vertexColors transparent opacity={0.6} />
       </ThreeLine>
 
-      {/* Mechanical Rig - Static Geometry, Dynamic Transforms */}
       <mesh ref={rod1Ref} visible={false}>
         <planeGeometry args={[1, 0.4]} />
         <meshBasicMaterial transparent opacity={0.8} toneMapped={false} />

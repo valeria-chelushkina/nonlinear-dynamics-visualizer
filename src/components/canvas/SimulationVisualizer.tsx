@@ -29,13 +29,13 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
 
   const geometryRef = useRef<THREE.BufferGeometry>(null);
 
-  // Persistent memory references holding stable WebGL-bound structures
+  // Pre-allocated memory arrays to hold position and color data without lag
   const positionsRef = useRef<Float32Array | null>(null);
   const colorsRef = useRef<Float32Array | null>(null);
   const lastUploadedCountRef = useRef<number>(0);
   const currentCapacityRef = useRef<number>(0);
 
-  // Buffer pre-allocation lifecycle boundary
+  // Pre-allocated memory arrays to hold position and color data without lag
   if (!positionsRef.current || currentCapacityRef.current !== maxPoints) {
     positionsRef.current = new Float32Array(maxPoints * 3);
     colorsRef.current = new Float32Array(maxPoints * 3);
@@ -43,17 +43,19 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     lastUploadedCountRef.current = 0; // forces complete baseline redraw on capacity change
   }
 
-  // Partial update render loop pipeline
+  /** Only sends new points to the GPU instead of rebuilding the whole line. */
   useEffect(() => {
     const geometry = geometryRef.current;
     if (!geometry) return;
 
     const currentCount = Math.min(points.length, maxPoints);
 
+    // Reset tracker if the simulation was cleared or restarted
     if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
       lastUploadedCountRef.current = 0;
     }
 
+    // Don't draw anything if there aren't enough points to connect a line
     if (currentCount < 2) {
       geometry.setDrawRange(0, 0);
       return;
@@ -73,6 +75,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     const isSaturatedWindow = currentCount >= maxPoints;
     const startIdx = isSaturatedWindow ? 0 : lastUploadedCountRef.current;
 
+    // Convert raw math points into 3D graphics coordinates
     for (let i = startIdx; i < currentCount; i++) {
       const rawMathPoint = mapFn(points[i], params);
       const threeSpacePoint = CoordinateTransformer.toThreeSpace(rawMathPoint);
@@ -83,7 +86,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
       posArr[i3 + 2] = threeSpacePoint[2];
     }
 
-    // Populate color values
+    // Handle custom gradients or solid lines
     if (visuals.useGradient) {
       for (let i = 0; i < currentCount; i++) {
         const i3 = i * 3;
@@ -104,7 +107,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
       }
     }
 
-    // Extract and synchronize low-level WebGL buffer attributes
+    // Bind pre-allocated memory blocks directly to Three.js geometry attributes
     let posAttr = geometry.getAttribute("position") as THREE.BufferAttribute;
     let colAttr = geometry.getAttribute("color") as THREE.BufferAttribute;
 
@@ -117,6 +120,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
       geometry.setAttribute("color", colAttr);
     }
 
+    // Tell the GPU exactly which range of points changed so it only updates what is necessary
     posAttr.needsUpdate = true;
     posAttr.updateRanges = [];
 
@@ -147,6 +151,7 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
       });
     }
 
+    // Update drawing size boundaries and spatial volume spheres for proper camera viewing
     geometry.setDrawRange(0, currentCount);
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();
@@ -154,10 +159,9 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     lastUploadedCountRef.current = currentCount;
   }, [points, visuals, systemType, params, theme, maxPoints]);
 
-  // Render boundary safe checks
+  // Prevent crashes or empty renderings if there is no path data yet
   if (points.length < 2) return null;
 
-  // clean JSX return structure
   return (
     <group>
       <ThreeLine frustumCulled={false}>

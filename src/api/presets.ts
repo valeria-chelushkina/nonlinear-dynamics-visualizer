@@ -1,25 +1,23 @@
 /**
  * @file presets.ts
- * @description Presets API Data Access Object (DAO)
- * Handles all network requests, header serialization, and payload transport
- * for user system configurations and simulation presets.
+ * @description Handles saving and loading saved simulation presets from (and to) the server.
  */
 
 export interface SavePresetPayload {
-  /** The name of simulation preset that user sets */
+  /** The name of simulation preset that user sets. */
   name: string;
-  /** Tupe of the system, for example: 'lorenz', 'rossler', etc... */
+  /** Type of the system, for example: 'lorenz', 'rossler', etc... */
   systemType: string;
-  /** Saved parameters */
+  /** Saved parameters. */
   parameters: Record<string, number>;
-  /** Whether preset is public or private */
+  /** Whether preset is public or private. */
   isPublic: boolean;
-  /** Three-dimensional perspective camera coordinates configuration */
+  /** Where the 3D camera is looking and positioned. */
   cameraConfig: {
     position: [number, number, number];
     target: [number, number, number];
   } | null;
-  /** Color profiles and rendering options applied to the WebGL trace path lines */
+  /** How the 3D lines look on screen (colors, gradients). */
   visuals: {
     color: string;
     useGradient: boolean;
@@ -28,13 +26,12 @@ export interface SavePresetPayload {
 }
 
 /**
- * Transmits a completed chaotic system simulation configuration payload 
- * to the backend database architecture storage layer.
+ * Sends the current simulation settings to the database to save them.
  * 
- * @param payload - Complete structural settings payload mapping for the preset.
- * @param token - Valid JWT identifying the authenticated user context.
- * @returns Promise resolving to the unmarshalled JSON backend response object.
- * @throws {Error} If HTTP response status resolves outside the standard 2xx success footprint.
+ * @param payload - The settings data to save.
+ * @param token - The user's login token (JWT) for authentication.
+ * @returns The server's response data.
+ * @throws An error if the server fails to save the data.
  */
 export const savePresetApi = async (
   payload: SavePresetPayload,

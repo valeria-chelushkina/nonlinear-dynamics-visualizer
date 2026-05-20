@@ -1,7 +1,7 @@
 /**
  * @file CoordinateHUD.tsx
- * @description Heads-up display for real-time coordinate tracking.
- * Provides a non-intrusive overlay showing the current state of the simulation.
+ * @description A floating heads-up display (HUD) text box.
+ * Displays live XYZ coordinate numbers.
  */
 
 import React from "react";
@@ -19,8 +19,11 @@ const CoordinateHUD: React.FC<CoordinateHUDProps> = ({ side }) => {
   const theme = useUIStore((state) => state.theme);
 
   const { points, systemType, params } = sim;
+
+  // Grab the very last point in the array
   const lastPoint = points[points.length - 1];
 
+  // If the simulation hasn't started yet -> hide the HUD box
   if (!lastPoint) return null;
 
   const system = SYSTEM_REGISTRY[systemType];

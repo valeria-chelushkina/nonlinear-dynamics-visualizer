@@ -1,9 +1,8 @@
 /**
  * @file SimulationCanvas.ts
- * @description Main simulation canvas container
- * Orchestrates Three.js rendering via React Three Fiber.
- * Manages responsive environmental lighting, theme variations, grid systems, scene screenshot
- * captures and continuous camera position synchronization.
+ * @description The main canvas window where the simulation is drawn.
+ * Sets up Three.js lights, dark/light themes, background grids,
+ * screenshots and keeps track of where the user moves the camera.
  */
 
 import React, { useEffect, useRef } from "react";
@@ -28,7 +27,7 @@ interface SimulationCanvasProps {
   side?: Side;
 }
 
-/** Visualizer Selector Helper */
+/** Decides whether to use a 2D, 3D or Map-style drawing component */
 const VisualizerSwitcher: React.FC<{ side: Side }> = ({ side }) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
@@ -40,7 +39,7 @@ const VisualizerSwitcher: React.FC<{ side: Side }> = ({ side }) => {
   return <SimulationVisualizer side={side} />;
 };
 
-/** Captures the current WebGL drawing buffer */
+/** Listens for a screenshot trigger and saves the 3D canvas as a PNG image */
 const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
   const { gl, scene, camera } = useThree();
   const signal = useSimulationStore((state) => state.screenshotSignal);
@@ -64,7 +63,7 @@ const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
   return null;
 };
 
-/** Handles syncronization between two cameras */
+/** Sync two cameras: keeps the 3D camera position synced up with store data */
 const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
@@ -79,7 +78,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
   const is2D = system.math.dimension === 2;
 
-  // Camera syncing logic
+  // Sync camera position when external presets change it
   useEffect(() => {
     if (!controlsRef.current) return;
 
@@ -105,7 +104,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
     }
   }, [sideConfig, camera, side]);
 
-  /** Direct physical user dragging interactions -> Zustand store */
+  /** Saves the camera angles to the global state when the user drags the mouse to look around */
   const handleCameraChange = (e: any) => {
     if (isProgrammaticUpdate.current) return;
 

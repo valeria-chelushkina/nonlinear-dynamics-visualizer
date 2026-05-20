@@ -1,7 +1,7 @@
 /**
  * @file SimulationVisualizerMap.tsx
- * @description Specialized visualizer for discrete-time dynamical systems (Maps).
- * Renders iterations as discrete points and includes a secondary time series projection.
+ * @description Draws Map style simulations.
+ * It shows: main simulation and a mini timeline graph underneath it.
  */
 
 import React, { useMemo, useRef, useEffect } from "react";
@@ -29,11 +29,9 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
   const geometryRef = useRef<THREE.BufferGeometry>(null);
   const timeSeriesGeometryRef = useRef<THREE.BufferGeometry>(null);
 
-  /** 
-   * Pre-compute point cloud positions and colors.
-   * Maps use discrete points rather than lines to emphasize their non-continuous nature.
-   */
+  /**  Pre-calculate all dot locations, colors and line coordinates. */
   const { positions, colors, sizes, timeSeriesPositions } = useMemo(() => {
+    // If there is no data, return empty data blocks
     if (points.length < 1) {
       return {
         positions: new Float32Array(0),
@@ -51,7 +49,7 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
     const flatColors = new Float32Array(count * 3);
     const flatSizes = new Float32Array(count);
     
-    // Time series: X is time (iteration index), Y is the X-coordinate of the state
+    // Coordinates for the mini timeline graph at the bottom (X = time, Y = simulation value)
     const tsPositions = new Float32Array(count * 3);
 
     const colorStart = new THREE.Color(visuals.color);
@@ -67,19 +65,18 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       flatPositions[i3 + 1] = renderPoint[1];
       flatPositions[i3 + 2] = 0;
 
-      // Dynamic sizing: newer points are slightly larger
+      // Make the newest dots slightly larger
       flatSizes[i] = (0.5 + t * 1.5) * (theme === "light" ? 1.2 : 1.0);
 
-      // Time series projection
+      // Mini timeline graph
       tsPositions[i3] = (i / count) * 100 - 50; 
       tsPositions[i3 + 1] = points[i][0] * 10 - 40;
       tsPositions[i3 + 2] = 0;
 
-      // Enhanced coloring: lerp with a slight brightness boost for newer points
+      // Blend from start color to end color
       const lerpedColor = new THREE.Color().copy(colorStart).lerp(colorEnd, t);
       
       if (theme === "dark") {
-        // Boost vibrancy in dark mode for a "glowing" effect
         lerpedColor.multiplyScalar(0.8 + t * 0.4);
       }
 
@@ -111,15 +108,12 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
 
   return (
     <group>
-      {/* Main Map Attractor (Point Cloud) */}
+      {/* Main simulation */}
       <points frustumCulled={false}>
         <bufferGeometry ref={geometryRef} />
         <pointsMaterial 
           vertexColors 
-          size={1} // Base size, multiplied by 'size' attribute if using a custom shader, 
-                   // but for pointsMaterial it's a fixed size unless we use a shader.
-                   // Since we want dynamic sizes without a custom shader easily, 
-                   // we'll stick to a nice looking fixed size with a glow texture.
+          size={1}
           transparent 
           opacity={theme === "light" ? 0.6 : 0.8} 
           sizeAttenuation={true}
@@ -128,7 +122,7 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
         />
       </points>
 
-      {/* Time Series Projection (Lower Section) */}
+      {/* Time graph */}
       <ThreeLine frustumCulled={false} position={[0, -10, 0]}>
         <bufferGeometry ref={timeSeriesGeometryRef} />
         <lineBasicMaterial 
