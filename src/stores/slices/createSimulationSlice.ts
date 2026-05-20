@@ -117,12 +117,27 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   setSkipNextReset: (skip) => set(() => ({ skipNextReset: skip })),
 
   setCameraConfig: (side, config) =>
-    set((state: any) => ({
-      sims: {
-        ...state.sims,
+    set((state: any) => {
+      const { syncCameras } = state;
+      const updates: Record<string, any> = {
         [side]: { ...state.sims[side], cameraConfig: config },
-      },
-    })),
+      };
+
+      if (syncCameras) {
+        const otherSide = side === "left" ? "right" : "left";
+        updates[otherSide] = {
+          ...state.sims[otherSide],
+          cameraConfig: config,
+        };
+      }
+
+      return {
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    }),
 
   setSystemType: (side, type) =>
     set((state: any) => ({
@@ -326,21 +341,38 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const defaultCamera = system.meta.cameraConfig
       ? { ...system.meta.cameraConfig }
       : { ...DEFAULT_CAMERA };
-    
-    set((state: any) => ({
-      skipNextReset: true,
-      sims: {
-        ...state.sims,
+
+    set((state: any) => {
+      const { syncCameras } = state;
+      const targetCamera = cameraConfig || defaultCamera;
+
+      const updates: Record<string, any> = {
         [side]: {
           ...state.sims[side],
           systemType,
           params: newParams,
           points: [startPoint], // synchronous setup handles canvas pipeline flushes natively
           isPaused: false,
-          cameraConfig: cameraConfig || defaultCamera,
+          cameraConfig: targetCamera,
           visuals: visuals || state.sims[side].visuals,
         },
-      },
-    }));
+      };
+
+      if (syncCameras) {
+        const otherSide = side === "left" ? "right" : "left";
+        updates[otherSide] = {
+          ...state.sims[otherSide],
+          cameraConfig: targetCamera,
+        };
+      }
+
+      return {
+        skipNextReset: true,
+        sims: {
+          ...state.sims,
+          ...updates,
+        },
+      };
+    });
   },
 });

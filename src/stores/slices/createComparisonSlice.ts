@@ -44,9 +44,25 @@ export const createComparisonSlice = (set: any, get: any): ComparisonSlice => ({
     }),
 
   toggleSyncCameras: () =>
-    set((state: any) => ({
-      syncCameras: !state.syncCameras,
-    })),
+    set((state: any) => {
+      const nextSync = !state.syncCameras;
+      
+      if (nextSync) {
+        // Immediately sync right camera to left camera for consistent start
+        return {
+          syncCameras: nextSync,
+          sims: {
+            ...state.sims,
+            right: {
+              ...state.sims.right,
+              cameraConfig: { ...state.sims.left.cameraConfig },
+            },
+          },
+        };
+      }
+
+      return { syncCameras: nextSync };
+    }),
 
   toggleAllPause: () =>
     set((state: any) => {
