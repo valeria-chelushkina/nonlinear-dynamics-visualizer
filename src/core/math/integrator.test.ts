@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { rk4, createRK4ScratchContext } from "./integrator";
+import { rk4, createRK4Optimized } from "./integrator";
 
 describe("RK4 Integrator", () => {
   it("should correctly integrate a simple linear growth (dx/dt = x)", () => {
@@ -9,7 +9,7 @@ describe("RK4 Integrator", () => {
     const initialState = [1];
     const dt = 0.1;
     const nextState = new Float32Array(1);
-    const scratch = createRK4ScratchContext(1);
+    const scratch = createRK4Optimized(1);
 
     rk4(nextState, initialState, 0, dt, deriv, scratch);
 
@@ -26,7 +26,7 @@ describe("RK4 Integrator", () => {
     const initialState = [1, 0];
     const dt = 0.1;
     const nextState = new Float32Array(2);
-    const scratch = createRK4ScratchContext(2);
+    const scratch = createRK4Optimized(2);
 
     rk4(nextState, initialState, 0, dt, deriv, scratch);
 
@@ -41,7 +41,7 @@ describe("RK4 Integrator", () => {
     const initialState = [1, 2, 3];
     const dt = 0.1;
     const nextState = new Float32Array(3);
-    const scratch = createRK4ScratchContext(3);
+    const scratch = createRK4Optimized(3);
 
     rk4(nextState, initialState, 0, dt, deriv, scratch);
 

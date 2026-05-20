@@ -1,7 +1,6 @@
 /**
  * @file logger.ts
- * @description Centralized logging utility for the frontend application.
- * Provides structured logging with levels and theme-aware formatting.
+ * @description Provides structured logging for frontend with levels and theme formatting.
  */
 
 type LogLevel = "info" | "warn" | "error" | "debug";
@@ -50,10 +49,6 @@ class FrontendLogger {
     }
   }
 
-  /**
-   * Specialized logger for state changes to avoid flooding the console
-   * while still providing useful trace information.
-   */
   public stateChange(storeName: string, action: string, nextState: any): void {
     if (this.isDev) {
       console.groupCollapsed(

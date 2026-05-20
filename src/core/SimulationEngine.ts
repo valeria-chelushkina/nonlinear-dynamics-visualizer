@@ -1,33 +1,33 @@
 /**
  * @file SimulationEngine.ts
- * @description Standalone execution engine for higher-order dynamical systems.
- * Manages numerical integration state cycles entirely isolated from React rendering loops.
+ * @description The main engine that runs the physics simulation.
+ * It does all the math calculations separately so it doesn't freeze or slow down the UI.
  */
 
-import {
-  rk4,
-  createRK4ScratchContext,
-  type RK4ScratchContext,
-} from "./math/integrator";
+import { rk4, createRK4Optimized, type RK4Optimized } from "./math/integrator";
 import { SimulationValidator } from "./utils/validation";
 import { AppLogger } from "./utils/logger";
 import type { StateVector } from "./math/types";
 
 export class SimulationEngine {
   private lastSavedPoint: StateVector | null = null;
-  private scratch: RK4ScratchContext;
+  private scratch: RK4Optimized;
 
-  /**
-   * Instantiates a standalone simulation calculation engine instance.
-   */
+  /** Creates a new simulation engine instance. */
   constructor(dimension: number = 3) {
-    this.scratch = createRK4ScratchContext(dimension);
+    this.scratch = createRK4Optimized(dimension);
   }
 
   /**
-   * Evaluates sequential sub-step integration calculations relative to time deltas.
-   * Runs internal step filters and divergence guards before modifying state records.
-   */
+  * Advances the simulation forward in time (this function is called every frame).
+  * Runs safety checks to stop glitches or math explosions before updating the position.
+  * @param lastPoint - The current position of an object
+  * @param delta - Time since last frame
+  * @param speed - Simulation speed (is chosen by user)
+  * @param derivative - Function that tells where to go next
+  * @returns An array of coordinates that object passed during this step time
+  *          (in simpler words - it is the piece of trajectory that has been drawn).
+  */
   public step(
     lastPoint: StateVector,
     delta: number,
@@ -38,8 +38,8 @@ export class SimulationEngine {
       this.lastSavedPoint = lastPoint;
     }
 
-    const dt = 0.002;
-    // Cap step sequences per frame slice to defend against high system rendering hangs
+    const dt = 0.002; // fixed step - 0.002s (means that one step takes 2ms)
+    // Cap maximum steps per frame to prevent the app from freezing
     const stepsPerFrame = Math.min(
       500,
       Math.max(1, Math.floor((delta * speed) / dt)),
@@ -52,7 +52,7 @@ export class SimulationEngine {
       const nextPoint = new Float32Array(currentPoint.length);
       rk4(nextPoint, currentPoint, 0, dt, derivative, this.scratch);
 
-      // Operational Safety Checks
+      // Safet checks
       if (!SimulationValidator.isValidPoint(nextPoint as any)) {
         AppLogger.warn(
           "Simulation Engine: NaN or Infinite point detected. Stopping integration.",
@@ -73,12 +73,12 @@ export class SimulationEngine {
             to: nextPoint,
           },
         );
-        break; // Stop integration updates instantly if a math explosion is caught
+        break; // Stop updates instantly if the physics engine breaks
       }
 
       currentPoint = nextPoint as any;
 
-      // Cross-Frame Spatial Odometer Calculations
+      // To avoid saving too much points - save a point only if it moved far enough; ignore if it (almost) stays in place.
       const dx = currentPoint[0] - this.lastSavedPoint[0];
       const dy = currentPoint[1] - this.lastSavedPoint[1];
       const dz = currentPoint[2] - this.lastSavedPoint[2];
@@ -91,7 +91,7 @@ export class SimulationEngine {
       }
     }
 
-    // Low Velocity Fallback Guard: Keeps visual continuity tracking alive at minimal speeds
+    // If moving very slowly, save at least one point so the line doesn't disappear
     if (
       frameBatch.length === 0 &&
       stepsPerFrame > 0 &&
@@ -105,15 +105,17 @@ export class SimulationEngine {
     return frameBatch;
   }
 
-  /**
-   * Evaluates sequential iterations for discrete maps.
-   */
+ /** 
+  * Advances the simulation for discrete maps.
+  * Does the same thing, as a 'step' function, just without rk4 integrator,
+  * because discrete maps use step-by-step formulas.
+  */
   public stepMap(
     lastPoint: StateVector,
     speed: number,
     nextStateFn: (state: StateVector) => StateVector,
   ): StateVector[] {
-    // For maps, speed determines how many iterations per frame
+    // For maps, speed decides how many steps to calculate this frame
     const iterations = Math.max(1, Math.floor(speed * 10));
     const frameBatch: StateVector[] = [];
     let currentPoint = lastPoint;
@@ -132,9 +134,7 @@ export class SimulationEngine {
     return frameBatch;
   }
 
-  /**
-   * Computes a full batch of points for a map at once (static view).
-   */
+  /** Generates a large batch of points all at once to draw a static shape on screen. */
   public computeMapBatch(
     count: number,
     startPoint: StateVector,

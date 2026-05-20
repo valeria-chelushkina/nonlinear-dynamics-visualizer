@@ -1,6 +1,6 @@
 /**
  * @file vector.ts
- * @description Handles dimensional transformations and coordinate distance checks for trailing state updates.
+ * @description Handles dimensional operations (only vrctor distance for now).
  */
 
 import type { StateVector } from "./types";

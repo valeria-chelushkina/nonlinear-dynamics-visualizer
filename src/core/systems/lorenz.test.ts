@@ -18,7 +18,6 @@ describe("Lorenz System Properties", () => {
   });
 
   it("should be symmetric under (x,y,z) -> (-x,-y,z)", () => {
-    // The Lorenz system has a C2 symmetry.
     // The derivative at (-x, -y, z) should be (-dx, -dy, dz)
     const p1 = [10, 10, 10];
     const p2 = [-10, -10, 10];
@@ -32,7 +31,6 @@ describe("Lorenz System Properties", () => {
   });
 
   it("should produce finite derivatives for standard params", () => {
-    // "Smoke test": Ensure it doesn't return NaN or Infinity immediately
     const state = [1, 1, 1];
     const result = derivative(state, 0);
 

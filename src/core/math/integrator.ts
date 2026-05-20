@@ -1,24 +1,22 @@
 /**
  * @file integrator.ts
- * @description High-performance numerical integration using the Runge-Kutta 4th Order (RK4) method.
+ * @description Integration using Runge-Kutta 4th Order (RK4) method - optimized.
+ * RK4 - is a method that solves differential equations (for movement) - dy/dt = f(t, y).
+ * In this project this method is optimized to reuse memory,
+ * so it runs fast without slowing down the system.
  */
 
 import type { StateVector, DerivativeFn } from "@/core/math/types";
 
-/**
- * Reusable memory block containing pre-allocated temporary state structures.
- * Bypasses the need to spin up new arrays hundreds of times per frame block.
- */
-export interface RK4ScratchContext {
+/** Reusable memory block. Uses to not overload the system by creating hundreds of arrays. */
+export interface RK4Optimized {
   y2: Float32Array;
   y3: Float32Array;
   y4: Float32Array;
 }
 
-/**
- * Create an isolated high-performance memory context for a given system dimension.
- */
-export function createRK4ScratchContext(dimension: number): RK4ScratchContext {
+/** Create for a given system dimension. */
+export function createRK4Optimized(dimension: number): RK4Optimized {
   return {
     y2: new Float32Array(dimension),
     y3: new Float32Array(dimension),
@@ -27,8 +25,8 @@ export function createRK4ScratchContext(dimension: number): RK4ScratchContext {
 }
 
 /**
- * Evaluates vectors over a continuous vector field and writes the resulting coordinate
- * outputs directly into a provided destination vector buffer.
+ *  Calculates the next physics step and writes the results directly
+ *  into the output array to save memory.
  */
 export function rk4(
   out: StateVector,
@@ -36,7 +34,7 @@ export function rk4(
   t: number,
   dt: number,
   derivative: DerivativeFn,
-  scratch: RK4ScratchContext,
+  scratch: RK4Optimized,
 ): void {
   const n = y.length;
   const { y2, y3, y4 } = scratch;
@@ -62,7 +60,7 @@ export function rk4(
     y4[i] = y[i] + k3[i] * dt;
   }
 
-  // Evaluate k4 and combine weighted average into destination out buffer
+  // Evaluate k4 and combine average into buffer 'out'
   const k4 = derivative(y4, t + dt);
   for (let i = 0; i < n; i++) {
     out[i] = y[i] + dtSix * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]);
