@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import styles from "./Auth.module.css";
 
-const ResetPassword: React.FC = () => {
+const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get("token");

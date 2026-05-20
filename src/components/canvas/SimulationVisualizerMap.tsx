@@ -4,7 +4,7 @@
  * It shows: main simulation and a mini timeline graph underneath it.
  */
 
-import React, { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useUIStore } from "@/stores/useUIStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
@@ -18,9 +18,9 @@ interface SimulationVisualizerMapProps {
 
 const ThreeLine = "line" as any;
 
-const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
+const SimulationVisualizerMap = ({
   side = "left",
-}) => {
+}: SimulationVisualizerMapProps) => {
   const { sim } = useSimulationLoop({ side });
   const theme = useUIStore((state) => state.theme);
   const visuals = useVisualsStore((state) => state.configs[side]);
@@ -48,7 +48,7 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
     const flatPositions = new Float32Array(count * 3);
     const flatColors = new Float32Array(count * 3);
     const flatSizes = new Float32Array(count);
-    
+
     // Coordinates for the mini timeline graph at the bottom (X = time, Y = simulation value)
     const tsPositions = new Float32Array(count * 3);
 
@@ -69,13 +69,13 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       flatSizes[i] = (0.5 + t * 1.5) * (theme === "light" ? 1.2 : 1.0);
 
       // Mini timeline graph
-      tsPositions[i3] = (i / count) * 100 - 50; 
+      tsPositions[i3] = (i / count) * 100 - 50;
       tsPositions[i3 + 1] = points[i][0] * 10 - 40;
       tsPositions[i3 + 2] = 0;
 
       // Blend from start color to end color
       const lerpedColor = new THREE.Color().copy(colorStart).lerp(colorEnd, t);
-      
+
       if (theme === "dark") {
         lerpedColor.multiplyScalar(0.8 + t * 0.4);
       }
@@ -85,24 +85,39 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       flatColors[i3 + 2] = lerpedColor.b * lAdjust;
     }
 
-    return { 
-      positions: flatPositions, 
+    return {
+      positions: flatPositions,
       colors: flatColors,
       sizes: flatSizes,
-      timeSeriesPositions: tsPositions 
+      timeSeriesPositions: tsPositions,
     };
   }, [points, visuals, systemType, params, theme]);
 
   /** Synchronize buffers with GPU */
   useEffect(() => {
     if (geometryRef.current && positions.length > 0) {
-      geometryRef.current.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      geometryRef.current.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-      geometryRef.current.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+      geometryRef.current.setAttribute(
+        "position",
+        new THREE.BufferAttribute(positions, 3),
+      );
+      geometryRef.current.setAttribute(
+        "color",
+        new THREE.BufferAttribute(colors, 3),
+      );
+      geometryRef.current.setAttribute(
+        "size",
+        new THREE.BufferAttribute(sizes, 1),
+      );
     }
     if (timeSeriesGeometryRef.current && timeSeriesPositions.length > 0) {
-      timeSeriesGeometryRef.current.setAttribute("position", new THREE.BufferAttribute(timeSeriesPositions, 3));
-      timeSeriesGeometryRef.current.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      timeSeriesGeometryRef.current.setAttribute(
+        "position",
+        new THREE.BufferAttribute(timeSeriesPositions, 3),
+      );
+      timeSeriesGeometryRef.current.setAttribute(
+        "color",
+        new THREE.BufferAttribute(colors, 3),
+      );
     }
   }, [positions, colors, sizes, timeSeriesPositions]);
 
@@ -111,13 +126,15 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       {/* Main simulation */}
       <points frustumCulled={false}>
         <bufferGeometry ref={geometryRef} />
-        <pointsMaterial 
-          vertexColors 
+        <pointsMaterial
+          vertexColors
           size={1}
-          transparent 
-          opacity={theme === "light" ? 0.6 : 0.8} 
+          transparent
+          opacity={theme === "light" ? 0.6 : 0.8}
           sizeAttenuation={true}
-          blending={theme === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending}
+          blending={
+            theme === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending
+          }
           depthWrite={false}
         />
       </points>
@@ -125,11 +142,13 @@ const SimulationVisualizerMap: React.FC<SimulationVisualizerMapProps> = ({
       {/* Time graph */}
       <ThreeLine frustumCulled={false} position={[0, -10, 0]}>
         <bufferGeometry ref={timeSeriesGeometryRef} />
-        <lineBasicMaterial 
-          vertexColors 
-          transparent 
-          opacity={theme === "light" ? 0.3 : 0.5} 
-          blending={theme === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending}
+        <lineBasicMaterial
+          vertexColors
+          transparent
+          opacity={theme === "light" ? 0.3 : 0.5}
+          blending={
+            theme === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending
+          }
         />
       </ThreeLine>
     </group>

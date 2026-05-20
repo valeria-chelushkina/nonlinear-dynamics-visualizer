@@ -5,7 +5,7 @@
  * screenshots and keeps track of where the user moves the camera.
  */
 
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import {
   OrbitControls,
@@ -24,11 +24,11 @@ import * as THREE from "three";
 import { SYSTEM_REGISTRY } from "@/core/systems";
 
 interface SimulationCanvasProps {
-  side?: Side;
+  side: Side;
 }
 
 /** Decides whether to use a 2D, 3D or Map-style drawing component */
-const VisualizerSwitcher: React.FC<{ side: Side }> = ({ side }) => {
+const VisualizerSwitcher = ({ side }: SimulationCanvasProps) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const system = SYSTEM_REGISTRY[systemType] || SYSTEM_REGISTRY["lorenz"];
   const is2D = system.math.dimension === 2;
@@ -40,7 +40,7 @@ const VisualizerSwitcher: React.FC<{ side: Side }> = ({ side }) => {
 };
 
 /** Listens for a screenshot trigger and saves the 3D canvas as a PNG image */
-const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
+const ScreenshotHandler = ({ side }: SimulationCanvasProps) => {
   const { gl, scene, camera } = useThree();
   const signal = useSimulationStore((state) => state.screenshotSignal);
 
@@ -64,7 +64,7 @@ const ScreenshotHandler: React.FC<{ side: Side }> = ({ side }) => {
 };
 
 /** Sync two cameras: keeps the 3D camera position synced up with store data */
-const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
+const CameraSync = ({ side }: SimulationCanvasProps) => {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const isProgrammaticUpdate = useRef(false);
@@ -153,9 +153,7 @@ const CameraSync: React.FC<{ side: Side }> = ({ side }) => {
   );
 };
 
-const SimulationCanvas: React.FC<SimulationCanvasProps> = ({
-  side = "left",
-}) => {
+const SimulationCanvas = ({ side = "left" }: SimulationCanvasProps) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const sideConfig = useSimulationStore(
     (state) => state.sims[side].cameraConfig,

@@ -10,7 +10,7 @@ import styles from "./Library.module.css";
 
 const PRESETS_PER_PAGE = 18;
 
-const Library: React.FC = () => {
+const Library = () => {
   const navigate = useNavigate();
   const { loadPreset, comparisonMode } = useSimulationStore();
   const { user, token } = useAuthStore();

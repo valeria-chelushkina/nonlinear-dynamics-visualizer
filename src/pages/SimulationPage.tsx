@@ -9,7 +9,7 @@ import { Play, Pause, RotateCcw } from "lucide-react";
 import ControlsGuide from "@/components/ui/ControlsGuide";
 import Sidebar from "@/components/ui/Sidebar";
 
-const MasterControls: React.FC = () => {
+const MasterControls = () => {
   const toggleAllPause = useSimulationStore((state) => state.toggleAllPause);
   const syncAll = useSimulationStore((state) => state.syncAll);
   const leftPaused = useSimulationStore((state) => state.sims.left.isPaused);
@@ -33,7 +33,7 @@ const MasterControls: React.FC = () => {
   );
 };
 
-const SimulationPage: React.FC = () => {
+const SimulationPage = () => {
   const { id } = useParams<{ id: string }>();
   const system = SYSTEM_REGISTRY[id || "lorenz"];
   

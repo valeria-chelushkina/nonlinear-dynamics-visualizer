@@ -31,7 +31,7 @@ interface UserProfile {
   createdAt: string;
 }
 
-const UserLibrary: React.FC = () => {
+const UserLibrary = () => {
   const { userId } = useParams<{ userId: string }>();
   const [presets, setPresets] = useState<Preset[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);

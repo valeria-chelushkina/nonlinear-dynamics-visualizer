@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import styles from "./Auth.module.css";
 
-const Login: React.FC = () => {
+const Login = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
 

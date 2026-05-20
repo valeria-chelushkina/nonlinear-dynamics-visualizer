@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import styles from "./Auth.module.css";
 
-const ChangePassword: React.FC = () => {
+const ChangePassword = () => {
   const navigate = useNavigate();
   const { token } = useAuthStore();
 
@@ -14,7 +14,7 @@ const ChangePassword: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setSuccess("");

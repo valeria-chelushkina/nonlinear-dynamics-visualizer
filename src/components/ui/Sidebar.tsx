@@ -1,10 +1,9 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import styles from "./Sidebar.module.css";
 import { ChevronRight } from "lucide-react";
 
-const Sidebar: React.FC = () => {
+const Sidebar = () => {
   const navigate = useNavigate();
   const systems = Object.values(SYSTEM_REGISTRY);
 

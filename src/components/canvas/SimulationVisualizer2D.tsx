@@ -4,7 +4,7 @@
  * Flattens 3D paths onto a flat 2D plane and draws mechanical rods and hinges.
  */
 
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useUIStore } from "@/stores/useUIStore";
@@ -19,9 +19,7 @@ interface SimulationVisualizer2DProps {
 
 const ThreeLine = "line" as any;
 
-const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
-  side = "left",
-}) => {
+const SimulationVisualizer2D = ({ side = "left" }: SimulationVisualizer2DProps) => {
   const { sim } = useSimulationLoop({ side });
 
   const theme = useUIStore((state) => state.theme);
@@ -165,13 +163,17 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
     if (joint1Ref.current) {
       joint1Ref.current.visible = true;
       joint1Ref.current.position.copy(p1);
-      (joint1Ref.current.material as THREE.MeshBasicMaterial).color.set(systemColor);
+      (joint1Ref.current.material as THREE.MeshBasicMaterial).color.set(
+        systemColor,
+      );
     }
 
     if (joint2Ref.current) {
       joint2Ref.current.visible = true;
       joint2Ref.current.position.copy(p2);
-      (joint2Ref.current.material as THREE.MeshBasicMaterial).color.set(visuals.color);
+      (joint2Ref.current.material as THREE.MeshBasicMaterial).color.set(
+        visuals.color,
+      );
     }
 
     if (rod1Ref.current) {
@@ -179,11 +181,13 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
       const center = new THREE.Vector3().addVectors(p0, p1).multiplyScalar(0.5);
       const length = p0.distanceTo(p1);
       const angle = Math.atan2(y1 - p0.y, x1 - p0.x);
-      
+
       rod1Ref.current.position.copy(center);
       rod1Ref.current.rotation.z = angle;
       rod1Ref.current.scale.x = length;
-      (rod1Ref.current.material as THREE.MeshBasicMaterial).color.set(systemColor);
+      (rod1Ref.current.material as THREE.MeshBasicMaterial).color.set(
+        systemColor,
+      );
     }
 
     if (rod2Ref.current) {
@@ -195,7 +199,9 @@ const SimulationVisualizer2D: React.FC<SimulationVisualizer2DProps> = ({
       rod2Ref.current.position.copy(center);
       rod2Ref.current.rotation.z = angle;
       rod2Ref.current.scale.x = length;
-      (rod2Ref.current.material as THREE.MeshBasicMaterial).color.set(systemColor);
+      (rod2Ref.current.material as THREE.MeshBasicMaterial).color.set(
+        systemColor,
+      );
     }
   });
 

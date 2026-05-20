@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUIStore } from "@/stores/useUIStore";
@@ -15,7 +15,7 @@ import {
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import styles from "./Header.module.css";
 
-const Header: React.FC = () => {
+const Header = () => {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useUIStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);

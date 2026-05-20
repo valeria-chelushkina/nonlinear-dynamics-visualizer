@@ -3,7 +3,6 @@
  * @description Groups sub-components into one control container.
  */
 
-import React from "react";
 import type { Side } from "@/stores/useSimulationStore";
 import PlaybackControls from "./PlaybackControls";
 import ParameterSliders from "./ParameterSliders";
@@ -15,7 +14,7 @@ interface ControlsProps {
   side?: Side;
 }
 
-export const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
+export const Controls = ({ side = "left" }: ControlsProps) => {
   return (
     <div className={styles.controlsContainer}>
       <PlaybackControls side={side} />

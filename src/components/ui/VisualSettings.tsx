@@ -1,4 +1,3 @@
-import React from "react";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
 import styles from "./Controls.module.css";
@@ -7,7 +6,7 @@ interface VisualSettingsProps {
   side: Side;
 }
 
-export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
+export const VisualSettings = ({ side }: VisualSettingsProps) => {
   const visuals = useVisualsStore((state) => state.configs[side]);
   const setVisuals = useVisualsStore((state) => state.setVisuals);
 

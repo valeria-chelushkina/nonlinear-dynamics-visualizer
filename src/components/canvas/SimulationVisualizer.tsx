@@ -3,7 +3,7 @@
  * @description Optimized 3D WebGL simulation visualizer component.
  */
 
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useUIStore } from "@/stores/useUIStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
@@ -18,9 +18,7 @@ interface SimulationVisualizerProps {
 
 const ThreeLine = "line" as any;
 
-const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
-  side = "left",
-}) => {
+const SimulationVisualizer = ({ side = "left" }: SimulationVisualizerProps) => {
   const { sim } = useSimulationLoop({ side });
   const theme = useUIStore((state) => state.theme);
   const visuals = useVisualsStore((state) => state.configs[side]);
@@ -130,9 +128,9 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
         count: (currentCount - startIdx) * 3,
       });
     } else {
-      posAttr.updateRanges.push({ 
-        start: 0, 
-        count: currentCount * 3 
+      posAttr.updateRanges.push({
+        start: 0,
+        count: currentCount * 3,
       });
     }
 
@@ -140,9 +138,9 @@ const SimulationVisualizer: React.FC<SimulationVisualizerProps> = ({
     colAttr.updateRanges = [];
 
     if (visuals.useGradient || isSaturatedWindow) {
-      colAttr.updateRanges.push({ 
-        start: 0, 
-        count: currentCount * 3 
+      colAttr.updateRanges.push({
+        start: 0,
+        count: currentCount * 3,
       });
     } else {
       colAttr.updateRanges.push({

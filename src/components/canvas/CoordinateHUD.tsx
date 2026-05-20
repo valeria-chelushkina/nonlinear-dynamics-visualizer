@@ -4,7 +4,6 @@
  * Displays live XYZ coordinate numbers.
  */
 
-import React from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useUIStore } from "@/stores/useUIStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
@@ -14,7 +13,7 @@ interface CoordinateHUDProps {
   side: Side;
 }
 
-const CoordinateHUD: React.FC<CoordinateHUDProps> = ({ side }) => {
+const CoordinateHUD = ({ side }: CoordinateHUDProps) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const theme = useUIStore((state) => state.theme);
 
@@ -28,7 +27,8 @@ const CoordinateHUD: React.FC<CoordinateHUDProps> = ({ side }) => {
 
   const system = SYSTEM_REGISTRY[systemType];
   const dimension = system?.math.dimension || 3;
-  const mapFn = system?.math.mapStateToPoint || ((s: any) => [s[0], s[1], s[2]]);
+  const mapFn =
+    system?.math.mapStateToPoint || ((s: any) => [s[0], s[1], s[2]]);
   const [x, y, z] = mapFn(lastPoint, params);
 
   const isDark = theme === "dark";

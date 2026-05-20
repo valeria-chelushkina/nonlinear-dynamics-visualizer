@@ -4,7 +4,6 @@
  * extracted from the system registry.
  */
 
-import React from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
@@ -19,7 +18,7 @@ interface ParameterSlidersProps {
 /**
  * ParameterSliders Component
  */
-export const ParameterSliders: React.FC<ParameterSlidersProps> = ({ side }) => {
+export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const params = useSimulationStore((state) => state.sims[side].params);
   const speed = useSimulationStore((state) => state.sims[side].speed);

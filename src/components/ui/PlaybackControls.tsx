@@ -1,4 +1,3 @@
-import React from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
@@ -19,7 +18,7 @@ interface PlaybackControlsProps {
   side: Side;
 }
 
-export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
+export const PlaybackControls= ({ side }: PlaybackControlsProps) => {
   const isPaused = useSimulationStore((state) => state.sims[side].isPaused);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);

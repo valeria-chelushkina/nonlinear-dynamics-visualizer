@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
@@ -10,7 +10,7 @@ interface PresetActionsProps {
   side: Side;
 }
 
-export const PresetActions: React.FC<PresetActionsProps> = ({ side }) => {
+export const PresetActions = ({ side }: PresetActionsProps) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const visuals = useVisualsStore((state) => state.configs[side]);
   const user = useAuthStore((state) => state.user);

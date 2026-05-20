@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
 
-const Register: React.FC = () => {
+const Register = () => {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");

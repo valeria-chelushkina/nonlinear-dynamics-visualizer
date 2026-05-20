@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   MousePointer2,
   Move,
@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import styles from "./ControlsGuide.module.css";
 
-const ControlsGuide: React.FC = () => {
+const ControlsGuide = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -27,9 +27,7 @@ const ControlsGuide: React.FC = () => {
 
       <div className={styles.content}>
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>
-            Camera Controls
-          </h3>
+          <h3 className={styles.sectionTitle}>Camera Controls</h3>
           <div className={styles.instructionGrid}>
             <div className={styles.instructionItem}>
               <div className={styles.iconWrapper}>
@@ -66,9 +64,7 @@ const ControlsGuide: React.FC = () => {
         <div className={styles.divider} />
 
         <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>
-            Advanced Modes
-          </h3>
+          <h3 className={styles.sectionTitle}>Advanced Modes</h3>
 
           <div className={styles.modeCard}>
             <div className={styles.modeHeader}>
