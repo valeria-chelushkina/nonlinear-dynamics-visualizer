@@ -13,7 +13,7 @@ describe("Simulation Slice", () => {
   beforeEach(() => {
     state = {
       ...createSimulationSlice(set, get),
-      butterflyMode: false, // needed for some actions
+      butterflyMode: false,
     };
   });
 

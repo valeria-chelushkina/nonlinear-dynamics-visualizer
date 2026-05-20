@@ -1,7 +1,6 @@
 /**
  * @file simulation.types.ts
- * @description Standardized type safety contracts and data schemas 
- * for the multi-viewport simulation engine state layer.
+ * @description This file configures the data shapes for split-screen setups and visual layouts.
  */
 
 import type { StateVector } from "@/core/math/types";
@@ -10,38 +9,38 @@ export type Side = "left" | "right";
 
 export type Vector3Tuple = [number, number, number];
 
-/** Configuration profile mapping rendering attributes for line rendering pipelines */
+/** Configuration for visuals of a line. */
 export interface VisualConfig {
-  /** Hex color for the start of the trail */
+  /** Hex color for the start of the trail. */
   color: string;
-   /** Hex color for the end of the trail (if gradient is enabled) */
+   /** Hex color for the end of the trail (if gradient is enabled). */
   colorEnd?: string;
-  /** Toggle for using gradient */
+  /** Toggle for using gradient. */
   useGradient: boolean;
 }
 
-/** Properties governing view projection cameras */
+/** Configuration for camera position. */
 export interface CameraConfig {
-  /** XYZ position coordinate where the physical camera is hanging in world space */
+  /** XYZ of where camera is positioned. */
   position: Vector3Tuple;
-  /** XYZ intersection focal point coordinate where the lens is looking */
+  /** XYZ fo where camera is looking at. */
   target: Vector3Tuple;
 }
 
 export interface SimulationData {
-  /** System type */
+  /** System type. */
   systemType: string;
-  /** Parameters defining the specific system curves */
+  /** Parameters of the specific system. */
   params: Record<string, number>;
-  /** History trail storage containing calculated points mapped to WebGL index buffers */
+  /** History trail storage containing calculated points. */
   points: StateVector[];
   isPaused: boolean;
   speed: number;
-  /** Max amount of points in the buffer */
+  /** Max amount of points in the buffer. */
   maxPoints: number;
-  /** Viewport projection layout matrix bounds */
+  /** Camera placement. */
   cameraConfig: CameraConfig;
-  /** Core presentation styles */
+  /** Line appearance visuals. */
   visuals: VisualConfig;
 }
 

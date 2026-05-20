@@ -1,9 +1,3 @@
-/**
- * @file PresetActions.tsx
- * @description Exposes form elements and interaction triggers to package active chaotic
- * simulation parameters and securely upload them via the centralized API layer.
- */
-
 import React, { useState } from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -16,25 +10,15 @@ interface PresetActionsProps {
   side: Side;
 }
 
-/**
- * PresetActions Component
- */
 export const PresetActions: React.FC<PresetActionsProps> = ({ side }) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const visuals = useVisualsStore((state) => state.configs[side]);
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
-
-  // Local user input state bindings
   const [presetName, setPresetName] = useState("");
   const [isPublic, setIsPublic] = useState(true);
   const [saveCamera, setSaveCamera] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
-  /**
-   * Packages the current visual and mechanical state criteria,
-   * offloading transport entirely to the external API client abstraction layer.
-   */
   const handleSave = async () => {
     if (!presetName) return alert("Enter a name for your preset.");
     if (!token)

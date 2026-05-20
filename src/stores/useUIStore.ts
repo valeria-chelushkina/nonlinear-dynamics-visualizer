@@ -26,7 +26,6 @@ interface UIStore {
   setLibraryOpen: (isOpen: boolean) => void;
 }
 
-/** Helper to apply theme to document root for CSS variables */
 const applyThemeToRoot = (theme: Theme) => {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("theme", theme);
@@ -35,11 +34,9 @@ const applyThemeToRoot = (theme: Theme) => {
 export const useUIStore = create<UIStore>()(
   devtools(
     logger("UI")((set: any) => ({
-      // Initialize theme from storage or default to light
       theme: (() => {
         const saved = localStorage.getItem("theme") as Theme;
         const theme = saved || "light";
-        // Apply it immediately on load
         if (typeof document !== "undefined") {
           document.documentElement.setAttribute("data-theme", theme);
         }

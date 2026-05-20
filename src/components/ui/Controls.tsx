@@ -1,7 +1,6 @@
 /**
  * @file Controls.tsx
- * @description Serves as a wrapper component that groups sub-components 
- * into a single unified workspace control column interface.
+ * @description Groups sub-components into one control container.
  */
 
 import React from "react";
@@ -16,22 +15,12 @@ interface ControlsProps {
   side?: Side;
 }
 
-/**
- * Controls Root Component Shell
- */
 export const Controls: React.FC<ControlsProps> = ({ side = "left" }) => {
   return (
     <div className={styles.controlsContainer}>
-      {/* Playback action orchestration toolbar */}
       <PlaybackControls side={side} />
-      
-      {/* Parameter range modifier grid list */}
       <ParameterSliders side={side} />
-      
-      {/* Render line profile styling properties panel */}
       <VisualSettings side={side} />
-      
-      {/* Database sync operations console panel */}
       <PresetActions side={side} />
     </div>
   );

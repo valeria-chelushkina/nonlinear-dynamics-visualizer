@@ -1,7 +1,7 @@
 /**
  * @file useSimulationLoop.ts
- * @description React Three Fiber lifecycle bridge hook that binds the numerical
- * calculation pipeline to the 3D graphics frame loop.
+ * @description A helper hook that runs math equations on every single animation frame
+ * to update the 3D graphics.
  */
 
 import { useMemo, useRef, useEffect } from "react";
@@ -16,8 +16,8 @@ interface UseSimulationLoopProps {
 }
 
 /**
- * Custom React hook coordinating real-time mathematical integration iterations
- * within the continuous React Three Fiber requestAnimationFrame lifecycle.
+ * Custom hook that runs math equations over and over in the background 
+ * using React Three Fiber's endless frame loop.
  */
 export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   const addPoints = useSimulationStore((state) => state.addPoints);
@@ -35,27 +35,25 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     return system.math.initialState?.length || 3;
   }, [system]);
 
-  /** Persistent reference cache capturing the pure standalone math engine instance */
+  /** Keeps a single, persistent copy of math engine alive across renders. */
   const engineRef = useRef<SimulationEngine | null>(null);
   if (!engineRef.current || engineRef.current.getDimension() !== stateDimension) {
     engineRef.current = new SimulationEngine(stateDimension);
   }
 
-  /** Memoized vector field derivative equations provider (for ODEs) */
+  /** Gets the formula for ODEs. */
   const derivative = useMemo(() => {
     if (system.math.type !== "ode") return null;
     return system.math.getDerivative?.(params);
   }, [system, params]);
 
-  /** Memoized next state function (for Maps) */
+  /** Gets the formula for maps. */
   const nextStateFn = useMemo(() => {
     if (system.math.type !== "map") return null;
     return system.math.getNextState?.(params);
   }, [system, params]);
 
-  /** 
-   * Static computation for Maps when parameters change
-   */
+  /**  Static computation for Maps when parameters change. */
   useEffect(() => {
     if (system.math.type === "map" && nextStateFn && engineRef.current) {
       const initial = system.math.initialState || [0.1, 0.1, 0];
@@ -65,8 +63,7 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   }, [system, nextStateFn, side, setPoints]);
 
   /**
-   * Tracks historical array structures to catch manual user timeline events and synchronizes
-   * the persistent calculation context variables cleanly.
+   * If the user clicks 'Restart',  wipe out the math engine's memory to start over.
    */
   const storePoints = useSimulationStore((state) => state.sims[side].points);
   useEffect(() => {
@@ -75,7 +72,7 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     }
   }, [storePoints, system, side]);
 
-  /** React Three Fiber Core Animation Tick Bridge */
+  /** Runs on every frame to add draeing points. */
   useFrame((_state, delta) => {
     const realTimeSim = useSimulationStore.getState().sims[side];
     if (!realTimeSim) return;
@@ -90,10 +87,6 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
       if (newBatch.length > 0) {
         addPoints(side, newBatch);
       }
-    } else if (system.math.type === "map" && nextStateFn) {
-      // If not paused, we can still "evolve" the map if we want, 
-      // but usually maps are viewed statically. 
-      // For now, let's just keep it static as requested.
     }
   });
 

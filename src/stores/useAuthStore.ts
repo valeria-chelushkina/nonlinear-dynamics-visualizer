@@ -22,20 +22,18 @@ interface AuthStore {
   // Actions
 
   /**
-   * Hydrates the store from localStorage. Call this on app initialization.
+   * Hydrates the store from localStorage. Call on app initialization.
    */
   initialize: () => void;
 
   /**
    * Updates authentication state and persists it to localStorage.
-   * @param user - User from a backend
+   * @param user - User from backend
    * @param token - Valid JWT string
    */
   setAuth: (user: User | null, token: string | null) => void;
 
-  /**
-   * Clears all session data and removes token from the browser.
-   */
+  /** Clears all session data and removes token from the browser. */
   logout: () => void;
 }
 

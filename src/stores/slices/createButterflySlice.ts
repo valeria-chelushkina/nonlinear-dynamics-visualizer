@@ -1,17 +1,17 @@
 import { SYSTEM_REGISTRY } from "@/core/systems";
 
 export interface ButterflySlice {
-  /** Whether butterfly mode (comparing two simulations with a small difference) is active */
+  /** Whether butterfly mode (comparing two simulations with a small difference) is active. */
   butterflyMode: boolean;
-  /** The small initial deviation for the second simulation */
+  /** The small initial difference for the second simulation. */
   initialDifference: number;
 
   // Actions
-  /** Toggles butterfly mode */
+  /** Toggles butterfly mode. */
   toggleButterflyMode: () => void;
-  /** Sets the initial deviation value */
+  /** Sets the initial difference value. */
   setInitialDifference: (val: number) => void;
-  /** Resets both simulations and starts them with the specified initial difference */
+  /** Resets both simulations and starts them with the specified initial difference. */
   runButterflyEffect: () => void;
 }
 

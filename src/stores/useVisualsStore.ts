@@ -24,10 +24,12 @@ interface VisualsStore {
 const DEFAULT_VISUALS: Record<Side, VisualConfig> = {
   left: {
     color: "#c026d3",
+    colorEnd: "#d32677",
     useGradient: false,
   },
   right: {
     color: "#d32677",
+    colorEnd: "#c026d3",
     useGradient: false,
   },
 };

@@ -2,23 +2,23 @@ import type { Side } from "../types/simulation.types";
 import { createDefaultSim } from "./createSimulationSlice";
 
 export interface ComparisonSlice {
-  /** Whether the split screen mode is active */
+  /** Whether the split screen mode is active. */
   comparisonMode: boolean;
-  /** Whether cameras are synchronized between both simulations */
+  /** Whether cameras are synchronized between both simulations. */
   syncCameras: boolean;
 
   // Actions
-  /** Toggles split screen mode and resets right side simulation if closing */
+  /** Toggles split screen mode and resets right side simulation if closing. */
   toggleComparison: () => void;
-  /** Toggles camera synchronization */
+  /** Toggles camera synchronization. */
   toggleSyncCameras: () => void;
-  /** Toggles pause state for both simulations simultaneously */
+  /** Toggles pause state for both simulations simultaneously. */
   toggleAllPause: () => void;
-  /** Copies a parameter value from one side to the other */
+  /** Copies a parameter value from one side to the other. */
   copyParam: (from: Side, to: Side, key: string) => void;
-  /** Synchronizes simulation speed between both sides */
+  /** Synchronizes simulation speed between both sides. */
   copySpeed: (from: Side, to: Side) => void;
-  /** Resets and restarts both simulations simultaneously */
+  /** Resets and restarts both simulations simultaneously. */
   syncAll: () => void;
 }
 
@@ -48,7 +48,7 @@ export const createComparisonSlice = (set: any, get: any): ComparisonSlice => ({
       const nextSync = !state.syncCameras;
       
       if (nextSync) {
-        // Immediately sync right camera to left camera for consistent start
+        // Sync right camera to the left one
         return {
           syncCameras: nextSync,
           sims: {

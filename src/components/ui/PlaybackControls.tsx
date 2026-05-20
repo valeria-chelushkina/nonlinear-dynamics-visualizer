@@ -1,9 +1,3 @@
-/**
- * @file PlaybackControls.tsx
- * @description Manages core simulation playback triggers, state alterations,
- * view splits and the Butterfly Effect config layout.
- */
-
 import React from "react";
 import { useSimulationStore } from "@/stores/useSimulationStore";
 import type { Side } from "@/stores/useSimulationStore";
@@ -25,11 +19,7 @@ interface PlaybackControlsProps {
   side: Side;
 }
 
-/**
- * PlaybackControls Component
- */
 export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
-  // Selectors for reactive primitive state bindings
   const isPaused = useSimulationStore((state) => state.sims[side].isPaused);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
@@ -38,10 +28,7 @@ export const PlaybackControls: React.FC<PlaybackControlsProps> = ({ side }) => {
     (state) => state.initialDifference,
   );
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
-
   const isMap = SYSTEM_REGISTRY[systemType].math.type === "map";
-
-  // Store actions
   const {
     togglePause,
     resetSimulation,

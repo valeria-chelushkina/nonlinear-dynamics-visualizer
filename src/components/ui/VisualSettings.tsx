@@ -1,8 +1,3 @@
-/**
- * @file VisualSettings.tsx
- * @description Exposes interfaces for modifying the rendering properties of line trajectories.
- */
-
 import React from "react";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
@@ -12,9 +7,6 @@ interface VisualSettingsProps {
   side: Side;
 }
 
-/**
- * VisualSettings Component
- */
 export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
   const visuals = useVisualsStore((state) => state.configs[side]);
   const setVisuals = useVisualsStore((state) => state.setVisuals);
@@ -23,7 +15,6 @@ export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
     <div className={styles.visualsSection}>
       <h4 className={styles.visualsHeader}>Visual Settings</h4>
       <div className={styles.visualsGrid}>
-        {/* Vector line origin colors */}
         <div className={styles.controlGroup}>
           <label>Primary Color</label>
           <input
@@ -33,8 +24,6 @@ export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
             className={styles.colorPicker}
           />
         </div>
-
-        {/* Vector line gradient colors */}
         {visuals.useGradient && (
           <div className={styles.controlGroup}>
             <label>End Color</label>
@@ -49,7 +38,7 @@ export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
 
         <div className={styles.controlGroup}>
           <label
-          className={styles.checkboxLabel}
+            className={styles.checkboxLabel}
             style={{
               display: "flex",
               alignItems: "center",
@@ -60,7 +49,9 @@ export const VisualSettings: React.FC<VisualSettingsProps> = ({ side }) => {
             <input
               type="checkbox"
               checked={visuals.useGradient}
-              onChange={(e) => setVisuals(side, { useGradient: e.target.checked })}
+              onChange={(e) =>
+                setVisuals(side, { useGradient: e.target.checked })
+              }
             />
             Use Gradient
           </label>

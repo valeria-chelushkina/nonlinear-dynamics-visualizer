@@ -1,7 +1,7 @@
 /**
  * @file createSimulationSlice.ts
- * @description Decoupled state slice managing coordinate history states, camera targets,
- * and presentation metrics across decoupled left/right rendering contexts.
+ * @description Handles coordinate arrays, camera angles and speeds for both
+ * the left and right split-screen panels.
  */
 
 import { SYSTEM_REGISTRY } from "@/core/systems";
@@ -11,40 +11,41 @@ import type { Side, SimulationData } from "../types/simulation.types";
 // TYPE DEFINITIONS & INTERFACES
 
 export interface SimulationStateSlice {
-  /** Map of active simulation coordinate datasets bound to left and right viewports */
+  /** Holds the simulation data profiles separately for the left and right screens. */
   sims: Record<Side, SimulationData>;
-  /** Override flag to halt default automated system resets when processing active presets */
+  /** Stop a system from wiping or restarting itself automatically when loading a saved preset. */
   skipNextReset: boolean;
 }
 
 export interface SimulationActionsSlice {
-  /** Updates the state tracking flag determining automated system configuration resets */
+  /** Turn the automatic reset bypass on or off. */
   setSkipNextReset: (skip: boolean) => void;
-  /** Alters target chaos equations model mappings assigned to an isolated viewport engine */
+  /** Change from one system type to another. */
   setSystemType: (side: Side, type: string) => void;
-  /** Merges new mathematical parameter configuration attributes into the active model instance */
+  /** Update parameters in the active model in real time. */
   setParams: (side: Side, params: Partial<Record<string, number>>) => void;
-  /** Appends a single newly calculated coordinate point to a viewport trace array */
+  /** Add one new math coordinate onto the rendering trail. */
   addPoint: (side: Side, point: StateVector) => void;
-  /** Processes and batches a sequence of integration step coordinates down into trace arrays */
+  /** Add an entire group of new math coordinates into the drawing trail at once. */
   addPoints: (side: Side, points: StateVector[]) => void;
-  /** Flips the current running execution state of a specific rendering context */
+  /** Toggle for pausing or resuming simulation. */
   togglePause: (side: Side) => void;
-  /** Directly sets the operational execution boundary of an active rendering engine */
+  /** Frozen (or unfrozen) state of the simulation. */
   setPaused: (side: Side, isPaused: boolean) => void;
-  /** Modifies the integration multiplier speed of the solver pipeline */
+  /** Update the simulation speed. */
   setSpeed: (side: Side, speed: number) => void;
-  /** Dictates upper historical trace point length boundaries to optimize memory profiles */
+  /** Limit the amount of points the trail can have
+   * (the more points - the longer the trail will be and the longer simulation will go on without removing first points). */
   setMaxPoints: (side: Side, maxPoints: number) => void;
-  /** Clears and re-initializes vector trace state values back to designated origin points */
+  /** Clear out all points and start simulation over. */
   resetSimulation: (side: Side) => void;
-  /** Restores numerical configuration variables back to system engine default limits */
+  /** Restore parameters to default. */
   resetParams: (side: Side) => void;
-  /** Directly sets the entire coordinate trace history array (used for static maps) */
+  /** Completely overwrite the drawing path array (for maps). */
   setPoints: (side: Side, points: StateVector[]) => void;
-  /** Globally flushes all active viewport slice properties back to primary application baselines */
+  /** Wipe everything out and restore both screens back to default. */
   resetSimulationState: (type?: string) => void;
-  /** Instantly applies structural multi-variable configurations derived from custom definitions */
+  /** Load a preset (simulation with all saved parameters) into the panel. */
   loadPreset: (
     side: Side,
     systemType: string,
@@ -52,7 +53,7 @@ export interface SimulationActionsSlice {
     cameraConfig: any,
     visuals?: any,
   ) => void;
-  /** Reposition spatial projection perspective cameras across targeted view environments */
+  /** Move or pan camera viewport view on a specific screen side. */
   setCameraConfig: (
     side: Side,
     config: {
@@ -76,9 +77,7 @@ const DEFAULT_CAMERA: {
   target: [0, 25, 0],
 };
 
-/**
- * Factory creating initial fallback state objects for a simulation engine viewport layer.
- */
+/** Creates a clean default data block to kick off or reset a screen viewport panel. */
 export const createDefaultSim = (
   type: string = "lorenz",
   side: Side = "left",
@@ -171,15 +170,16 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     set((state: any) => {
       const sim = state.sims[side];
       const newPoints = [...sim.points, point];
-      
+
       return {
         sims: {
           ...state.sims,
           [side]: {
             ...sim,
-            points: newPoints.length > sim.maxPoints 
-              ? newPoints.slice(newPoints.length - sim.maxPoints) 
-              : newPoints,
+            points:
+              newPoints.length > sim.maxPoints
+                ? newPoints.slice(newPoints.length - sim.maxPoints)
+                : newPoints,
           },
         },
       };
@@ -196,9 +196,10 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
           ...state.sims,
           [side]: {
             ...sim,
-            points: combinedPoints.length > sim.maxPoints
-              ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
-              : combinedPoints,
+            points:
+              combinedPoints.length > sim.maxPoints
+                ? combinedPoints.slice(combinedPoints.length - sim.maxPoints)
+                : combinedPoints,
           },
         },
       };
@@ -250,13 +251,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
   setMaxPoints: (side, maxPoints) =>
     set((state: any) => {
       const { butterflyMode } = state;
-      
+
       const updateSim = (sim: any) => ({
         ...sim,
         maxPoints,
-        points: sim.points.length > maxPoints 
-          ? sim.points.slice(sim.points.length - maxPoints) 
-          : sim.points,
+        points:
+          sim.points.length > maxPoints
+            ? sim.points.slice(sim.points.length - maxPoints)
+            : sim.points,
       });
 
       const updates: Record<string, any> = {
@@ -275,7 +277,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
     const system = SYSTEM_REGISTRY[sims[side].systemType];
     const startPoint = system?.math.initialState || INITIAL_POINT;
 
-    // Complex timing loops are removed. 
+    // Complex timing loops are removed.
     set((state: any) => {
       const updates: Record<string, any> = {};
 
@@ -283,10 +285,22 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
         const secondPoint: StateVector = [...startPoint];
         secondPoint[0] += initialDifference;
 
-        updates.left = { ...state.sims.left, points: [startPoint], isPaused: false };
-        updates.right = { ...state.sims.right, points: [secondPoint], isPaused: false };
+        updates.left = {
+          ...state.sims.left,
+          points: [startPoint],
+          isPaused: false,
+        };
+        updates.right = {
+          ...state.sims.right,
+          points: [secondPoint],
+          isPaused: false,
+        };
       } else {
-        updates[side] = { ...state.sims[side], points: [startPoint], isPaused: false };
+        updates[side] = {
+          ...state.sims[side],
+          points: [startPoint],
+          isPaused: false,
+        };
       }
 
       return { sims: { ...state.sims, ...updates } };
