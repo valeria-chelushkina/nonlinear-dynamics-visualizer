@@ -40,6 +40,7 @@ const SimulationVisualizer2D = ({ side = "left" }: SimulationVisualizer2DProps) 
   const colorsRef = useRef<Float32Array | null>(null);
   const lastUploadedCountRef = useRef<number>(0);
   const currentCapacityRef = useRef<number>(0);
+  const lastVisualsRef = useRef(visuals);
 
   const systemColor = theme === "dark" ? "#ffffff" : "#1a1a1a";
 
@@ -62,6 +63,16 @@ const SimulationVisualizer2D = ({ side = "left" }: SimulationVisualizer2DProps) 
     if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
       lastUploadedCountRef.current = 0;
     }
+
+    const visualsChanged =
+      lastVisualsRef.current.useGradient !== visuals.useGradient ||
+      lastVisualsRef.current.color !== visuals.color ||
+      lastVisualsRef.current.colorEnd !== visuals.colorEnd;
+
+    if (visualsChanged) {
+      lastUploadedCountRef.current = 0;
+    }
+    lastVisualsRef.current = visuals;
 
     // Don't draw anything if there aren't enough points to connect a line
     if (currentCount < 2) {

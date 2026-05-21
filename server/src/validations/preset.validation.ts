@@ -19,6 +19,7 @@ export const SavePresetSchema = z.object({
         position: z.tuple([z.number(), z.number(), z.number()]),
         target: z.tuple([z.number(), z.number(), z.number()]),
       })
+      .nullable()
       .optional(),
     visuals: z
       .object({
@@ -28,6 +29,7 @@ export const SavePresetSchema = z.object({
         colorEnd: z
           .string()
           .regex(/^#[0-9A-Fa-f]{6}$/, "Must be a valid hex color format")
+          .nullable()
           .optional(),
         useGradient: z.boolean(),
       })

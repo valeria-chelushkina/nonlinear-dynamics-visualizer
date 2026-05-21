@@ -44,11 +44,10 @@ export const PresetActions = ({ side }: PresetActionsProps) => {
 
       alert("Preset saved successfully.");
       setPresetName("");
-    } catch (error) {
+    } catch (error: any) {
       console.error("[PresetActions] Save routine failure:", error);
-      alert(
-        "Failed to save preset. Please verify connection metrics and retry.",
-      );
+      const message = error instanceof Error ? error.message : "An unknown error occurred";
+      alert(`Failed to save preset: ${message}`);
     } finally {
       setIsSaving(false);
     }

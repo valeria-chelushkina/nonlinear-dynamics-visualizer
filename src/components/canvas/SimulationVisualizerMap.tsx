@@ -74,7 +74,9 @@ const SimulationVisualizerMap = ({
       tsPositions[i3 + 2] = 0;
 
       // Blend from start color to end color
-      const lerpedColor = new THREE.Color().copy(colorStart).lerp(colorEnd, t);
+      const lerpedColor = visuals.useGradient
+        ? new THREE.Color().copy(colorStart).lerp(colorEnd, t)
+        : new THREE.Color().copy(colorStart);
 
       if (theme === "dark") {
         lerpedColor.multiplyScalar(0.8 + t * 0.4);

@@ -6,16 +6,17 @@ export const chenSystem: RegisteredSystem = {
     id: "chen",
     type: "ode",
     defaultParams: {
-      a: 35,
-      b: 3,
-      c: 28,
+      sigma: 36,
+      rho: 0,
+      s: 20,
+      beta: 3,
     },
     getDerivative: (params) => {
-      const { a, b, c } = params;
+      const { sigma, rho, s, beta } = params;
       return ([x, y, z]): Vector3 => [
-        a * (y - x),
-        (c - a) * x - x * z + c * y,
-        x * y - b * z,
+        sigma * (y - x),
+        (rho - z) * x + s * y,
+        x * y - beta * z,
       ];
     },
   },
@@ -24,11 +25,7 @@ export const chenSystem: RegisteredSystem = {
     name: "Chen Attractor",
     description:
       "Discovered in 1999, the Chen system is a dual to the Lorenz system. It represents a more complex 'butterfly' with higher density and different topological invariants. It is a key model in the classification of chaotic systems.",
-    equations: [
-      "ẋ = a(y - x)",
-      "ẏ = (c - a)x - xz + cy",
-      "ż = xy - bz",
-    ],
+    equations: ["ẋ = σ(y - x)", "ẏ = (ρ - z)x + sy", "ż = xy - βz"],
     history:
       "Guanrong Chen discovered this system while exploring the 'bridge' between the Lorenz and Lü systems. It proved that the Lorenz-style attractor was just one member of a broader family of chaotic flows, sparking a new wave of research into the mathematical structure of chaos in the late 90s.",
     use: [
@@ -40,31 +37,44 @@ export const chenSystem: RegisteredSystem = {
 
     sliders: [
       {
-        key: "a",
-        label: "Param a",
+        key: "sigma",
+        label: "Sigma (σ)",
         min: 0,
         max: 50,
         step: 0.1,
-        description: "Coupling coefficient between x and y",
-        impact: "Controls the strength of interaction between horizontal variables",
+        description: "Coupling coefficient between x and y components",
+        impact:
+          "Controls the expansion or contraction rate along the main chaotic folds",
       },
       {
-        key: "b",
-        label: "Param b",
-        min: 0,
+        key: "rho",
+        label: "Rho (ρ)",
+        min: -10,
         max: 10,
         step: 0.1,
-        description: "Dissipation parameter",
-        impact: "Affects the rate at which trajectories converge toward the attractor",
+        description: "Nonlinear cross-coupling parameter",
+        impact:
+          "Triggers the stretching effect in the phase space, driving the system into chaos",
       },
       {
-        key: "c",
-        label: "Param c",
+        key: "s",
+        label: "Param s",
         min: 0,
         max: 40,
         step: 0.1,
-        description: "Vertical feedback parameter",
-        impact: "Determines the complexity of the 'wings' and the transition to chaos",
+        description: "Linear feedback coefficient for the y-velocity",
+        impact:
+          "Determines the vertical complexity and density of the attractor's wings",
+      },
+      {
+        key: "beta",
+        label: "Beta (β)",
+        min: 0,
+        max: 10,
+        step: 0.1,
+        description: "Dissipation/damping rate along the z-axis",
+        impact:
+          "Controls the vertical compression and stability of the chaotic trajectories",
       },
     ],
     cameraConfig: {

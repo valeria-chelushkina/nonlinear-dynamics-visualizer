@@ -48,10 +48,10 @@ export class PresetController {
 
   public getUserPresets = asyncHandler(
     async (req: Request, res: Response): Promise<void> => {
-      const id = req.params.id as string;
+      const userId = req.params.userId as string;
       const requesterId = this.parseOptionalToken(req);
       const presets = await this.presetService.getPresetsByUserId(
-        id,
+        userId,
         requesterId,
       );
       res.json(presets);

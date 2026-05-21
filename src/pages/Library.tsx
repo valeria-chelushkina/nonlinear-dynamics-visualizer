@@ -30,7 +30,9 @@ const Library = () => {
   const systemTypes = useMemo(() => Object.keys(SYSTEM_REGISTRY), []);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/presets")
+    fetch("http://localhost:3000/api/presets", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -187,6 +189,9 @@ const Library = () => {
                   <div className={styles.cardHeader}>
                     <h3>{preset.name}</h3>
                     <div className={styles.cardActions}>
+                      {!preset.isPublic && (
+                        <span className={styles.privateBadge}>Private</span>
+                      )}
                       <span className={styles.badge}>{preset.systemType}</span>
                       {user && user.id === preset.userId && (
                         <button

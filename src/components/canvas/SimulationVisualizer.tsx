@@ -32,6 +32,7 @@ const SimulationVisualizer = ({ side = "left" }: SimulationVisualizerProps) => {
   const colorsRef = useRef<Float32Array | null>(null);
   const lastUploadedCountRef = useRef<number>(0);
   const currentCapacityRef = useRef<number>(0);
+  const lastVisualsRef = useRef(visuals);
 
   // Pre-allocated memory arrays to hold position and color data without lag
   if (!positionsRef.current || currentCapacityRef.current !== maxPoints) {
@@ -52,6 +53,16 @@ const SimulationVisualizer = ({ side = "left" }: SimulationVisualizerProps) => {
     if (currentCount < lastUploadedCountRef.current || currentCount <= 1) {
       lastUploadedCountRef.current = 0;
     }
+
+    const visualsChanged =
+      lastVisualsRef.current.useGradient !== visuals.useGradient ||
+      lastVisualsRef.current.color !== visuals.color ||
+      lastVisualsRef.current.colorEnd !== visuals.colorEnd;
+
+    if (visualsChanged) {
+      lastUploadedCountRef.current = 0;
+    }
+    lastVisualsRef.current = visuals;
 
     // Don't draw anything if there aren't enough points to connect a line
     if (currentCount < 2) {

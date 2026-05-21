@@ -38,12 +38,19 @@ export class PresetService {
     });
   }
 
-  public async getPresetsByUserId(targetUserId: string, requesterId: string | undefined) {
+  public async getPresetsByUserId(
+    targetUserId: string,
+    requesterId: string | undefined,
+  ) {
+    const where: any = { userId: targetUserId };
+
+    // If requester is not the owner, only show public presets
+    if (requesterId !== targetUserId) {
+      where.isPublic = true;
+    }
+
     return await this.prisma.preset.findMany({
-      where: {
-        userId: targetUserId,
-        OR: requesterId === targetUserId ? undefined : [{ isPublic: true }],
-      },
+      where,
       include: { user: { select: { username: true } } },
       orderBy: { createdAt: "desc" },
     });
