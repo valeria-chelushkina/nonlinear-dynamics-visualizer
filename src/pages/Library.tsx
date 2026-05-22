@@ -4,7 +4,8 @@ import { useSimulationStore } from "@/stores/useSimulationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import type { Side } from "@/stores/useSimulationStore";
-import { Clock, User, Trash2 } from "lucide-react";
+import { getPresetsApi } from "@/api/presets";
+import { Clock, User, Trash2, Search } from "lucide-react";
 import { SYSTEM_REGISTRY } from "@/core/systems";
 import styles from "./Library.module.css";
 
@@ -12,7 +13,8 @@ const PRESETS_PER_PAGE = 18;
 
 const Library = () => {
   const navigate = useNavigate();
-  const { loadPreset, comparisonMode } = useSimulationStore();
+  const loadPreset = useSimulationStore((state) => state.loadPreset);
+  const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const { user, token } = useAuthStore();
   const { setVisuals } = useVisualsStore();
   
@@ -22,6 +24,7 @@ const Library = () => {
   
   // Filtering state
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
+  const [usernameSearch, setUsernameSearch] = useState("");
   // Sorting state
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   // Pagination state
@@ -30,10 +33,7 @@ const Library = () => {
   const systemTypes = useMemo(() => Object.keys(SYSTEM_REGISTRY), []);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/presets", {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then((res) => res.json())
+    getPresetsApi(token ?? undefined)
       .then((data) => {
         if (Array.isArray(data)) {
           setPresets(data);
@@ -41,7 +41,7 @@ const Library = () => {
       })
       .catch((err) => console.error("Failed to fetch presets:", err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [token]);
 
   const handleLoad = (preset: any) => {
     if (preset.visuals) {
@@ -92,18 +92,25 @@ const Library = () => {
   };
 
   const processedPresets = useMemo(() => {
-    // Filter
+    // Filter by system
     let filtered = selectedSystems.length === 0 
       ? presets 
       : presets.filter(p => selectedSystems.includes(p.systemType));
     
+    // Filter by username
+    if (usernameSearch.trim()) {
+      filtered = filtered.filter(p => 
+        p.user?.username?.toLowerCase().includes(usernameSearch.toLowerCase())
+      );
+    }
+
     // Sort
     return [...filtered].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime();
       const dateB = new Date(b.createdAt).getTime();
       return sortOrder === "newest" ? dateB - dateA : dateA - dateB;
     });
-  }, [presets, selectedSystems, sortOrder]);
+  }, [presets, selectedSystems, sortOrder, usernameSearch]);
 
   const visiblePresets = useMemo(() => {
     return processedPresets.slice(0, visibleCount);
@@ -137,38 +144,62 @@ const Library = () => {
         )}
       </header>
 
-      <div className={styles.controlsRow}>
-        <div className={styles.filterBar} style={{ margin: 0, padding: 0 }}>
-          {systemTypes.map(type => (
-            <button
-              key={type}
-              className={`${styles.filterButton} ${selectedSystems.includes(type) ? styles.active : ""}`}
-              onClick={() => toggleSystemFilter(type)}
+      <div className={styles.controlsSection}>
+        <div className={styles.topControls}>
+          <div className={styles.searchGroup}>
+            <label>Search by creator:</label>
+            <div className={styles.searchWrapper}>
+              <Search className={styles.searchIcon} size={18} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Enter username..."
+                value={usernameSearch}
+                onChange={(e) => {
+                  setUsernameSearch(e.target.value);
+                  setVisibleCount(PRESETS_PER_PAGE);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.sortControl}>
+            <label>Sort By Date:</label>
+            <select 
+              className={styles.sortSelect}
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as any)}
             >
-              {type.replace('-', ' ')}
-            </button>
-          ))}
-          {selectedSystems.length > 0 && (
-            <button 
-              className={styles.filterButton} 
-              onClick={() => setSelectedSystems([])}
-              style={{ opacity: 0.6 }}
-            >
-              Clear All
-            </button>
-          )}
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
         </div>
 
-        <div className={styles.sortControl}>
-          <label>Sort By:</label>
-          <select 
-            className={styles.sortSelect}
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as any)}
-          >
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
+        <div className={styles.filterRow}>
+          <div className={styles.filterBar}>
+            {systemTypes.map(type => (
+              <button
+                key={type}
+                className={`${styles.filterButton} ${selectedSystems.includes(type) ? styles.active : ""}`}
+                onClick={() => toggleSystemFilter(type)}
+              >
+                {type.replace('-', ' ')}
+              </button>
+            ))}
+            {(selectedSystems.length > 0 || usernameSearch) && (
+              <button 
+                className={styles.filterButton} 
+                onClick={() => {
+                  setSelectedSystems([]);
+                  setUsernameSearch("");
+                }}
+                style={{ opacity: 0.6 }}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

@@ -53,3 +53,31 @@ export const savePresetApi = async (
 
   return response.json();
 };
+
+/**
+ * Fetches all available presets from the server.
+ * 
+ * @param token - Optional authentication token to see private presets.
+ * @param username - Optional username to filter presets by creator.
+ * @returns Array of presets.
+ */
+export const getPresetsApi = async (
+  token?: string,
+  username?: string
+): Promise<any[]> => {
+  const url = new URL("http://localhost:3000/api/presets");
+  if (username) {
+    url.searchParams.append("username", username);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+
+  if (!response.ok) {
+    const errorDetails = await response.text().catch(() => "Unknown error");
+    throw new Error(`Failed to fetch presets: ${response.status} - ${errorDetails}`);
+  }
+
+  return response.json();
+};

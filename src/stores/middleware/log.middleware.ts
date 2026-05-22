@@ -16,7 +16,22 @@ export const logger =
         set(args);
 
         const nextState = get();
-        AppLogger.stateChange(name, actionName, nextState);
+
+        const loggableState = {
+          ...nextState,
+          sims: nextState.sims ? {
+            left: nextState.sims.left ? { 
+              ...nextState.sims.left, 
+              points: `[Array(${nextState.sims.left.points?.length || 0})]` 
+            } : undefined,
+            right: nextState.sims.right ? { 
+              ...nextState.sims.right, 
+              points: `[Array(${nextState.sims.right.points?.length || 0})]` 
+            } : undefined,
+          } : undefined
+        };
+
+        AppLogger.stateChange(name, actionName, loggableState);
       },
       get,
       api,

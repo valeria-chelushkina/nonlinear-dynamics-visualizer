@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import SimulationPage from "@/pages/SimulationPage";
 import Library from "@/pages/Library";
@@ -13,11 +15,43 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 import ChangePassword from "@/pages/ChangePassword";
 import Header from "@/components/ui/Header";
+import LoadingScreen from "@/components/ui/LoadingScreen";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useUIStore } from "@/stores/useUIStore";
+import { useSimulationStore } from "@/stores/useSimulationStore";
 import "@/styles/App.css";
 
+const NavigationWatcher = () => {
+  const location = useLocation();
+  const setIsLoading = useUIStore((state) => state.setIsLoading);
+
+  useEffect(() => {
+    // Show loader on navigation
+    setIsLoading(true);
+    
+    // Hide after a small delay to allow for page mounting
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname, setIsLoading]);
+
+  return null;
+};
+
 function App() {
+  const initializeAuth = useAuthStore((state) => state.initialize);
+  const isLoading = useUIStore((state) => state.isLoading);
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
   return (
     <BrowserRouter>
+      <NavigationWatcher />
+      {isLoading && <LoadingScreen />}
       <div
         style={{ display: "flex", flexDirection: "column", height: "100vh" }}
       >

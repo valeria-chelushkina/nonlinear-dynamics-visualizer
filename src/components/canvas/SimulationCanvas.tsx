@@ -43,6 +43,7 @@ const VisualizerSwitcher = ({ side }: SimulationCanvasProps) => {
 const ScreenshotHandler = ({ side }: SimulationCanvasProps) => {
   const { gl, scene, camera } = useThree();
   const signal = useSimulationStore((state) => state.screenshotSignal);
+  const clearSignal = useSimulationStore((state) => state.clearScreenshotSignal);
 
   useEffect(() => {
     if (signal.side === side && signal.timestamp > 0) {
@@ -56,9 +57,12 @@ const ScreenshotHandler = ({ side }: SimulationCanvasProps) => {
         link.click();
       } catch (err) {
         console.error("Failed to capture screenshot:", err);
+      } finally {
+        // Clear the signal immediately so it doesn't trigger again on mount/re-render
+        clearSignal();
       }
     }
-  }, [signal, side, gl, scene, camera]);
+  }, [signal, side, gl, scene, camera, clearSignal]);
 
   return null;
 };

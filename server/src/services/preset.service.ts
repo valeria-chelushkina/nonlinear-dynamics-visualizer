@@ -28,11 +28,28 @@ export class PresetService {
     });
   }
 
-  public async getPresetsList(requesterId: string | undefined) {
+  public async getPresetsList(requesterId: string | undefined, username?: string) {
+    const where: any = {
+      AND: [
+        {
+          OR: [{ isPublic: true }, { userId: requesterId || "NONE" }],
+        },
+      ],
+    };
+
+    if (username) {
+      where.AND.push({
+        user: {
+          username: {
+            contains: username,
+            mode: "insensitive",
+          },
+        },
+      });
+    }
+
     return await this.prisma.preset.findMany({
-      where: {
-        OR: [{ isPublic: true }, { userId: requesterId || "NONE" }],
-      },
+      where,
       include: { user: { select: { username: true } } },
       orderBy: { createdAt: "desc" },
     });

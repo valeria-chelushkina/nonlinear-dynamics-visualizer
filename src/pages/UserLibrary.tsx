@@ -193,38 +193,42 @@ const UserLibrary = () => {
           </button>
         </div>
 
-        <div className={styles.controlsRow}>
-          <div className={styles.filterBar} style={{ margin: 0, padding: 0 }}>
-            {systemTypes.map(type => (
-              <button
-                key={type}
-                className={`${styles.filterButton} ${selectedSystems.includes(type) ? styles.active : ""}`}
-                onClick={() => toggleSystemFilter(type)}
+        <div className={styles.controlsSection}>
+          <div className={styles.topControls} style={{ justifyContent: 'flex-end' }}>
+            <div className={styles.sortControl}>
+              <label>Sort By Date:</label>
+              <select 
+                className={styles.sortSelect}
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as any)}
               >
-                {type.replace('-', ' ')}
-              </button>
-            ))}
-            {selectedSystems.length > 0 && (
-              <button 
-                className={styles.filterButton} 
-                onClick={() => setSelectedSystems([])}
-                style={{ opacity: 0.6 }}
-              >
-                Clear All
-              </button>
-            )}
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
           </div>
 
-          <div className={styles.sortControl}>
-            <label>Sort By:</label>
-            <select 
-              className={styles.sortSelect}
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as any)}
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-            </select>
+          <div className={styles.filterRow}>
+            <div className={styles.filterBar}>
+              {systemTypes.map(type => (
+                <button
+                  key={type}
+                  className={`${styles.filterButton} ${selectedSystems.includes(type) ? styles.active : ""}`}
+                  onClick={() => toggleSystemFilter(type)}
+                >
+                  {type.replace('-', ' ')}
+                </button>
+              ))}
+              {selectedSystems.length > 0 && (
+                <button 
+                  className={styles.filterButton} 
+                  onClick={() => setSelectedSystems([])}
+                  style={{ opacity: 0.6 }}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

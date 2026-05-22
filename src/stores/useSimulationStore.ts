@@ -6,7 +6,6 @@
 
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { logger } from "./middleware/log.middleware";
 import { createSimulationSlice } from "./slices/createSimulationSlice";
 import type { SimulationSlice } from "./slices/createSimulationSlice";
 import { createComparisonSlice } from "./slices/createComparisonSlice";
@@ -22,11 +21,13 @@ export interface SimulationStore
   screenshotSignal: { side: Side | null; timestamp: number };
   /** Triggers a screenshot for a specific side */
   triggerScreenshot: (side: Side) => void;
+  /** Resets the screenshot signal after it has been processed */
+  clearScreenshotSignal: () => void;
 }
 
 export const useSimulationStore = create<SimulationStore>()(
   devtools(
-    logger("Simulation")((set: any, get: any) => ({
+    (set: any, get: any) => ({
       ...createSimulationSlice(set, get),
       ...createComparisonSlice(set, get),
       ...createButterflySlice(set, get),
@@ -37,7 +38,13 @@ export const useSimulationStore = create<SimulationStore>()(
         set({
           screenshotSignal: { side, timestamp: Date.now() },
         }),
-    })),
+
+      clearScreenshotSignal: () =>
+        set({
+          screenshotSignal: { side: null, timestamp: 0 },
+        }),
+    }),
+    { name: "Simulation" },
   ),
 );
 

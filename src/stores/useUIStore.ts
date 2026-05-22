@@ -14,6 +14,8 @@ interface UIStore {
   theme: Theme;
   /** Whether the library sidebar is open */
   isLibraryOpen: boolean;
+  /** Whether a global loading screen should be shown */
+  isLoading: boolean;
 
   // Actions
   /** Toggles between light and dark themes and persists to localStorage */
@@ -24,6 +26,8 @@ interface UIStore {
   toggleLibrary: () => void;
   /** Sets the library sidebar visibility */
   setLibraryOpen: (isOpen: boolean) => void;
+  /** Sets the global loading state */
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 const applyThemeToRoot = (theme: Theme) => {
@@ -44,6 +48,7 @@ export const useUIStore = create<UIStore>()(
       })(),
 
       isLibraryOpen: false,
+      isLoading: false,
 
       toggleTheme: () =>
         set((state: any) => {
@@ -65,6 +70,11 @@ export const useUIStore = create<UIStore>()(
       setLibraryOpen: (isOpen: any) =>
         set({
           isLibraryOpen: isOpen,
+        }),
+
+      setIsLoading: (isLoading: any) =>
+        set({
+          isLoading,
         }),
     })),
   ),
