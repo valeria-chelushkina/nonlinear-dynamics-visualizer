@@ -19,14 +19,15 @@ interface ParameterSlidersProps {
  * ParameterSliders Component
  */
 export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
-  const sims = useSimulationStore((state) => state.sims);
-  const systemType = sims[side].systemType;
-  const params = sims[side].params;
-  const speed = sims[side].speed;
-  const maxPoints = sims[side].maxPoints;
+  const systemType = useSimulationStore((state) => state.sims[side].systemType);
+  const params = useSimulationStore((state) => state.sims[side].params);
+  const speed = useSimulationStore((state) => state.sims[side].speed);
+  const maxPoints = useSimulationStore((state) => state.sims[side].maxPoints);
 
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
-  const systemsMatch = sims.left.systemType === sims.right.systemType;
+  const leftSystemType = useSimulationStore((state) => state.sims.left.systemType);
+  const rightSystemType = useSimulationStore((state) => state.sims.right.systemType);
+  const systemsMatch = leftSystemType === rightSystemType;
 
   const isMap = SYSTEM_REGISTRY[systemType].math.type === "map";
 

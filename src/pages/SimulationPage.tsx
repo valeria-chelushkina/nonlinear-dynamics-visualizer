@@ -36,12 +36,14 @@ const MasterControls = () => {
 const SimulationPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const sims = useSimulationStore((state) => state.sims);
+  
+  const leftSystemType = useSimulationStore((state) => state.sims.left.systemType);
+  const rightSystemType = useSimulationStore((state) => state.sims.right.systemType);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const toggleComparison = useSimulationStore((state) => state.toggleComparison);
   
-  const systemLeft = SYSTEM_REGISTRY[sims.left.systemType] || SYSTEM_REGISTRY["lorenz"];
-  const systemRight = SYSTEM_REGISTRY[sims.right.systemType] || SYSTEM_REGISTRY["lorenz"];
+  const systemLeft = SYSTEM_REGISTRY[leftSystemType] || SYSTEM_REGISTRY["lorenz"];
+  const systemRight = SYSTEM_REGISTRY[rightSystemType] || SYSTEM_REGISTRY["lorenz"];
   
   const resetSimulationState = useSimulationStore((state) => state.resetSimulationState);
 
@@ -79,18 +81,18 @@ const SimulationPage = () => {
           className={`${styles.container} ${comparisonMode ? styles.wide : ""}`}
         >
           <header className={styles.header}>
-            {comparisonMode && sims.left.systemType !== sims.right.systemType ? (
+            {comparisonMode && leftSystemType !== rightSystemType ? (
               <h1 className={styles.comparisonTitle}>
                 <span 
                   className={styles.clickableSystem}
-                  onClick={() => navigateToSystem(sims.left.systemType)}
+                  onClick={() => navigateToSystem(leftSystemType)}
                 >
                   {systemLeft.meta.name}
                 </span>
                 <span className={styles.vs}>vs</span>
                 <span 
                   className={styles.clickableSystem}
-                  onClick={() => navigateToSystem(sims.right.systemType)}
+                  onClick={() => navigateToSystem(rightSystemType)}
                 >
                   {systemRight.meta.name}
                 </span>
@@ -98,7 +100,7 @@ const SimulationPage = () => {
             ) : (
               <h1 
                 className={comparisonMode ? styles.clickableSystem : ""}
-                onClick={() => comparisonMode && navigateToSystem(sims.left.systemType)}
+                onClick={() => comparisonMode && navigateToSystem(leftSystemType)}
               >
                 {systemLeft.meta.name}
               </h1>

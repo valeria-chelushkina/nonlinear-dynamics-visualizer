@@ -18,7 +18,6 @@ import Header from "@/components/ui/Header";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUIStore } from "@/stores/useUIStore";
-import { useSimulationStore } from "@/stores/useSimulationStore";
 import "@/styles/App.css";
 
 const NavigationWatcher = () => {
