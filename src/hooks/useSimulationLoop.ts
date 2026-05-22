@@ -23,6 +23,9 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
   const addPoints = useSimulationStore((state) => state.addPoints);
 
   const setPoints = useSimulationStore((state) => state.setPoints);
+  const setPerformanceMetrics = useSimulationStore(
+    (state) => state.setPerformanceMetrics,
+  );
 
   const systemType = useSimulationStore((state) => state.sims[side].systemType);
   const params = useSimulationStore((state) => state.sims[side].params);
@@ -72,6 +75,9 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
     }
   }, [storePoints, system, side]);
 
+  const frameCount = useRef(0);
+  const totalCpuTime = useRef(0);
+
   /** Runs on every frame to add draeing points. */
   useFrame((_state, delta) => {
     const realTimeSim = useSimulationStore.getState().sims[side];
@@ -82,11 +88,26 @@ export const useSimulationLoop = ({ side }: UseSimulationLoopProps) => {
 
     const lastPoint = currentStorePoints[currentStorePoints.length - 1];
 
+    const start = performance.now();
     if (system.math.type === "ode" && derivative) {
       const newBatch = engineRef.current.step(lastPoint, delta, speed, derivative);
       if (newBatch.length > 0) {
         addPoints(side, newBatch);
       }
+    }
+    const end = performance.now();
+
+    // Track performance
+    totalCpuTime.current += end - start;
+    frameCount.current++;
+
+    if (frameCount.current >= 60) {
+      setPerformanceMetrics(side, {
+        fps: 1 / delta,
+        cpu: totalCpuTime.current / 60,
+      });
+      frameCount.current = 0;
+      totalCpuTime.current = 0;
     }
   });
 

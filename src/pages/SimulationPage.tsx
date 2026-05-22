@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import SimulationCanvas from "@/components/canvas/SimulationCanvas";
 import Controls from "@/components/ui/Controls";
 import { SYSTEM_REGISTRY } from "@/core/systems";
@@ -35,10 +35,15 @@ const MasterControls = () => {
 
 const SimulationPage = () => {
   const { id } = useParams<{ id: string }>();
-  const system = SYSTEM_REGISTRY[id || "lorenz"];
+  const navigate = useNavigate();
+  const sims = useSimulationStore((state) => state.sims);
+  const comparisonMode = useSimulationStore((state) => state.comparisonMode);
+  const toggleComparison = useSimulationStore((state) => state.toggleComparison);
+  
+  const systemLeft = SYSTEM_REGISTRY[sims.left.systemType] || SYSTEM_REGISTRY["lorenz"];
+  const systemRight = SYSTEM_REGISTRY[sims.right.systemType] || SYSTEM_REGISTRY["lorenz"];
   
   const resetSimulationState = useSimulationStore((state) => state.resetSimulationState);
-  const comparisonMode = useSimulationStore((state) => state.comparisonMode);
 
   const lastId = React.useRef<string | undefined>(undefined);
 
@@ -47,17 +52,24 @@ const SimulationPage = () => {
 
     if (lastId.current !== id) {
       lastId.current = id;
-      resetSimulationState(targetId);
+      resetSimulationState(targetId, comparisonMode ? "left" : undefined);
     }
-  }, [id, resetSimulationState]);
+  }, [id, resetSimulationState, comparisonMode]);
 
-  if (!system) {
+  if (!systemLeft) {
     return (
       <div className={styles.container}>
         <div className={styles.error}>System "{id}" not found.</div>
       </div>
     );
   }
+
+  const navigateToSystem = (type: string) => {
+    if (comparisonMode) {
+      toggleComparison();
+    }
+    navigate(`/sim/${type}`);
+  };
 
   return (
     <div className={styles.pageWrapper}>
@@ -67,7 +79,30 @@ const SimulationPage = () => {
           className={`${styles.container} ${comparisonMode ? styles.wide : ""}`}
         >
           <header className={styles.header}>
-            <h1>{system.meta.name}</h1>
+            {comparisonMode && sims.left.systemType !== sims.right.systemType ? (
+              <h1 className={styles.comparisonTitle}>
+                <span 
+                  className={styles.clickableSystem}
+                  onClick={() => navigateToSystem(sims.left.systemType)}
+                >
+                  {systemLeft.meta.name}
+                </span>
+                <span className={styles.vs}>vs</span>
+                <span 
+                  className={styles.clickableSystem}
+                  onClick={() => navigateToSystem(sims.right.systemType)}
+                >
+                  {systemRight.meta.name}
+                </span>
+              </h1>
+            ) : (
+              <h1 
+                className={comparisonMode ? styles.clickableSystem : ""}
+                onClick={() => comparisonMode && navigateToSystem(sims.left.systemType)}
+              >
+                {systemLeft.meta.name}
+              </h1>
+            )}
           </header>
 
           {!comparisonMode && (
@@ -115,13 +150,13 @@ const SimulationPage = () => {
           <div className={styles.infoPart}>
             <section className={styles.infoCard}>
               <h3>About the model</h3>
-              <p>{system.meta.description}</p>
+              <p>{systemLeft.meta.description}</p>
             </section>
 
             <section className={styles.infoCard}>
               <h3>Differential Equations</h3>
               <div className={styles.equationsList}>
-                {system.meta.equations.map((eq: any, i: any) => (
+                {systemLeft.meta.equations.map((eq: any, i: any) => (
                   <div key={i} className={styles.equation}>
                     <code>{eq}</code>
                   </div>
@@ -132,7 +167,7 @@ const SimulationPage = () => {
             <section className={styles.infoCard}>
               <h3>Parameter Details</h3>
               <div className={styles.parametersList}>
-                {system.meta.sliders.map((slider: any, i: any) => (
+                {systemLeft.meta.sliders.map((slider: any, i: any) => (
                   <div key={i} className={styles.parameter}>
                     <span className={styles.parameterName}>{slider.label}</span>
                     <span className={styles.parameterDescription}>{slider.description}</span>
@@ -144,13 +179,13 @@ const SimulationPage = () => {
 
             <section className={styles.infoCard}>
               <h3>Historical significance</h3>
-              <p>{system.meta.history}</p>
+              <p>{systemLeft.meta.history}</p>
             </section>
 
             <section className={styles.infoCard}>
               <h3>Real-World Applications</h3>
               <div className={styles.useList}>
-                {system.meta.use.map((use: any, i: any) => (
+                {systemLeft.meta.use.map((use: any, i: any) => (
                   <div key={i} className={styles.use}>
                     {use}
                   </div>

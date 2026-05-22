@@ -18,6 +18,8 @@ export interface ComparisonSlice {
   copyParam: (from: Side, to: Side, key: string) => void;
   /** Synchronizes simulation speed between both sides. */
   copySpeed: (from: Side, to: Side) => void;
+  /** Synchronizes tail length between both sides. */
+  copyMaxPoints: (from: Side, to: Side) => void;
   /** Resets and restarts both simulations simultaneously. */
   syncAll: () => void;
 }
@@ -103,6 +105,17 @@ export const createComparisonSlice = (set: any, get: any): ComparisonSlice => ({
         [to]: {
           ...state.sims[to],
           speed: state.sims[from].speed,
+        },
+      },
+    })),
+
+  copyMaxPoints: (from, to) =>
+    set((state: any) => ({
+      sims: {
+        ...state.sims,
+        [to]: {
+          ...state.sims[to],
+          maxPoints: state.sims[from].maxPoints,
         },
       },
     })),

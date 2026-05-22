@@ -12,6 +12,64 @@
   align-items: center;
   margin-bottom: 24px;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.systemSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.systemSelector:hover {
+  background: var(--surface-bg);
+  border-color: var(--accent);
+}
+
+.systemSelector svg {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.select {
+  background: transparent;
+  border: none;
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  padding: 2px 0;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 4px;
+}
+
+/* Custom arrow for the select if needed, or just rely on the layout */
+.systemSelector::after {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--text);
+  margin-left: 4px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.select option {
+  background: var(--surface-bg);
+  color: var(--text);
+  padding: 8px;
 }
 
 .headerActions {

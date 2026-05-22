@@ -43,8 +43,13 @@ export interface SimulationActionsSlice {
   resetParams: (side: Side) => void;
   /** Completely overwrite the drawing path array (for maps). */
   setPoints: (side: Side, points: StateVector[]) => void;
+  /** Update performance metrics (FPS and CPU time). */
+  setPerformanceMetrics: (
+    side: Side,
+    metrics: { fps: number; cpu: number },
+  ) => void;
   /** Wipe everything out and restore both screens back to default. */
-  resetSimulationState: (type?: string) => void;
+  resetSimulationState: (type?: string, side?: Side) => void;
   /** Load a preset (simulation with all saved parameters) into the panel. */
   loadPreset: (
     side: Side,
@@ -99,6 +104,8 @@ export const createDefaultSim = (
       color: side === "left" ? "#c026d3" : "#d32677",
       useGradient: false,
     },
+    fps: 0,
+    cpu: 0,
   };
 };
 
@@ -114,6 +121,14 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
 
   // Actions
   setSkipNextReset: (skip) => set(() => ({ skipNextReset: skip })),
+
+  setPerformanceMetrics: (side, { fps, cpu }) =>
+    set((state: any) => ({
+      sims: {
+        ...state.sims,
+        [side]: { ...state.sims[side], fps, cpu },
+      },
+    })),
 
   setCameraConfig: (side, config) =>
     set((state: any) => {
@@ -331,7 +346,7 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
       },
     })),
 
-  resetSimulationState: (type) => {
+  resetSimulationState: (type, side) => {
     const { skipNextReset, sims } = get();
 
     if (skipNextReset) {
@@ -341,12 +356,21 @@ export const createSimulationSlice = (set: any, get: any): SimulationSlice => ({
 
     const targetType = type || sims.left.systemType;
 
-    set(() => ({
-      sims: {
-        left: createDefaultSim(targetType, "left"),
-        right: createDefaultSim(targetType, "right"),
-      },
-    }));
+    if (side) {
+      set((state: any) => ({
+        sims: {
+          ...state.sims,
+          [side]: createDefaultSim(targetType, side),
+        },
+      }));
+    } else {
+      set(() => ({
+        sims: {
+          left: createDefaultSim(targetType, "left"),
+          right: createDefaultSim(targetType, "right"),
+        },
+      }));
+    }
   },
 
   loadPreset: (side, systemType, newParams, cameraConfig, visuals) => {

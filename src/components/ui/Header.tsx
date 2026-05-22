@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useUIStore } from "@/stores/useUIStore";
+import { useSimulationStore } from "@/stores/useSimulationStore";
 import {
   BookOpen,
   LogOut,
@@ -18,6 +19,7 @@ import styles from "./Header.module.css";
 const Header = () => {
   const { user, logout } = useAuthStore();
   const { theme, toggleTheme } = useUIStore();
+  const { comparisonMode, toggleComparison } = useSimulationStore();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -37,14 +39,25 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const resetViewAndNavigate = (path: string) => {
+    if (comparisonMode) {
+      toggleComparison();
+    }
+    navigate(path);
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.leftSection}>
-          <Link to="/" className={styles.logo}>
+          <div 
+            className={styles.logo} 
+            onClick={() => resetViewAndNavigate("/")}
+            style={{ cursor: "pointer" }}
+          >
             <Activity color="var(--accent)" size={24} />
             <span>Nonlinear Dynamics Visualizer</span>
-          </Link>
+          </div>
 
           <div className={styles.divider} />
 
@@ -64,7 +77,7 @@ const Header = () => {
                     key={system.math.id}
                     className={styles.dropdownItem}
                     onClick={() => {
-                      navigate(`/sim/${system.math.id}`);
+                      resetViewAndNavigate(`/sim/${system.math.id}`);
                       setDropdownOpen(false);
                     }}
                   >

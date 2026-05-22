@@ -19,12 +19,14 @@ interface ParameterSlidersProps {
  * ParameterSliders Component
  */
 export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
-  const systemType = useSimulationStore((state) => state.sims[side].systemType);
-  const params = useSimulationStore((state) => state.sims[side].params);
-  const speed = useSimulationStore((state) => state.sims[side].speed);
-  const maxPoints = useSimulationStore((state) => state.sims[side].maxPoints);
+  const sims = useSimulationStore((state) => state.sims);
+  const systemType = sims[side].systemType;
+  const params = sims[side].params;
+  const speed = sims[side].speed;
+  const maxPoints = sims[side].maxPoints;
 
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
+  const systemsMatch = sims.left.systemType === sims.right.systemType;
 
   const isMap = SYSTEM_REGISTRY[systemType].math.type === "map";
 
@@ -34,6 +36,7 @@ export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
     setSpeed,
     copyParam,
     copySpeed,
+    copyMaxPoints,
     resetParams,
   } = useSimulationStore();
 
@@ -77,7 +80,7 @@ export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
                   })
                 }
               />
-              {comparisonMode && (
+              {comparisonMode && systemsMatch && (
                 <button
                   className={styles.copyButton}
                   onClick={() => copyParam(side, otherSide, slider.key)}
@@ -121,6 +124,15 @@ export const ParameterSliders = ({ side }: ParameterSlidersProps) => {
                   value={maxPoints}
                   onChange={(e) => setMaxPoints(side, parseInt(e.target.value))}
                 />
+                {comparisonMode && (
+                  <button
+                    className={styles.copyButton}
+                    onClick={() => copyMaxPoints(side, otherSide)}
+                    title={`Copy tail length to ${otherSide}`}
+                  >
+                    <ArrowRightLeft size={14} />
+                  </button>
+                )}
               </div>
             </div>
 

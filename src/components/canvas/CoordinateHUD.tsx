@@ -17,7 +17,7 @@ const CoordinateHUD = ({ side }: CoordinateHUDProps) => {
   const sim = useSimulationStore((state) => state.sims[side]);
   const theme = useUIStore((state) => state.theme);
 
-  const { points, systemType, params } = sim;
+  const { points, systemType, params, fps, cpu } = sim;
 
   // Grab the very last point in the array
   const lastPoint = points[points.length - 1];
@@ -56,40 +56,81 @@ const CoordinateHUD = ({ side }: CoordinateHUDProps) => {
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
         display: "flex",
         flexDirection: "column",
-        minWidth: "120px",
+        minWidth: "140px",
         transition: "all 0.2s ease-in-out",
+        gap: "6px",
       }}
     >
-      <div
-        style={{
-          fontWeight: 600,
-          fontSize: "9px",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          opacity: 0.6,
-          borderBottom: `1px solid ${
-            isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"
-          }`,
-          paddingBottom: "4px",
-          marginBottom: "2px",
-        }}
-      >
-        Position
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span style={{ color: "#ff3e00", fontWeight: "bold" }}>X</span>
-        <span>{x.toFixed(4)}</span>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <span style={{ color: "#319b00", fontWeight: "bold" }}>Y</span>
-        <span>{y.toFixed(4)}</span>
-      </div>
-      {dimension === 3 && (
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "#0070ff", fontWeight: "bold" }}>Z</span>
-          <span>{z.toFixed(4)}</span>
+      <div>
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: "9px",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            opacity: 0.6,
+            borderBottom: `1px solid ${
+              isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"
+            }`,
+            paddingBottom: "4px",
+            marginBottom: "4px",
+          }}
+        >
+          Position
         </div>
-      )}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#ff3e00", fontWeight: "bold" }}>X</span>
+          <span>{x.toFixed(4)}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#319b00", fontWeight: "bold" }}>Y</span>
+          <span>{y.toFixed(4)}</span>
+        </div>
+        {dimension === 3 && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "#0070ff", fontWeight: "bold" }}>Z</span>
+            <span>{z.toFixed(4)}</span>
+          </div>
+        )}
+      </div>
+      {/* Show FPS, CPU and the number of points for testing
+      <div>
+        <div
+          style={{
+            fontWeight: 600,
+            fontSize: "9px",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            opacity: 0.6,
+            borderBottom: `1px solid ${
+              isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"
+            }`,
+            paddingBottom: "4px",
+            marginBottom: "4px",
+          }}
+        >
+          Performance
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ opacity: 0.7 }}>FPS</span>
+          <span
+            style={{
+              color: fps > 50 ? "#319b00" : fps > 30 ? "#ff9900" : "#ff3e00",
+              fontWeight: "bold",
+            }}
+          >
+            {Math.round(fps)}
+          </span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ opacity: 0.7 }}>CPU</span>
+          <span>{cpu.toFixed(2)} ms</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ opacity: 0.7 }}>Points</span>
+          <span>{points.length.toLocaleString()}</span>
+        </div>
+      </div> */}
     </div>
   );
 };

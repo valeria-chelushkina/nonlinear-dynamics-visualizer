@@ -2,6 +2,7 @@ import { useSimulationStore } from "@/stores/useSimulationStore";
 import type { Side } from "@/stores/useSimulationStore";
 import { useVisualsStore } from "@/stores/useVisualsStore";
 import { SYSTEM_REGISTRY } from "@/core/systems";
+import { useNavigate } from "react-router-dom";
 import {
   Play,
   Pause,
@@ -11,6 +12,7 @@ import {
   Link2Off,
   Camera,
   EqualApproximately,
+  Settings2,
 } from "lucide-react";
 import styles from "./Controls.module.css";
 
@@ -19,6 +21,7 @@ interface PlaybackControlsProps {
 }
 
 export const PlaybackControls= ({ side }: PlaybackControlsProps) => {
+  const navigate = useNavigate();
   const isPaused = useSimulationStore((state) => state.sims[side].isPaused);
   const comparisonMode = useSimulationStore((state) => state.comparisonMode);
   const syncCameras = useSimulationStore((state) => state.syncCameras);
@@ -37,14 +40,39 @@ export const PlaybackControls= ({ side }: PlaybackControlsProps) => {
     toggleSyncCameras,
     setInitialDifference,
     runButterflyEffect,
+    setSystemType,
   } = useSimulationStore();
 
   const butterflyVisuals = useVisualsStore((state) => state.configs.right);
   const setVisuals = useVisualsStore((state) => state.setVisuals);
 
+  const handleSystemChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newType = e.target.value;
+    setSystemType(side, newType);
+    if (side === "left") {
+      navigate(`/sim/${newType}`);
+    }
+  };
+
   return (
     <>
       <div className={styles.headerRow}>
+        {comparisonMode && (
+          <div className={styles.systemSelector}>
+            <Settings2 size={16} />
+            <select 
+              value={systemType} 
+              onChange={handleSystemChange}
+              className={styles.select}
+            >
+              {Object.values(SYSTEM_REGISTRY).map((sys) => (
+                <option key={sys.math.id} value={sys.math.id}>
+                  {sys.meta.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className={styles.headerActions}>
           {!isMap && (
             <>

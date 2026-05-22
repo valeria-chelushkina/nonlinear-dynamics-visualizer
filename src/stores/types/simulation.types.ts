@@ -42,6 +42,10 @@ export interface SimulationData {
   cameraConfig: CameraConfig;
   /** Line appearance visuals. */
   visuals: VisualConfig;
+  /** Frames per second. */
+  fps: number;
+  /** Compute time in ms. */
+  cpu: number;
 }
 
 export interface ScreenshotSignal {
