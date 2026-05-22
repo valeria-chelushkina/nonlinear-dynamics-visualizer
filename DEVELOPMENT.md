@@ -1,6 +1,6 @@
 # Development & Testing Guide
 
-This guide is for developers who want to extend the visualizer or understand its internal workflows.
+This guide is for someone who wants to extend the visualizer or understand its internal workflows.
 
 ## Adding a New System
 
