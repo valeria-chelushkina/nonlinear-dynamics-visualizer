@@ -180,7 +180,7 @@ const SimulationCanvas = ({ side = "left" }: SimulationCanvasProps) => {
     >
       <Canvas
         camera={{ position: is2D ? [0, 0, 100] : sideConfig.position, fov: 45 }}
-        gl={{ antialias: false, stencil: false, depth: true }}
+        gl={{ antialias: true, stencil: false, depth: true }}
       >
         <color attach="background" args={[bgColor]} />
         <ambientLight intensity={0.5} />
