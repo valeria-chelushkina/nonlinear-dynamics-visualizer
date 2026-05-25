@@ -7,12 +7,11 @@ An interactive, high-performance web platform for modeling and visualizing chaot
 This project allows users to explore visuals of chaos theory through real-time 3D and 2D simulations. It features a robust numerical integration engine (RK4) and a highly optimized rendering pipeline capable of handling tens of thousands of points with smooth performance.
 
 ### Key Features
-- **Real-time 3D Visualization**: Explore attractors like Lorenz, Aizawa, and Chua in a fully interactive 3D space.
-- **Discrete Maps Support**: Visualize 2D maps (Henon, Logistic, Clifford) with specialized point-cloud rendering.
+- **Real-time 3D Visualization**: Explore different attractors in a fully interactive 3D space.
+- **Discrete Maps Support**: Visualize 2D maps with specialized point-cloud rendering.
 - **Side-by-Side Comparison**: Compare different systems or the same system with different parameters.
-- **Butterfly Effect Mode**: Observe how tiny initial differences lead to vastly different outcomes.
-- **Preset Library**: Save and share your favorite mathematical configurations.
-- **Dark/Light Mode**: Fully responsive UI tailored for mathematical exploration.
+- **Butterfly Effect Mode**: Observe how tiny initial differences lead to different outcomes.
+- **Preset Library**: Save and share your favorite configurations.
 
 ## Tech Stack
 
