@@ -31,7 +31,7 @@ This project allows users to explore visuals of chaos theory through real-time 3
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/nonlinear-dynamics-visualizer.git
+   git clone https://github.com/valeria-chelushkina/nonlinear-dynamics-visualizer.git
    cd nonlinear-dynamics-visualizer
    ```
 
